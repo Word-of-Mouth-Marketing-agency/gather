@@ -1,0 +1,139 @@
+[
+  {
+    "id": "page-home",
+    "slug": "home",
+    "title": "Home",
+    "metaDescription": "Gather — Premium gifts delivered same-day across Cairo. Shop gift boxes, flowers, chocolates, and more for every occasion.",
+    "updatedAt": "2026-06-03T00:00:00Z",
+    "sections": [
+      {
+        "id": "home-hero",
+        "type": "hero",
+        "order": 1,
+        "visible": true,
+        "props": {
+          "title": "Gather Every Moment",
+          "subtitle": "Premium gifts delivered same-day across Cairo. Make every celebration unforgettable.",
+          "ctaText": "Shop Now",
+          "ctaUrl": "/shop-by-category",
+          "image": "/images/hero-bg.jpg",
+          "overlayOpacity": 40
+        }
+      },
+      {
+        "id": "home-occasions",
+        "type": "occasion-grid",
+        "order": 2,
+        "visible": true,
+        "props": {
+          "title": "Shop by Occasion",
+          "subtitle": "Find the perfect gift for every special moment",
+          "type": "occasion",
+          "limit": 8
+        }
+      },
+      {
+        "id": "home-featured",
+        "type": "product-grid",
+        "order": 3,
+        "visible": true,
+        "props": {
+          "title": "Featured Gifts",
+          "subtitle": "Our most-loved, curator-approved selections",
+          "limit": 4,
+          "showViewAll": true,
+          "viewAllUrl": "/shop-by-category"
+        }
+      },
+      {
+        "id": "home-categories",
+        "type": "category-grid",
+        "order": 4,
+        "visible": true,
+        "props": {
+          "title": "Shop by Category",
+          "subtitle": "Explore our full range of premium gift categories",
+          "type": "category",
+          "limit": 6
+        }
+      },
+      {
+        "id": "home-cta",
+        "type": "cta-banner",
+        "order": 5,
+        "visible": true,
+        "props": {
+          "title": "Same-Day Delivery Across Cairo",
+          "subtitle": "Available in Dokki, Mohandessin, Manial, Zamalek, and Haram",
+          "ctaText": "Order Now",
+          "ctaUrl": "/shop-by-category",
+          "variant": "orange"
+        }
+      },
+      {
+        "id": "home-moments",
+        "type": "moments-wall",
+        "order": 6,
+        "visible": true,
+        "props": {
+          "title": "Gather Moments",
+          "subtitle": "Real celebrations from our community",
+          "limit": 8
+        }
+      }
+    ]
+  },
+  {
+    "id": "page-about",
+    "slug": "about",
+    "title": "About Gather",
+    "metaDescription": "Learn about Gather — Cairo's premium gifting platform bringing joy to every celebration.",
+    "updatedAt": "2026-06-03T00:00:00Z",
+    "sections": [
+      {
+        "id": "about-hero",
+        "type": "banner",
+        "order": 1,
+        "visible": true,
+        "props": {
+          "title": "About Gather",
+          "subtitle": "We believe every moment deserves to be celebrated with intention.",
+          "image": "/images/about-hero.jpg",
+          "variant": "full-width"
+        }
+      },
+      {
+        "id": "about-story",
+        "type": "text-block",
+        "order": 2,
+        "visible": true,
+        "props": {
+          "title": "Our Story",
+          "content": "Gather was founded with a simple belief: that gifting should be effortless, meaningful, and beautiful. We curate the finest gifts from premium local and international suppliers, arrange them with care, and deliver them same-day across Cairo.\n\nFrom birthdays to corporate events, from Ramadan baskets to Eid boxes — we help you celebrate every moment with intention.",
+          "align": "center"
+        }
+      }
+    ]
+  },
+  {
+    "id": "page-contact",
+    "slug": "contact",
+    "title": "Contact",
+    "metaDescription": "Get in touch with Gather for orders, inquiries, or support.",
+    "updatedAt": "2026-06-03T00:00:00Z",
+    "sections": [
+      {
+        "id": "contact-hero",
+        "type": "banner",
+        "order": 1,
+        "visible": true,
+        "props": {
+          "title": "Contact Us",
+          "subtitle": "We're here to help you create the perfect moment.",
+          "image": "/images/contact-hero.jpg",
+          "variant": "contained"
+        }
+      }
+    ]
+  }
+]

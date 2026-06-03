@@ -1,0 +1,142 @@
+[
+  {
+    "id": "cat-gift-boxes",
+    "slug": "gift-boxes",
+    "name": "Gift Boxes",
+    "description": "Curated gift boxes for every occasion",
+    "image": "/images/categories/gift-boxes.jpg",
+    "type": "category",
+    "parentId": null,
+    "order": 1
+  },
+  {
+    "id": "cat-flowers",
+    "slug": "flowers",
+    "name": "Flowers",
+    "description": "Fresh bouquets and floral arrangements",
+    "image": "/images/categories/flowers.jpg",
+    "type": "category",
+    "parentId": null,
+    "order": 2
+  },
+  {
+    "id": "cat-chocolates",
+    "slug": "chocolates",
+    "name": "Chocolates",
+    "description": "Premium chocolates and sweet treats",
+    "image": "/images/categories/chocolates.jpg",
+    "type": "category",
+    "parentId": null,
+    "order": 3
+  },
+  {
+    "id": "cat-candles",
+    "slug": "candles",
+    "name": "Candles",
+    "description": "Luxury scented candles and home fragrance",
+    "image": "/images/categories/candles.jpg",
+    "type": "category",
+    "parentId": null,
+    "order": 4
+  },
+  {
+    "id": "cat-balloons",
+    "slug": "balloons",
+    "name": "Balloons",
+    "description": "Festive balloon arrangements and bouquets",
+    "image": "/images/categories/balloons.jpg",
+    "type": "category",
+    "parentId": null,
+    "order": 5
+  },
+  {
+    "id": "cat-cakes",
+    "slug": "cakes",
+    "name": "Cakes",
+    "description": "Custom celebration cakes",
+    "image": "/images/categories/cakes.jpg",
+    "type": "category",
+    "parentId": null,
+    "order": 6
+  },
+  {
+    "id": "occ-birthday",
+    "slug": "birthday",
+    "name": "Birthday",
+    "description": "Make their birthday unforgettable",
+    "image": "/images/occasions/birthday.jpg",
+    "type": "occasion",
+    "parentId": null,
+    "order": 1
+  },
+  {
+    "id": "occ-engagement",
+    "slug": "engagement",
+    "name": "Engagement",
+    "description": "Celebrate love and new beginnings",
+    "image": "/images/occasions/engagement.jpg",
+    "type": "occasion",
+    "parentId": null,
+    "order": 2
+  },
+  {
+    "id": "occ-mothers-day",
+    "slug": "mothers-day",
+    "name": "Mother's Day",
+    "description": "Show your appreciation",
+    "image": "/images/occasions/mothers-day.jpg",
+    "type": "occasion",
+    "parentId": null,
+    "order": 3
+  },
+  {
+    "id": "occ-ramadan",
+    "slug": "ramadan",
+    "name": "Ramadan",
+    "description": "Blessed gifting for the holy month",
+    "image": "/images/occasions/ramadan.jpg",
+    "type": "occasion",
+    "parentId": null,
+    "order": 4
+  },
+  {
+    "id": "occ-eid",
+    "slug": "eid-fitr",
+    "name": "Eid Al-Fitr",
+    "description": "Celebrate Eid with the finest gifts",
+    "image": "/images/occasions/eid.jpg",
+    "type": "occasion",
+    "parentId": null,
+    "order": 5
+  },
+  {
+    "id": "occ-christmas",
+    "slug": "christmas-eoy",
+    "name": "Christmas & New Year",
+    "description": "Festive season gifting",
+    "image": "/images/occasions/christmas.jpg",
+    "type": "occasion",
+    "parentId": null,
+    "order": 6
+  },
+  {
+    "id": "occ-professional",
+    "slug": "professional-meetings",
+    "name": "Professional",
+    "description": "Corporate gifts and meeting tokens",
+    "image": "/images/occasions/professional.jpg",
+    "type": "occasion",
+    "parentId": null,
+    "order": 7
+  },
+  {
+    "id": "occ-easter",
+    "slug": "easter",
+    "name": "Easter",
+    "description": "Spring celebration gifts",
+    "image": "/images/occasions/easter.jpg",
+    "type": "occasion",
+    "parentId": null,
+    "order": 8
+  }
+]

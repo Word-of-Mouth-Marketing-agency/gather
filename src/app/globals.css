@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --gather-orange: #ff7a1a;
+    --gather-orange-light: #fff4e8;
+    --gather-orange-hover: #fe6c00;
+    --gather-warm: #fffaf3;
+    --gather-warm-border: rgba(255, 122, 26, 0.22);
+    --gather-text: #171717;
+    --gather-muted: #7a6247;
+    --gather-notice-bg: #fff7df;
+    --gather-notice-border: #f1d38a;
+    --gather-notice-accent: #d99a00;
+    --gather-notice-text: #6b4b00;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    color: var(--gather-text);
+    background: #ffffff;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  *::-webkit-scrollbar-track {
+    background: #ffffff;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--gather-orange);
+    border-radius: 8px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: #111518;
+  }
+}
+
+@layer utilities {
+  .gather-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#ff7a1a] text-white font-bold px-6 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90 active:translate-y-0;
+  }
+  .gather-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-[#f1c9a4] bg-white text-[#7a4a18] font-bold px-6 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#fff4e8];
+  }
+  .gather-card {
+    @apply rounded-2xl bg-white border border-[#f1e2d3] transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-[rgba(255,122,26,0.4)];
+  }
+  .gather-section {
+    @apply rounded-3xl bg-[#fffaf3] border border-[rgba(255,122,26,0.22)] shadow-[0_14px_36px_rgba(0,0,0,0.05)];
+  }
+}
