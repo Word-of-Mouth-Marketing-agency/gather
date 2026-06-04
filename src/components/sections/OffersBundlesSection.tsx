@@ -29,7 +29,7 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
   if (total === 0) return null
 
   return (
-    <section className="relative w-full bg-cover bg-center bg-no-repeat py-16 sm:py-20 -mt-12 lg:-mt-16"
+    <section className="relative w-full bg-cover bg-center bg-no-repeat py-16 sm:py-20 -mt-[104px] lg:-mt-[144px]"
       style={{ backgroundImage: "url('/assets/gather/offers-bg.webp')" }}
     >
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

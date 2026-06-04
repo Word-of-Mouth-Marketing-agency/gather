@@ -18,7 +18,7 @@ export default function GatherMomentsSection({
 
   return (
     <section
-      className="bg-cover bg-center bg-no-repeat py-14 sm:py-18 lg:py-22 -mt-14 sm:-mt-18 lg:-mt-22"
+      className="bg-cover bg-center bg-no-repeat py-14 sm:py-18 lg:py-22 -mt-[56px] lg:-mt-[80px]"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
