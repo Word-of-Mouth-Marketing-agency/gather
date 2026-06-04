@@ -54,9 +54,9 @@ export default function Footer() {
             <img
               src="/assets/gather/gather-logo.webp"
               alt="Gather"
-              className="h-8 w-auto"
+              className="h-14 w-auto"
             />
-            <p className="mt-4 text-sm text-[#7a6247] leading-relaxed">
+            <p className="mt-4 text-sm font-semibold text-[#7a6247] leading-relaxed">
               Your one-stop shop for party and gathering essentials. Making celebrations effortless since 2020.
             </p>
           </div>
@@ -127,7 +127,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-[rgba(255,122,26,0.15)] py-5">
+      <div className="border-t border-black/20 py-5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#7a6247]">
           <span>&copy; 2026 Gather. All rights reserved.</span>
           <span>
@@ -136,7 +136,7 @@ export default function Footer() {
               href="https://wordofmoutheg.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-bold text-[#ff7a1a] hover:underline"
+              className="font-bold text-[#7a6247] hover:underline"
             >
               WORD OF MOUTH
             </a>

@@ -42,7 +42,7 @@ const REASONS = [
 
 export default function WhyGatherSection({ title, subtitle }: WhyGatherSectionProps) {
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 lg:pt-16">
       <div className="text-center mb-10">
         <h2 className="text-2xl sm:text-3xl font-black text-[#171717]">{title}</h2>
         {subtitle && <p className="mt-1 text-sm text-[#7a6247]">{subtitle}</p>}
