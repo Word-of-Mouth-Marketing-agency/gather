@@ -15,42 +15,71 @@ function loadEntries(): { products: CartEntry[]; bundles: BundleCartItem[] } {
   return { products: getCartProducts(cart), bundles: getCartBundles(cart) }
 }
 
-export default function CartPageClient() {
-  const [products, setProducts] = useState<CartEntry[]>(loadEntries().products)
-  const [bundles, setBundles] = useState<BundleCartItem[]>(loadEntries().bundles)
+function CartLoadingState() {
+  return (
+    <div className="py-16 text-center">
+      <div className="w-12 h-12 mx-auto rounded-full bg-gray-100 animate-pulse" />
+    </div>
+  )
+}
 
-  function refresh() {
-    const { products: p, bundles: b } = loadEntries()
-    startTransition(() => { setProducts(p); setBundles(b) })
-  }
+function EmptyCartState() {
+  return (
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+      <div className="text-6xl mb-4">🛍️</div>
+      <h1 className="text-2xl font-black text-[#171717]">Your cart is empty</h1>
+      <p className="mt-2 text-gray-400 text-sm">Start shopping to fill it up.</p>
+      <Link href="/shop-by-category" className="inline-flex mt-6 gather-btn-primary">
+        Browse Products
+      </Link>
+    </main>
+  )
+}
+
+export default function CartPageClient() {
+  const [mounted, setMounted] = useState(false)
+  const [products, setProducts] = useState<CartEntry[]>([])
+  const [bundles, setBundles] = useState<BundleCartItem[]>([])
 
   useEffect(() => {
-    const handler = () => refresh()
+    const { products: p, bundles: b } = loadEntries()
+    startTransition(() => { setProducts(p); setBundles(b); setMounted(true) })
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+    const handler = () => {
+      const { products: p, bundles: b } = loadEntries()
+      startTransition(() => { setProducts(p); setBundles(b) })
+    }
     window.addEventListener('gather:cart-updated', handler)
     return () => window.removeEventListener('gather:cart-updated', handler)
-  }, [])
+  }, [mounted])
+
+  if (!mounted) {
+    return (
+      <>
+        <PageTitleSection title="Cart" />
+        <CartLoadingState />
+      </>
+    )
+  }
+
+  if (products.length === 0 && bundles.length === 0) {
+    return (
+      <>
+        <PageTitleSection title="Cart" />
+        <EmptyCartState />
+      </>
+    )
+  }
 
   const allCartItems = [
     ...products.map((e) => ({ id: e.product.id, type: 'product' as const, productId: e.product.id, name: e.product.name, slug: e.product.slug, image: e.product.images[0], price: e.product.salePrice ?? e.product.price, currency: e.product.currency, quantity: e.quantity, compareAtPrice: undefined })),
     ...bundles,
   ]
   const total = allCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-
-  if (products.length === 0 && bundles.length === 0) {
-    return (
-      <>
-        <PageTitleSection title="Cart" />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <div className="text-6xl mb-4">🛍️</div>
-          <h1 className="text-2xl font-black text-[#171717]">Your cart is empty</h1>
-          <p className="mt-2 text-gray-400 text-sm">Start shopping to fill it up.</p>
-          <Link href="/shop-by-category" className="inline-flex mt-6 gather-btn-primary">
-            Browse Products
-          </Link>
-        </main>
-      </>
-    )
-  }
+  const itemCount = products.length + bundles.length
 
   function handleQty(id: string, qty: number) {
     updateQuantity(id, qty)
@@ -62,8 +91,6 @@ export default function CartPageClient() {
     window.dispatchEvent(new Event('gather:cart-updated'))
   }
 
-  const itemCount = products.length + bundles.length
-
   return (
     <>
       <PageTitleSection title="Cart" />
@@ -74,7 +101,6 @@ export default function CartPageClient() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
-          {/* Product items */}
           {products.map(({ product, quantity }) => (
             <div key={product.id} className="flex gap-4 p-4 rounded-2xl bg-white border border-[#f1e2d3] hover:shadow-md transition-shadow">
               <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-[#f8f8f8] shrink-0">
@@ -125,7 +151,6 @@ export default function CartPageClient() {
             </div>
           ))}
 
-          {/* Bundle items */}
           {bundles.map((bundle) => (
             <div key={bundle.id} className="flex gap-4 p-4 rounded-2xl bg-white border border-[#f1e2d3] hover:shadow-md transition-shadow">
               <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-[#fff4e8] shrink-0 flex items-center justify-center">
