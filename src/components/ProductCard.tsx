@@ -30,8 +30,8 @@ export default function ProductCard({ product }: Props) {
   }
 
   return (
-    <Link href={`/products/${product.slug}`} className="group block relative pt-[88px]">
-      <div className="absolute left-0 right-0 top-0 h-[192px] z-10 flex items-center justify-center">
+    <Link href={`/products/${product.slug}`} className="group block relative pt-[72px]">
+      <div className="absolute left-0 right-0 top-0 h-[165px] z-10 flex items-center justify-center">
         {product.images[0] ? (
           <img
             src={product.images[0]}
@@ -43,12 +43,12 @@ export default function ProductCard({ product }: Props) {
         )}
       </div>
 
-      <article className="w-full rounded-2xl bg-[#fdf6ee] px-4 pb-4 pt-[120px] shadow-[2px_4px_0_rgba(0,0,0,0.8)] flex flex-col gap-3">
+      <article className="w-full min-h-[276px] rounded-2xl bg-[#fdf6ee] px-4 pb-4 pt-[101px] shadow-[2px_4px_0_rgba(0,0,0,0.8)] flex flex-col gap-2">
         {hasDiscount && (
           <span className="text-xs font-black text-[#DB7100] uppercase tracking-wider">SALE</span>
         )}
 
-        <h3 className="text-2xl font-medium text-[#171717] leading-tight line-clamp-2">
+        <h3 className="text-lg sm:text-xl font-medium text-[#171717] leading-tight line-clamp-2">
           <span>{product.name}</span>
         </h3>
 
@@ -58,6 +58,8 @@ export default function ProductCard({ product }: Props) {
           )}
           <span className="text-[#DB7100]">{formatPrice(displayPrice, product.currency)}</span>
         </div>
+
+        <div className="flex-1" />
 
         <button
           onClick={handleAddToCart}
