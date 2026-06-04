@@ -11,7 +11,7 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
   const [current, setCurrent] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const trackRef = useRef<HTMLDivElement>(null)
-  const { ref: sectionRef, translateY } = useScrollParallax({ maxTranslate: -100 })
+  const { ref: sectionRef, translateY } = useScrollParallax({ maxTranslate: -200 })
 
   const total = bundles.length
 
@@ -33,7 +33,7 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
   return (
     <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={sectionRef}>
       <div
-        className="absolute -top-16 sm:-top-20 right-4 sm:right-8 w-20 h-20 sm:w-24 sm:h-24 pointer-events-none select-none z-10"
+        className="absolute -top-20 sm:-top-24 right-4 sm:right-8 w-28 h-28 sm:w-36 sm:h-36 pointer-events-none select-none z-10"
         style={{ transform: `translateY(${translateY}px)` }}
       >
         <img

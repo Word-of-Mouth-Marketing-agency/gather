@@ -3,22 +3,36 @@
 import Link from 'next/link'
 import type { OccasionSectionProps } from '@/types'
 import { getCategoriesByType } from '@/lib/data'
+import { useScrollParallax } from '@/lib/useScrollParallax'
 
 export default function OccasionGridSection({
   title,
   subtitle,
 }: OccasionSectionProps) {
   const occasions = getCategoriesByType('occasion')
+  const { ref: sectionRef, translateY } = useScrollParallax({ maxTranslate: -200 })
 
   if (occasions.length === 0) return null
 
   return (
-    <section className="relative w-full py-12 lg:py-16 overflow-hidden bg-[#FDF6EE]">
+    <section className="relative w-full py-12 lg:py-16 overflow-hidden bg-[#FDF6EE]" ref={sectionRef}>
       <div className="absolute -bottom-8 -right-8 w-64 h-64 sm:w-80 sm:h-80 opacity-40 pointer-events-none select-none">
         <img
           src="/assets/gather/occasions/decoration.svg"
           alt=""
           className="w-full h-full object-contain animate-float"
+          aria-hidden
+        />
+      </div>
+
+      <div
+        className="absolute -bottom-16 sm:-bottom-20 right-4 sm:right-8 w-28 h-28 sm:w-36 sm:h-36 pointer-events-none select-none z-10"
+        style={{ transform: `translateY(${translateY}px)` }}
+      >
+        <img
+          src="/assets/gather/floating-rabbit.webp"
+          alt=""
+          className="w-full h-full object-contain"
           aria-hidden
         />
       </div>
