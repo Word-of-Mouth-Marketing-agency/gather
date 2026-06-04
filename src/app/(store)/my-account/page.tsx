@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import PageTitleSection from '@/components/PageTitleSection'
 
 export const metadata: Metadata = {
   title: 'My Account',
@@ -8,9 +9,9 @@ export const metadata: Metadata = {
 
 export default function MyAccountPage() {
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-3xl sm:text-4xl font-black text-[#171717] mb-2">My Account</h1>
-      <p className="text-[#7a6247] mb-10">Manage your profile, orders, and preferences.</p>
+    <>
+      <PageTitleSection title="My Account" />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <Link
@@ -41,5 +42,6 @@ export default function MyAccountPage() {
         </Link>
       </div>
     </main>
+    </>
   )
 }

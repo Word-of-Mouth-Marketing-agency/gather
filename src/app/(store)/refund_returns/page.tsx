@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import PageTitleSection from '@/components/PageTitleSection'
 
 export const metadata: Metadata = {
   title: 'Refund and Returns Policy',
@@ -8,8 +9,9 @@ export const metadata: Metadata = {
 
 export default function RefundReturnsPage() {
   return (
-    <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-      <h1 className="text-3xl sm:text-4xl font-black text-[#171717] mb-6">Refund and Returns Policy</h1>
+    <>
+      <PageTitleSection title="Refund and Returns Policy" />
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
       <div className="prose prose-stone max-w-none text-[#7a6247] space-y-4 text-sm leading-relaxed">
         <h2 className="text-lg font-bold text-[#171717]">Cancellation</h2>
@@ -37,5 +39,6 @@ export default function RefundReturnsPage() {
         </p>
       </div>
     </main>
+    </>
   )
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import PageTitleSection from '@/components/PageTitleSection'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
@@ -7,8 +8,9 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-      <h1 className="text-3xl sm:text-4xl font-black text-[#171717] mb-6">Privacy Policy</h1>
+    <>
+      <PageTitleSection title="Privacy Policy" />
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
       <div className="prose prose-stone max-w-none text-[#7a6247] space-y-4 text-sm leading-relaxed">
         <p>
@@ -38,5 +40,6 @@ export default function PrivacyPolicyPage() {
         <p className="text-xs text-gray-400 pt-4">Last updated: June 2026</p>
       </div>
     </main>
+    </>
   )
 }
