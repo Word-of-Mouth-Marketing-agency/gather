@@ -28,7 +28,7 @@ export default function AboutGatherSection({
             )}
           </div>
 
-          <div className="flex items-center justify-center px-6 sm:px-10 lg:px-12 py-10 lg:py-16">
+          <div className="flex items-center justify-center py-10 lg:py-16">
             <div className="max-w-lg text-center">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#171717] leading-tight">
                 {parts.map((part, i) =>
