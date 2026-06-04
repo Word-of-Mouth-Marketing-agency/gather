@@ -1,55 +1,40 @@
 @import "tailwindcss";
 
-/*
-TODO — Recoleta font setup
-Place the following font files in public/fonts/recoleta/:
-  - Recoleta-Regular.woff2
-  - Recoleta-Medium.woff2
-  - Recoleta-SemiBold.woff2
-  - Recoleta-Bold.woff2
-  - Recoleta-Black.woff2
-
-Once files are in place, uncomment the @font-face block below
-and remove the Inter import from layout.tsx to switch fully to Recoleta.
-*/
-
-/*
 @font-face {
   font-family: "Recoleta";
-  src: url("/fonts/recoleta/Recoleta-Regular.woff2") format("woff2");
+  src: url("/fonts/recoleta/Recoleta-Alt-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Recoleta";
+  src: url("/fonts/recoleta/Recoleta-Alt-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Recoleta";
-  src: url("/fonts/recoleta/Recoleta-Medium.woff2") format("woff2");
+  src: url("/fonts/recoleta/Recoleta-Alt-Medium.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Recoleta";
-  src: url("/fonts/recoleta/Recoleta-SemiBold.woff2") format("woff2");
+  src: url("/fonts/recoleta/Recoleta-Alt-SemiBold.woff2") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Recoleta";
-  src: url("/fonts/recoleta/Recoleta-Bold.woff2") format("woff2");
+  src: url("/fonts/recoleta/Recoleta-Alt-Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
-@font-face {
-  font-family: "Recoleta";
-  src: url("/fonts/recoleta/Recoleta-Black.woff2") format("woff2");
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-*/
 
 @layer base {
   :root {
@@ -71,7 +56,7 @@ and remove the Inter import from layout.tsx to switch fully to Recoleta.
   }
 
   body {
-    font-family: "Recoleta", "Inter", system-ui, -apple-system, sans-serif;
+    font-family: "Recoleta", system-ui, -apple-system, sans-serif;
     color: var(--gather-text);
     background: #ffffff;
   }
