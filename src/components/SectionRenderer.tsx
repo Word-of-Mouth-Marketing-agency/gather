@@ -22,7 +22,7 @@ export default function SectionRenderer({ sections }: Props) {
     .sort((a, b) => a.order - b.order)
 
   return (
-    <div className="flex flex-col gap-14 lg:gap-20">
+    <div className="flex flex-col">
       {visible.map((section) => (
         <SectionSwitch key={section.id} section={section} />
       ))}
