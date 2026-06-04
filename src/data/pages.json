@@ -53,8 +53,7 @@
         "props": {
           "title": "Shop by Category",
           "subtitle": "Explore our full range of premium gift categories",
-          "type": "category",
-          "limit": 6
+          "type": "category"
         }
       },
       {
