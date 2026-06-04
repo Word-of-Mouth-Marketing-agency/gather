@@ -104,7 +104,7 @@
     "slug": "birthday",
     "name": "Birthday",
     "description": "Make their birthday unforgettable",
-    "image": "/images/occasions/birthday.jpg",
+    "image": "/assets/gather/occasions/birthday.jpg",
     "type": "occasion",
     "parentId": null,
     "order": 1
@@ -114,7 +114,7 @@
     "slug": "engagement",
     "name": "Engagement",
     "description": "Celebrate love and new beginnings",
-    "image": "/images/occasions/engagement.jpg",
+    "image": "/assets/gather/occasions/engagement.webp",
     "type": "occasion",
     "parentId": null,
     "order": 2
@@ -124,7 +124,7 @@
     "slug": "mothers-day",
     "name": "Mother's Day",
     "description": "Show your appreciation",
-    "image": "/images/occasions/mothers-day.jpg",
+    "image": "/assets/gather/occasions/mothers-day.webp",
     "type": "occasion",
     "parentId": null,
     "order": 3
@@ -134,7 +134,7 @@
     "slug": "ramadan",
     "name": "Ramadan",
     "description": "Blessed gifting for the holy month",
-    "image": "/images/occasions/ramadan.jpg",
+    "image": "/assets/gather/occasions/ramadan.webp",
     "type": "occasion",
     "parentId": null,
     "order": 4
@@ -144,7 +144,7 @@
     "slug": "eid-fitr",
     "name": "Eid Al-Fitr",
     "description": "Celebrate Eid with the finest gifts",
-    "image": "/images/occasions/eid.jpg",
+    "image": "/assets/gather/occasions/eid-fitr.webp",
     "type": "occasion",
     "parentId": null,
     "order": 5
@@ -154,7 +154,7 @@
     "slug": "christmas-eoy",
     "name": "Christmas & New Year",
     "description": "Festive season gifting",
-    "image": "/images/occasions/christmas.jpg",
+    "image": "/assets/gather/occasions/christmas-eoy.webp",
     "type": "occasion",
     "parentId": null,
     "order": 6
@@ -164,7 +164,7 @@
     "slug": "professional-meetings",
     "name": "Professional",
     "description": "Corporate gifts and meeting tokens",
-    "image": "/images/occasions/professional.jpg",
+    "image": "/assets/gather/occasions/professional-meetings.webp",
     "type": "occasion",
     "parentId": null,
     "order": 7
@@ -174,9 +174,49 @@
     "slug": "easter",
     "name": "Easter",
     "description": "Spring celebration gifts",
-    "image": "/images/occasions/easter.jpg",
+    "image": "/assets/gather/occasions/easter.webp",
     "type": "occasion",
     "parentId": null,
     "order": 8
+  },
+  {
+    "id": "occ-friends-gathering",
+    "slug": "friends-gathering",
+    "name": "Friends Gathering",
+    "description": "Gifts for friends and good times",
+    "image": "/assets/gather/occasions/friends-gathering.jpg",
+    "type": "occasion",
+    "parentId": null,
+    "order": 9
+  },
+  {
+    "id": "occ-family-gathering",
+    "slug": "family-gathering",
+    "name": "Family Gathering",
+    "description": "Bring the family together",
+    "image": "/assets/gather/occasions/family-gathering.webp",
+    "type": "occasion",
+    "parentId": null,
+    "order": 10
+  },
+  {
+    "id": "occ-adha",
+    "slug": "adha",
+    "name": "Adha",
+    "description": "Celebrate Eid Al-Adha with premium gifts",
+    "image": "/assets/gather/occasions/adha.webp",
+    "type": "occasion",
+    "parentId": null,
+    "order": 11
+  },
+  {
+    "id": "occ-halloween",
+    "slug": "halloween",
+    "name": "Halloween",
+    "description": "Spooky treats and fun surprises",
+    "image": "/assets/gather/occasions/halloween.webp",
+    "type": "occasion",
+    "parentId": null,
+    "order": 12
   }
 ]

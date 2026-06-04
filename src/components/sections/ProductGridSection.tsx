@@ -7,6 +7,7 @@ import {
   getProductsByOccasion,
 } from '@/lib/data'
 import ProductCard from '@/components/ProductCard'
+import ProductSlider from './ProductSlider'
 
 export default function ProductGridSection({
   title,
@@ -17,6 +18,7 @@ export default function ProductGridSection({
   limit = 8,
   showViewAll,
   viewAllUrl,
+  slider,
 }: ProductGridSectionProps) {
   let products = productIds
     ? getAllProducts().filter((p) => productIds.includes(p.id))
@@ -47,11 +49,17 @@ export default function ProductGridSection({
         )}
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      {slider ? (
+        <div className="pb-4">
+          <ProductSlider products={products} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
     </section>
   )
 }

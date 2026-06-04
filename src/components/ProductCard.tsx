@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useState } from 'react'
 import type { Product } from '@/types'
 import { formatPrice, getDisplayPrice } from '@/lib/data'
@@ -20,6 +19,7 @@ export default function ProductCard({ product }: Props) {
 
   async function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault()
+    e.stopPropagation()
     setAdding(true)
     addToCart(product.id)
     window.dispatchEvent(new Event('gather:cart-updated'))
@@ -31,71 +31,53 @@ export default function ProductCard({ product }: Props) {
 
   return (
     <Link href={`/products/${product.slug}`} className="group block">
-      <article className="gather-card overflow-hidden h-full flex flex-col">
-        {/* Image */}
-        <div className="relative aspect-square bg-[#f8f8f8] overflow-hidden">
+      <article className="flex flex-col items-center">
+        <div className="w-[192px] h-[192px] flex items-center justify-center -mb-12 relative z-10">
           {product.images[0] ? (
-            <Image
+            <img
               src={product.images[0]}
               alt={product.name}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+              className="w-full h-full object-contain drop-shadow-xl transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-6xl">🎁</div>
-          )}
-
-          {hasDiscount && (
-            <span className="absolute top-3 left-3 bg-[#ff7a1a] text-white text-xs font-black px-2.5 py-1 rounded-full">
-              SALE
-            </span>
-          )}
-
-          {product.stock <= 3 && product.stock > 0 && (
-            <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-black px-2.5 py-1 rounded-full">
-              Only {product.stock} left
-            </span>
+            <div className="w-full h-full flex items-center justify-center text-6xl">🎁</div>
           )}
         </div>
 
-        {/* Info */}
-        <div className="p-4 flex flex-col flex-1 gap-2">
-          <h3 className="font-bold text-sm leading-snug text-[#171717] line-clamp-2 group-hover:text-[#ff7a1a] transition-colors">
+        <div className="w-full rounded-2xl bg-white p-4 shadow-[2px_4px_0_rgba(0,0,0,0.8)] flex flex-col gap-3">
+          {hasDiscount && (
+            <span className="text-xs font-black text-[#DB7100] uppercase tracking-wider">SALE</span>
+          )}
+
+          <h3 className="text-2xl font-medium text-[#171717] leading-tight line-clamp-2">
             {product.name}
           </h3>
 
-          <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed flex-1">
-            {product.shortDescription}
-          </p>
-
-          <div className="flex items-center justify-between gap-2 mt-auto pt-2">
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-black text-base text-[#ff7a1a]">
-                {formatPrice(displayPrice, product.currency)}
+          <div className="flex items-baseline gap-2">
+            <span className="text-base font-semibold text-[#DB7100]">
+              {formatPrice(displayPrice, product.currency)}
+            </span>
+            {hasDiscount && (
+              <span className="text-sm text-gray-400 line-through">
+                {formatPrice(product.price, product.currency)}
               </span>
-              {hasDiscount && (
-                <span className="text-xs text-gray-400 line-through">
-                  {formatPrice(product.price, product.currency)}
-                </span>
-              )}
-            </div>
-
-            <button
-              onClick={handleAddToCart}
-              disabled={adding || product.stock === 0}
-              className={`shrink-0 h-8 px-3 rounded-full text-xs font-black transition-all duration-200 ${
-                added
-                  ? 'bg-green-500 text-white'
-                  : product.stock === 0
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-[#ff7a1a] text-white hover:bg-[#fe6c00] hover:-translate-y-0.5'
-              }`}
-              aria-label={`Add ${product.name} to cart`}
-            >
-              {added ? '✓' : adding ? '...' : product.stock === 0 ? 'Out of stock' : '+ Cart'}
-            </button>
+            )}
           </div>
+
+          <button
+            onClick={handleAddToCart}
+            disabled={adding || product.stock === 0}
+            className={`w-full rounded-2xl px-6 py-3 text-sm font-bold border-0 border-b-2 border-r-2 transition-all duration-200 ${
+              added
+                ? 'bg-green-500 text-white border-green-700'
+                : product.stock === 0
+                ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed'
+                : 'bg-[#ff7a1a] text-white border-[#cc6200] hover:text-[#cc6200] hover:bg-white hover:border-[#cc6200]'
+            }`}
+            aria-label={`Add ${product.name} to cart`}
+          >
+            {added ? '✓ Added' : adding ? '...' : product.stock === 0 ? 'Out of stock' : 'Add to cart'}
+          </button>
         </div>
       </article>
     </Link>

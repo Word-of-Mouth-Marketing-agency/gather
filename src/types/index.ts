@@ -39,6 +39,7 @@ export type SectionType =
   | 'product-grid'
   | 'category-grid'
   | 'occasion-grid'
+  | 'occasions'
   | 'text-block'
   | 'image-block'
   | 'moments-wall'
@@ -73,6 +74,7 @@ export interface ProductGridSectionProps {
   limit?: number
   showViewAll?: boolean
   viewAllUrl?: string
+  slider?: boolean
 }
 
 export interface CategoryGridSectionProps {
@@ -118,12 +120,19 @@ export interface WhyGatherSectionProps {
   subtitle?: string
 }
 
+export interface OccasionSectionProps {
+  title: string
+  subtitle?: string
+  decorativeImage?: string
+}
+
 type SectionPropsMap = {
   hero: HeroSectionProps
   banner: BannerSectionProps
   'product-grid': ProductGridSectionProps
   'category-grid': CategoryGridSectionProps
   'occasion-grid': CategoryGridSectionProps
+  occasions: OccasionSectionProps
   'text-block': TextBlockSectionProps
   'image-block': ImageBlockSectionProps
   'moments-wall': MomentsWallSectionProps

@@ -39,21 +39,21 @@
         "props": {
           "title": "Featured Gifts",
           "subtitle": "Our most-loved, curator-approved selections",
-          "limit": 4,
+          "limit": 8,
           "showViewAll": true,
-          "viewAllUrl": "/shop-by-category"
+          "viewAllUrl": "/shop-by-category",
+          "slider": true
         }
       },
       {
         "id": "home-occasions",
-        "type": "occasion-grid",
+        "type": "occasions",
         "order": 4,
         "visible": true,
         "props": {
           "title": "Shop by Occasion",
-          "subtitle": "Find the perfect gift for every special moment",
-          "type": "occasion",
-          "limit": 8
+          "subtitle": "Everything you need to make your gathering unforgettable",
+          "decorativeImage": "/assets/gather/occasions/decoration.svg"
         }
       },
       {
