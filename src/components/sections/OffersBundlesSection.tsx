@@ -6,7 +6,8 @@ import { getAllBundles } from '@/lib/data'
 import BundleCard from '@/components/BundleCard'
 
 export default function OffersBundlesSection({ title, subtitle }: OffersGridSectionProps) {
-  const bundles = getAllBundles()
+  const allBundles = getAllBundles()
+  const bundles = allBundles.filter((b) => b.isActive !== false).sort((a, b) => a.sortOrder - b.sortOrder)
   const [current, setCurrent] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const trackRef = useRef<HTMLDivElement>(null)

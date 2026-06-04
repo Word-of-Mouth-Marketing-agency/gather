@@ -129,7 +129,8 @@ export class JsonBundleRepository implements BundleRepository {
 
   create(data: Omit<Bundle, 'id'>): Bundle {
     const items = this.getAll()
-    const item: Bundle = { ...data, id: generateId('bdl') }
+    const now = new Date().toISOString()
+    const item: Bundle = { ...data, id: generateId('bdl'), createdAt: now, updatedAt: now }
     items.push(item)
     writeJson(BUNDLES_FILE, items)
     return item
@@ -139,7 +140,7 @@ export class JsonBundleRepository implements BundleRepository {
     const items = this.getAll()
     const idx = items.findIndex((b) => b.id === id)
     if (idx < 0) return undefined
-    items[idx] = { ...items[idx], ...data }
+    items[idx] = { ...items[idx], ...data, updatedAt: new Date().toISOString() }
     writeJson(BUNDLES_FILE, items)
     return items[idx]
   }

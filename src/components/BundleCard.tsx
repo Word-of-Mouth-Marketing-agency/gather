@@ -57,7 +57,7 @@ export default function BundleCard({ bundle }: Props) {
             </p>
             <div className="flex items-center justify-between text-sm">
               <span className="text-[#7a6247]">Before</span>
-              <del className="text-gray-400">{formatPrice(bundle.regularPrice, bundle.currency)}</del>
+              <del className="text-gray-400">{formatPrice(bundle.regularPrice ?? 0, bundle.currency)}</del>
             </div>
             <div className="flex items-center justify-between text-base mt-1">
               <span className="font-semibold text-[#171717]">Offer price</span>
@@ -68,7 +68,7 @@ export default function BundleCard({ bundle }: Props) {
           </div>
 
           <button className="w-full rounded-full bg-[#ff7a1a] text-white font-bold text-sm py-3 px-6 transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90 active:translate-y-0 shadow-md">
-            Buy Offer
+            {bundle.buttonText || 'Buy Offer'}
           </button>
         </div>
       </div>
