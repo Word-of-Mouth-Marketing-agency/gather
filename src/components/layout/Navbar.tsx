@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import CartIcon from '@/components/ui/CartIcon'
 
 const navLinks = [
@@ -16,6 +16,22 @@ const navLinks = [
 export default function Navbar() {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const searchRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    if (searchOpen) searchRef.current?.focus()
+  }, [searchOpen])
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    const q = searchQuery.trim()
+    if (q) router.push(`/search?q=${encodeURIComponent(q)}`)
+    setSearchOpen(false)
+    setSearchQuery('')
+  }
 
   const closeMobile = () => setMobileOpen(false)
 
@@ -28,7 +44,7 @@ export default function Navbar() {
             <img
               src="/assets/gather/gather-logo.webp"
               alt="Gather"
-              className="h-8 lg:h-10 w-auto"
+              className="h-10 lg:h-12 w-auto"
             />
           </Link>
 
@@ -50,9 +66,10 @@ export default function Navbar() {
           </nav>
 
           {/* Right actions */}
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-0 sm:gap-1">
             {/* Search */}
             <button
+              onClick={() => setSearchOpen(true)}
               className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Search"
             >
@@ -130,6 +147,35 @@ export default function Navbar() {
               </Link>
             ))}
           </nav>
+        </div>
+      )}
+
+      {/* Search overlay */}
+      {searchOpen && (
+        <div className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-lg px-4 sm:px-6 lg:px-8 py-4 z-50">
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto flex gap-2">
+            <input
+              ref={searchRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products..."
+              className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff7a1a]/30 focus:border-[#ff7a1a]"
+            />
+            <button
+              type="submit"
+              className="px-5 py-2.5 rounded-xl bg-[#ff7a1a] text-white text-sm font-semibold hover:bg-[#e0660f] transition-colors"
+            >
+              Search
+            </button>
+            <button
+              type="button"
+              onClick={() => { setSearchOpen(false); setSearchQuery('') }}
+              className="px-3 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 transition-colors text-sm"
+            >
+              Cancel
+            </button>
+          </form>
         </div>
       )}
     </header>
