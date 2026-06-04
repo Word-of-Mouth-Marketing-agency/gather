@@ -74,7 +74,7 @@ export default function ProductSlider({ products }: Props) {
       onMouseLeave={() => setIsPaused(false)}
       ref={containerRef}
     >
-      <div className="overflow-hidden">
+      <div className="overflow-x-clip">
         <div
           className="flex transition-transform ease-in-out"
           style={{
@@ -85,7 +85,7 @@ export default function ProductSlider({ products }: Props) {
           {products.map((product) => (
             <div
               key={product.id}
-              className="shrink-0 px-2"
+              className="shrink-0 px-3"
               style={{ width: `${100 / slidesPerView}%` }}
             >
               <ProductCard product={product} />

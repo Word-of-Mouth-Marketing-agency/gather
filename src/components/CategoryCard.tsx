@@ -13,7 +13,7 @@ export default function CategoryCard({ category }: Props) {
 
   return (
     <Link href={href} className="group flex flex-col items-center gap-3">
-      <div className="w-full max-w-[130px] aspect-square rounded-2xl bg-white flex items-center justify-center p-3 overflow-hidden group-hover:bg-white transition-colors duration-300 shadow-sm">
+      <div className="w-full max-w-[130px] aspect-square rounded-2xl flex items-center justify-center p-3 overflow-hidden group-hover:bg-white transition-colors duration-300">
         <img
           src={category.image}
           alt={category.name}

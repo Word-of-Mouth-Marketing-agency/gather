@@ -26,7 +26,7 @@ export default function OccasionGridSection({
       </div>
 
       <div
-        className="absolute -bottom-2 sm:bottom-4 right-0 w-36 h-36 sm:w-48 sm:h-48 pointer-events-none select-none z-10"
+        className="absolute -bottom-2 sm:bottom-4 right-0 w-36 h-36 sm:w-48 sm:h-48 pointer-events-none select-none z-20"
         style={{ transform: `translateY(${translateY}px)` }}
       >
         <img
@@ -37,18 +37,18 @@ export default function OccasionGridSection({
         />
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="mb-8 lg:mb-10 text-center">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#171717]">{title}</h2>
           {subtitle && <p className="mt-2 text-sm sm:text-base text-[#7a6247]">{subtitle}</p>}
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
+        <div className="grid grid-cols-4 gap-6 sm:gap-8">
           {occasions.map((occasion) => (
             <Link
               key={occasion.id}
               href={`/shop-by-occasion?tag=${occasion.slug}`}
-              className="group relative aspect-square rounded-2xl overflow-hidden bg-gray-200"
+              className="group relative aspect-[3/2] rounded-2xl overflow-hidden bg-gray-200"
             >
               <img
                 src={occasion.image}

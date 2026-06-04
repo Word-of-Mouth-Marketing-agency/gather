@@ -61,6 +61,15 @@
     background: #ffffff;
   }
 
+  ::selection {
+    background: #ff7a1a;
+    color: #ffffff;
+  }
+
+  * {
+    cursor: url('/cursor.png'), auto !important;
+  }
+
   *::-webkit-scrollbar {
     width: 8px;
     height: 8px;

@@ -110,6 +110,26 @@
     "order": 1
   },
   {
+    "id": "occ-friends-gathering",
+    "slug": "friends-gathering",
+    "name": "Friends Gathering",
+    "description": "Gifts for friends and good times",
+    "image": "/assets/gather/occasions/friends-gathering.jpg",
+    "type": "occasion",
+    "parentId": null,
+    "order": 2
+  },
+  {
+    "id": "occ-family-gathering",
+    "slug": "family-gathering",
+    "name": "Family Gathering",
+    "description": "Bring the family together",
+    "image": "/assets/gather/occasions/family-gathering.webp",
+    "type": "occasion",
+    "parentId": null,
+    "order": 3
+  },
+  {
     "id": "occ-engagement",
     "slug": "engagement",
     "name": "Engagement",
@@ -117,17 +137,27 @@
     "image": "/assets/gather/occasions/engagement.webp",
     "type": "occasion",
     "parentId": null,
-    "order": 2
+    "order": 4
   },
   {
-    "id": "occ-mothers-day",
-    "slug": "mothers-day",
-    "name": "Mother's Day",
-    "description": "Show your appreciation",
-    "image": "/assets/gather/occasions/mothers-day.webp",
+    "id": "occ-professional",
+    "slug": "professional-meetings",
+    "name": "Professional Meetings",
+    "description": "Corporate gifts and meeting tokens",
+    "image": "/assets/gather/occasions/professional-meetings.webp",
     "type": "occasion",
     "parentId": null,
-    "order": 3
+    "order": 5
+  },
+  {
+    "id": "occ-christmas",
+    "slug": "christmas-eoy",
+    "name": "Christmas/EOY",
+    "description": "Festive season gifting",
+    "image": "/assets/gather/occasions/christmas-eoy.webp",
+    "type": "occasion",
+    "parentId": null,
+    "order": 6
   },
   {
     "id": "occ-ramadan",
@@ -137,7 +167,17 @@
     "image": "/assets/gather/occasions/ramadan.webp",
     "type": "occasion",
     "parentId": null,
-    "order": 4
+    "order": 7
+  },
+  {
+    "id": "occ-mothers-day",
+    "slug": "mothers-day",
+    "name": "Mother's Day",
+    "description": "Show your appreciation",
+    "image": "/assets/gather/occasions/mothers-day.webp",
+    "type": "occasion",
+    "parentId": null,
+    "order": 8
   },
   {
     "id": "occ-eid",
@@ -147,27 +187,7 @@
     "image": "/assets/gather/occasions/eid-fitr.webp",
     "type": "occasion",
     "parentId": null,
-    "order": 5
-  },
-  {
-    "id": "occ-christmas",
-    "slug": "christmas-eoy",
-    "name": "Christmas & New Year",
-    "description": "Festive season gifting",
-    "image": "/assets/gather/occasions/christmas-eoy.webp",
-    "type": "occasion",
-    "parentId": null,
-    "order": 6
-  },
-  {
-    "id": "occ-professional",
-    "slug": "professional-meetings",
-    "name": "Professional",
-    "description": "Corporate gifts and meeting tokens",
-    "image": "/assets/gather/occasions/professional-meetings.webp",
-    "type": "occasion",
-    "parentId": null,
-    "order": 7
+    "order": 9
   },
   {
     "id": "occ-easter",
@@ -175,26 +195,6 @@
     "name": "Easter",
     "description": "Spring celebration gifts",
     "image": "/assets/gather/occasions/easter.webp",
-    "type": "occasion",
-    "parentId": null,
-    "order": 8
-  },
-  {
-    "id": "occ-friends-gathering",
-    "slug": "friends-gathering",
-    "name": "Friends Gathering",
-    "description": "Gifts for friends and good times",
-    "image": "/assets/gather/occasions/friends-gathering.jpg",
-    "type": "occasion",
-    "parentId": null,
-    "order": 9
-  },
-  {
-    "id": "occ-family-gathering",
-    "slug": "family-gathering",
-    "name": "Family Gathering",
-    "description": "Bring the family together",
-    "image": "/assets/gather/occasions/family-gathering.webp",
     "type": "occasion",
     "parentId": null,
     "order": 10

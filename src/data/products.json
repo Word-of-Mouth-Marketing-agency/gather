@@ -77,5 +77,47 @@
     ],
     "featured": true,
     "createdAt": "2026-01-07T00:00:00Z"
+  },
+  {
+    "name": "test",
+    "slug": "tset",
+    "shortDescription": "test",
+    "description": "test",
+    "price": 500,
+    "salePrice": null,
+    "currency": "EGP",
+    "stock": 1,
+    "images": [
+      "/uploads/1780576020021-fyq7l.webp"
+    ],
+    "categoryIds": [
+      "cat-cakes-pastry"
+    ],
+    "occasionIds": [
+      "occ-birthday"
+    ],
+    "crossSellIds": [],
+    "featured": true,
+    "id": "prod-1780576022380-djyas",
+    "createdAt": "2026-06-04T12:27:02.380Z"
+  },
+  {
+    "name": "test project",
+    "slug": "tstestese",
+    "shortDescription": "tset",
+    "description": "setse",
+    "price": 200,
+    "salePrice": null,
+    "currency": "EGP",
+    "stock": 2,
+    "images": [
+      "/uploads/1780576080439-ea3ni.webp"
+    ],
+    "categoryIds": [],
+    "occasionIds": [],
+    "crossSellIds": [],
+    "featured": true,
+    "id": "prod-1780576083087-5blia",
+    "createdAt": "2026-06-04T12:28:03.087Z"
   }
 ]

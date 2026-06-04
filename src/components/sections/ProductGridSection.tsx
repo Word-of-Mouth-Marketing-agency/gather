@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import type { ProductGridSectionProps } from '@/types'
 import {
   getAllProducts,
@@ -33,33 +32,23 @@ export default function ProductGridSection({
   if (products.length === 0) return null
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex items-end justify-between mb-6 gap-4">
-        <div>
+    <section className="w-full py-12 lg:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8 lg:mb-10">
           <h2 className="text-2xl sm:text-3xl font-black text-[#171717]">{title}</h2>
           {subtitle && <p className="mt-1 text-sm text-[#7a6247]">{subtitle}</p>}
         </div>
-        {showViewAll && viewAllUrl && (
-          <Link
-            href={viewAllUrl}
-            className="shrink-0 text-sm font-bold text-[#ff7a1a] hover:underline"
-          >
-            View all →
-          </Link>
+
+        {slider ? (
+          <ProductSlider products={products} />
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 sm:gap-10">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
         )}
       </div>
-
-      {slider ? (
-        <div className="pb-4">
-          <ProductSlider products={products} />
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      )}
     </section>
   )
 }
