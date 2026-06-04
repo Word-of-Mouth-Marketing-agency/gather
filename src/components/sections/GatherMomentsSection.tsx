@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { MomentsSectionProps } from '@/types'
 import MomentsCarousel from './MomentsCarousel'
 import ShareMomentModal from '@/components/ShareMomentModal'
@@ -13,6 +13,18 @@ export default function GatherMomentsSection({
   backgroundImage,
 }: MomentsSectionProps) {
   const [modalOpen, setModalOpen] = useState(false)
+  const [sliderImages, setSliderImages] = useState<string[]>(images)
+
+  useEffect(() => {
+    fetch('/api/moments?showInSlider=true')
+      .then((res) => res.ok ? res.json() : [])
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setSliderImages(data.map((m: { imageUrl: string }) => m.imageUrl))
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   const parts = title.split(/(Moments)/g)
 
@@ -39,7 +51,7 @@ export default function GatherMomentsSection({
           )}
         </div>
 
-        <MomentsCarousel images={images} gap={20} />
+        <MomentsCarousel images={sliderImages} gap={20} />
 
         <div className="flex justify-center mt-10">
           <button

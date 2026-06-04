@@ -261,6 +261,21 @@ export interface MediaAsset {
   uploadedAt: string
 }
 
+// ─── Moment Submission ─────────────────────────────────────────────────────
+
+export interface MomentSubmission {
+  id: string
+  name: string
+  email?: string
+  phone?: string
+  occasionType: string
+  imageUrl: string
+  status: 'pending' | 'approved' | 'rejected'
+  showInSlider: boolean
+  submittedAt: string
+  reviewedAt?: string
+}
+
 // ─── Bundle ─────────────────────────────────────────────────────────────────
 
 export interface Bundle {
