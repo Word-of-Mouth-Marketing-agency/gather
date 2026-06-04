@@ -4,6 +4,7 @@ import { useState, useEffect, startTransition } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { BundleCartItem } from '@/types'
+import PageTitleSection from '@/components/PageTitleSection'
 import { getCart, getCartProducts, getCartBundles, updateQuantity, removeFromCart } from '@/lib/cart'
 import { formatPrice } from '@/lib/data'
 
@@ -37,14 +38,17 @@ export default function CartPageClient() {
 
   if (products.length === 0 && bundles.length === 0) {
     return (
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <div className="text-6xl mb-4">🛍️</div>
-        <h1 className="text-2xl font-black text-[#171717]">Your cart is empty</h1>
-        <p className="mt-2 text-gray-400 text-sm">Start shopping to fill it up.</p>
-        <Link href="/shop-by-category" className="inline-flex mt-6 gather-btn-primary">
-          Browse Products
-        </Link>
-      </main>
+      <>
+        <PageTitleSection title="Cart" />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <div className="text-6xl mb-4">🛍️</div>
+          <h1 className="text-2xl font-black text-[#171717]">Your cart is empty</h1>
+          <p className="mt-2 text-gray-400 text-sm">Start shopping to fill it up.</p>
+          <Link href="/shop-by-category" className="inline-flex mt-6 gather-btn-primary">
+            Browse Products
+          </Link>
+        </main>
+      </>
     )
   }
 
@@ -61,10 +65,12 @@ export default function CartPageClient() {
   const itemCount = products.length + bundles.length
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-2xl sm:text-3xl font-black text-[#171717] mb-8">
-        Your Cart ({itemCount} {itemCount === 1 ? 'item' : 'items'})
-      </h1>
+    <>
+      <PageTitleSection title="Cart" />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 className="text-2xl sm:text-3xl font-black text-[#171717] mb-8">
+          Your Cart ({itemCount} {itemCount === 1 ? 'item' : 'items'})
+        </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
@@ -250,6 +256,7 @@ export default function CartPageClient() {
           </div>
         </div>
       </div>
-    </main>
+      </main>
+    </>
   )
 }
