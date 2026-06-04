@@ -10,7 +10,7 @@ export default function OccasionGridSection({
   subtitle,
 }: OccasionSectionProps) {
   const occasions = getCategoriesByType('occasion')
-  const { ref: sectionRef, translateY } = useScrollParallax({ maxTranslate: -200 })
+  const { ref: sectionRef, translateY } = useScrollParallax({ maxTranslate: -400 })
 
   if (occasions.length === 0) return null
 
@@ -26,7 +26,7 @@ export default function OccasionGridSection({
       </div>
 
       <div
-        className="absolute -bottom-16 sm:-bottom-20 right-4 sm:right-8 w-28 h-28 sm:w-36 sm:h-36 pointer-events-none select-none z-10"
+        className="absolute -bottom-16 sm:-bottom-20 right-4 sm:right-8 w-36 h-36 sm:w-48 sm:h-48 pointer-events-none select-none z-10"
         style={{ transform: `translateY(${translateY}px)` }}
       >
         <img

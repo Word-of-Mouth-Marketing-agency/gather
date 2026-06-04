@@ -3,7 +3,6 @@
 import { useState, useCallback, useRef } from 'react'
 import type { OffersGridSectionProps } from '@/types'
 import { getAllBundles } from '@/lib/data'
-import { useScrollParallax } from '@/lib/useScrollParallax'
 import BundleCard from '@/components/BundleCard'
 
 export default function OffersBundlesSection({ title, subtitle }: OffersGridSectionProps) {
@@ -11,7 +10,6 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
   const [current, setCurrent] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const trackRef = useRef<HTMLDivElement>(null)
-  const { ref: sectionRef, translateY } = useScrollParallax({ maxTranslate: -200 })
 
   const total = bundles.length
 
@@ -31,19 +29,7 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
   if (total === 0) return null
 
   return (
-    <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={sectionRef}>
-      <div
-        className="absolute -top-20 sm:-top-24 right-4 sm:right-8 w-28 h-28 sm:w-36 sm:h-36 pointer-events-none select-none z-10"
-        style={{ transform: `translateY(${translateY}px)` }}
-      >
-        <img
-          src="/assets/gather/floating-rabbit.webp"
-          alt=""
-          className="w-full h-full object-contain"
-          aria-hidden
-        />
-      </div>
-
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-end justify-between gap-4 mb-8">
         <div>
           <h2 className="text-2xl sm:text-3xl font-black text-[#171717]">{title}</h2>
