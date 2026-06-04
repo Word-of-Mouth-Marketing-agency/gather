@@ -18,14 +18,12 @@ export default function GatherMomentsSection({
 
   return (
     <section
-      className="relative bg-cover bg-center bg-no-repeat py-14 sm:py-18 lg:py-22"
+      className="bg-cover bg-center bg-no-repeat py-14 sm:py-18 lg:py-22"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
-      <div className="absolute inset-0 bg-black/30" />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#171717] leading-tight">
             {parts.map((part, i) =>
               part.toLowerCase() === 'moments' ? (
                 <span key={i} style={{ color: '#FE7501' }}>{part}</span>
@@ -35,7 +33,7 @@ export default function GatherMomentsSection({
             )}
           </h2>
           {subtitle && (
-            <p className="mt-2 text-base sm:text-lg text-white/80 max-w-xl mx-auto">
+            <p className="mt-2 text-base sm:text-lg text-[#7a6247] max-w-xl mx-auto">
               {subtitle}
             </p>
           )}
