@@ -13,7 +13,7 @@ export default function AboutGatherSection({
   const parts = title.split(/(Gather)/g)
 
   return (
-    <section>
+    <section className="-mt-16 sm:-mt-20">
 
       <div className="bg-[#FCECDC] w-full">
         <div className="grid grid-cols-1 lg:grid-cols-3 min-h-[400px] lg:min-h-[500px]">
