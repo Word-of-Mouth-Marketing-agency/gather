@@ -184,10 +184,42 @@ export interface Page {
 
 // ─── Cart ─────────────────────────────────────────────────────────────────────
 
-export interface CartItem {
+export interface ProductCartItem {
+  type: 'product'
+  id: string
   productId: string
+  name: string
+  slug: string
+  image?: string
+  price: number
+  compareAtPrice?: number
+  currency: string
   quantity: number
 }
+
+export interface BundleCartItem {
+  type: 'bundle'
+  id: string
+  bundleId: string
+  name: string
+  slug: string
+  badge?: string
+  image?: string
+  price: number
+  regularPrice?: number
+  currency: string
+  quantity: number
+  productIds: string[]
+  productsSnapshot: Array<{
+    id: string
+    name: string
+    slug: string
+    image?: string
+    price: number
+  }>
+}
+
+export type CartItem = ProductCartItem | BundleCartItem
 
 // ─── Order ────────────────────────────────────────────────────────────────────
 

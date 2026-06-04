@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { CheckoutFormData, Product } from '@/types'
-import { getCart, getCartTotal, getCartProducts, clearCart } from '@/lib/cart'
-import { formatPrice, getDisplayPrice } from '@/lib/data'
+import Image from 'next/image'
+import type { CheckoutFormData, BundleCartItem } from '@/types'
+import { getCart, getCartTotal, getCartProducts, getCartBundles, clearCart } from '@/lib/cart'
+import { formatPrice } from '@/lib/data'
 
 const DELIVERY_CITIES = ['Dokki', 'Mohandessin', 'Manial', 'Zamalek', 'Haram'] as const
 
@@ -49,11 +50,15 @@ const empty: CheckoutFormData = {
   paymentMethod: 'cod',
 }
 
-type CartEntry = { product: Product; quantity: number }
+type ProductEntry = { product: import('@/types').Product; quantity: number }
 
-function loadEntries(): CartEntry[] {
-  if (typeof window === 'undefined') return []
-  return getCartProducts(getCart())
+function loadData(): { products: ProductEntry[]; bundles: BundleCartItem[]; total: number } {
+  if (typeof window === 'undefined') return { products: [], bundles: [], total: 0 }
+  const cart = getCart()
+  const products = getCartProducts(cart)
+  const bundles = getCartBundles(cart)
+  const total = getCartTotal(cart)
+  return { products, bundles, total }
 }
 
 export default function CheckoutPageClient() {
@@ -62,9 +67,7 @@ export default function CheckoutPageClient() {
   const [errors, setErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({})
   const [showSameDayPopup, setShowSameDayPopup] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [entries] = useState<CartEntry[]>(loadEntries)
-
-  const subtotal = getCartTotal(entries.map((e) => ({ productId: e.product.id, quantity: e.quantity })))
+  const [{ products, bundles, total }] = useState(loadData)
 
   function setFn(field: keyof CheckoutFormData, value: string) {
     setForm((f) => ({ ...f, [field]: value }))
@@ -102,18 +105,31 @@ export default function CheckoutPageClient() {
     setSubmitting(true)
 
     try {
+      const items = [
+        ...products.map(({ product, quantity }) => ({
+          type: 'product' as const,
+          productId: product.id,
+          name: product.name,
+          price: product.salePrice ?? product.price,
+          quantity,
+        })),
+        ...bundles.map((bundle) => ({
+          type: 'bundle' as const,
+          bundleId: bundle.bundleId,
+          name: bundle.name,
+          price: bundle.price,
+          quantity: bundle.quantity,
+          productIds: bundle.productIds,
+        })),
+      ]
+
       await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: entries.map(({ product, quantity }) => ({
-            productId: product.id,
-            name: product.name,
-            price: getDisplayPrice(product),
-            quantity,
-          })),
-          subtotal,
-          total: subtotal,
+          items,
+          subtotal: total,
+          total,
           currency: 'EGP',
           customer: {
             firstName: form.firstName,
@@ -296,25 +312,58 @@ export default function CheckoutPageClient() {
               <h2 className="text-lg font-black text-[#171717]">Your Order</h2>
 
               <div className="space-y-3">
-                {entries.map(({ product, quantity }) => (
+                {products.map(({ product, quantity }) => (
                   <div key={product.id} className="flex gap-3 text-sm">
                     <span className="flex-1 text-gray-700 font-medium line-clamp-2">{product.name}</span>
                     <span className="shrink-0 text-gray-500">×{quantity}</span>
                     <span className="shrink-0 font-bold text-[#171717]">
-                      {formatPrice(getDisplayPrice(product) * quantity, product.currency)}
+                      {formatPrice((product.salePrice ?? product.price) * quantity, product.currency)}
+                    </span>
+                  </div>
+                ))}
+                {bundles.map((bundle) => (
+                  <div key={bundle.id} className="flex gap-3 text-sm">
+                    <div className="flex-1 min-w-0">
+                      <span className="text-gray-700 font-medium line-clamp-1">{bundle.name}</span>
+                      <span className="text-[10px] font-semibold text-[#ff7a1a]">Bundle</span>
+                    </div>
+                    <span className="shrink-0 text-gray-500">×{bundle.quantity}</span>
+                    <span className="shrink-0 font-bold text-[#171717]">
+                      {formatPrice(bundle.price * bundle.quantity, bundle.currency)}
                     </span>
                   </div>
                 ))}
               </div>
 
+              {bundles.length > 0 && (
+                <div className="space-y-2 pt-2 border-t border-gray-100">
+                  {bundles.map((bundle) => (
+                    <div key={bundle.id} className="flex flex-wrap gap-1">
+                      {bundle.productsSnapshot.map((p) => (
+                        <div key={p.id} className="flex items-center gap-1 bg-gray-50 rounded-full pr-2 pl-1 py-0.5 text-[10px] text-gray-500">
+                          <span className="w-4 h-4 rounded-full bg-white flex items-center justify-center overflow-hidden">
+                            {p.image ? (
+                              <Image src={p.image} alt="" width={16} height={16} className="object-cover w-full h-full" />
+                            ) : (
+                              <span className="text-[8px]">🎁</span>
+                            )}
+                          </span>
+                          {p.name}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="pt-4 border-t border-[rgba(255,122,26,0.15)] flex justify-between items-center">
                 <span className="text-sm font-bold text-[#7a6247]">Total</span>
-                <span className="text-2xl font-black text-[#ff7a1a]">{formatPrice(subtotal, 'EGP')}</span>
+                <span className="text-2xl font-black text-[#ff7a1a]">{formatPrice(total, 'EGP')}</span>
               </div>
 
               <button
                 type="submit"
-                disabled={submitting || entries.length === 0}
+                disabled={submitting || (products.length === 0 && bundles.length === 0)}
                 className="w-full py-4 rounded-full bg-[#ff7a1a] text-white font-black text-base shadow-lg hover:bg-[#fe6c00] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
               >
                 {submitting ? 'Placing Order...' : 'Place Order'}

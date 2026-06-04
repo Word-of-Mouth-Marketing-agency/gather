@@ -1,15 +1,25 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import type { Bundle } from '@/types'
 import { getBundleProducts, formatPrice } from '@/lib/data'
+import { addBundleToCart } from '@/lib/cart'
 
 interface Props {
   bundle: Bundle
 }
 
 export default function BundleCard({ bundle }: Props) {
+  const [added, setAdded] = useState(false)
   const products = getBundleProducts(bundle)
+
+  async function handleBuy() {
+    addBundleToCart(bundle)
+    window.dispatchEvent(new Event('gather:cart-updated'))
+    setAdded(true)
+    setTimeout(() => setAdded(false), 2000)
+  }
 
   return (
     <article className="bg-white rounded-3xl border border-[#f1e2d3] overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
@@ -67,8 +77,15 @@ export default function BundleCard({ bundle }: Props) {
             </div>
           </div>
 
-          <button className="w-full rounded-full bg-[#ff7a1a] text-white font-bold text-sm py-3 px-6 transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90 active:translate-y-0 shadow-md">
-            {bundle.buttonText || 'Buy Offer'}
+          <button
+            onClick={handleBuy}
+            className={`w-full rounded-full font-bold text-sm py-3 px-6 transition-all duration-200 shadow-md ${
+              added
+                ? 'bg-green-500 text-white'
+                : 'bg-[#ff7a1a] text-white hover:-translate-y-0.5 hover:opacity-90 active:translate-y-0'
+            }`}
+          >
+            {added ? '✓ Added to Cart' : bundle.buttonText || 'Buy Offer'}
           </button>
         </div>
       </div>

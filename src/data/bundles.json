@@ -5,15 +5,22 @@
     "name": "Birthday Starter Pack",
     "badge": "Birthday Offer",
     "description": "Everything you need for a simple birthday setup.",
-    "productIds": ["prod-1", "prod-5", "prod-8", "prod-3"],
-    "regularPrice": 560,
-    "offerPrice": 400,
+    "productIds": [
+      "prod-1",
+      "prod-5",
+      "prod-8",
+      "prod-3",
+      "prod-6"
+    ],
+    "regularPrice": 1560,
+    "offerPrice": 600,
     "currency": "EGP",
     "buttonText": "Buy Offer",
     "isActive": true,
     "isFeatured": true,
     "sortOrder": 0,
-    "createdAt": "2026-01-01T00:00:00Z"
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-06-04T12:58:02.974Z"
   },
   {
     "id": "bundle-movie-night",
@@ -21,7 +28,12 @@
     "name": "Movie Night Bundle",
     "badge": "Gathering Offer",
     "description": "Snacks, cups, and fun extras for a cozy gathering.",
-    "productIds": ["prod-4", "prod-3", "prod-5", "prod-1"],
+    "productIds": [
+      "prod-4",
+      "prod-3",
+      "prod-5",
+      "prod-1"
+    ],
     "regularPrice": 550,
     "offerPrice": 400,
     "currency": "EGP",

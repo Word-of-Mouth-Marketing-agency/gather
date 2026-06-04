@@ -1,9 +1,13 @@
 import { readJson, writeJson, generateId } from './db'
 
+export type OrderItem =
+  | { type: 'product'; productId: string; name: string; price: number; quantity: number }
+  | { type: 'bundle'; bundleId: string; name: string; price: number; quantity: number; productIds: string[] }
+
 export interface Order {
   id: string
   orderNumber: string
-  items: { productId: string; name: string; price: number; quantity: number }[]
+  items: OrderItem[]
   subtotal: number
   total: number
   currency: string
