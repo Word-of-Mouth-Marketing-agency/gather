@@ -83,13 +83,22 @@
       },
       {
         "id": "home-moments",
-        "type": "moments-wall",
+        "type": "moments",
         "order": 7,
         "visible": true,
         "props": {
           "title": "Gather Moments",
-          "subtitle": "Real celebrations from our community",
-          "limit": 8
+          "subtitle": "Share your happy moment with GATHER and get a chance to win shopping vouchers for your next celebration.",
+          "images": [
+            "/assets/gather/moments/Artboard-7.png",
+            "/assets/gather/moments/Artboard-8.png",
+            "/assets/gather/moments/Artboard-5.png",
+            "/assets/gather/moments/Artboard-11.png",
+            "/assets/gather/moments/Artboard-12.png",
+            "/assets/gather/moments/Artboard-6-2.png"
+          ],
+          "buttonText": "Share Your Moment",
+          "backgroundImage": "/assets/gather/moments/moments-bg.webp"
         }
       },
       {

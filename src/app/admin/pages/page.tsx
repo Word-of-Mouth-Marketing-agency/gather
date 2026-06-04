@@ -71,6 +71,7 @@ function SectionRow({ section }: { section: Section }) {
     'text-block': 'Text Block',
     'image-block': 'Image Block',
     'moments-wall': 'Moments Wall',
+    'moments': 'Gather Moments',
     'cta-banner': 'CTA Banner',
   }
 

@@ -43,6 +43,7 @@ export type SectionType =
   | 'text-block'
   | 'image-block'
   | 'moments-wall'
+  | 'moments'
   | 'cta-banner'
   | 'offers-grid'
   | 'why-gather'
@@ -137,6 +138,14 @@ export interface AboutGatherSectionProps {
   rightImage: string
 }
 
+export interface MomentsSectionProps {
+  title: string
+  subtitle?: string
+  images: string[]
+  buttonText: string
+  backgroundImage: string
+}
+
 type SectionPropsMap = {
   hero: HeroSectionProps
   banner: BannerSectionProps
@@ -147,6 +156,7 @@ type SectionPropsMap = {
   'text-block': TextBlockSectionProps
   'image-block': ImageBlockSectionProps
   'moments-wall': MomentsWallSectionProps
+  'moments': MomentsSectionProps
   'cta-banner': CtaBannerSectionProps
   'offers-grid': OffersGridSectionProps
   'why-gather': WhyGatherSectionProps

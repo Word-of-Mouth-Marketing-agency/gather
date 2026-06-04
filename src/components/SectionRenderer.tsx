@@ -10,6 +10,7 @@ import WhyGatherSection from './sections/WhyGatherSection'
 import OccasionGridSection from './sections/OccasionGridSection'
 import OffersBundlesSection from './sections/OffersBundlesSection'
 import AboutGatherSection from './sections/AboutGatherSection'
+import GatherMomentsSection from './sections/GatherMomentsSection'
 
 interface Props {
   sections: Section[]
@@ -101,6 +102,13 @@ function SectionSwitch({ section }: { section: Section }) {
       return (
         <AboutGatherSection
           {...(section.props as React.ComponentProps<typeof AboutGatherSection>)}
+        />
+      )
+
+    case 'moments':
+      return (
+        <GatherMomentsSection
+          {...(section.props as React.ComponentProps<typeof GatherMomentsSection>)}
         />
       )
 
