@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, startTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 import type { CheckoutFormData, BundleCartItem } from '@/types'
+import PageTitleSection from '@/components/PageTitleSection'
 import { getCart, getCartTotal, getCartProducts, getCartBundles, clearCart } from '@/lib/cart'
 import { formatPrice } from '@/lib/data'
 
@@ -61,13 +63,47 @@ function loadData(): { products: ProductEntry[]; bundles: BundleCartItem[]; tota
   return { products, bundles, total }
 }
 
+function CheckoutLoadingState() {
+  return (
+    <div className="py-24 text-center">
+      <div className="w-12 h-12 mx-auto rounded-full bg-gray-100 animate-pulse" />
+    </div>
+  )
+}
+
+function EmptyCheckoutState() {
+  return (
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+      <div className="text-6xl mb-4">🛒</div>
+      <h1 className="text-2xl font-black text-[#171717]">Your cart is empty</h1>
+      <p className="mt-2 text-gray-400 text-sm">Add some items before checking out.</p>
+      <Link href="/shop-by-category" className="inline-flex mt-6 gather-btn-primary">
+        Browse Products
+      </Link>
+    </main>
+  )
+}
+
 export default function CheckoutPageClient() {
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
   const [form, setForm] = useState<CheckoutFormData>(empty)
   const [errors, setErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({})
   const [showSameDayPopup, setShowSameDayPopup] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [{ products, bundles, total }] = useState(loadData)
+  const [products, setProducts] = useState<ProductEntry[]>([])
+  const [bundles, setBundles] = useState<BundleCartItem[]>([])
+  const [total, setTotal] = useState(0)
+
+  useEffect(() => {
+    const data = loadData()
+    startTransition(() => {
+      setProducts(data.products)
+      setBundles(data.bundles)
+      setTotal(data.total)
+      setMounted(true)
+    })
+  }, [])
 
   function setFn(field: keyof CheckoutFormData, value: string) {
     setForm((f) => ({ ...f, [field]: value }))
@@ -154,9 +190,28 @@ export default function CheckoutPageClient() {
     router.push('/checkout/success')
   }
 
+  if (!mounted) {
+    return (
+      <>
+        <PageTitleSection title="Checkout" />
+        <CheckoutLoadingState />
+      </>
+    )
+  }
+
+  if (products.length === 0 && bundles.length === 0) {
+    return (
+      <>
+        <PageTitleSection title="Checkout" />
+        <EmptyCheckoutState />
+      </>
+    )
+  }
+
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-2xl sm:text-3xl font-black text-[#171717] mb-8">Checkout</h1>
+    <>
+      <PageTitleSection title="Checkout" />
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
@@ -363,7 +418,7 @@ export default function CheckoutPageClient() {
 
               <button
                 type="submit"
-                disabled={submitting || (products.length === 0 && bundles.length === 0)}
+                disabled={submitting}
                 className="w-full py-4 rounded-full bg-[#ff7a1a] text-white font-black text-base shadow-lg hover:bg-[#fe6c00] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
               >
                 {submitting ? 'Placing Order...' : 'Place Order'}
@@ -409,6 +464,7 @@ export default function CheckoutPageClient() {
         </div>
       )}
     </main>
+    </>
   )
 }
 
