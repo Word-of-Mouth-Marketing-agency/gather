@@ -150,20 +150,7 @@
     "slug": "contact",
     "title": "Contact",
     "metaDescription": "Get in touch with Gather for orders, inquiries, or support.",
-    "updatedAt": "2026-06-03T00:00:00Z",
-    "sections": [
-      {
-        "id": "contact-hero",
-        "type": "banner",
-        "order": 1,
-        "visible": true,
-        "props": {
-          "title": "Contact Us",
-          "subtitle": "We're here to help you create the perfect moment.",
-          "image": "/images/contact-hero.jpg",
-          "variant": "contained"
-        }
-      }
-    ]
+    "updatedAt": "2026-06-04T00:00:00Z",
+    "sections": []
   }
 ]
