@@ -8,7 +8,7 @@ export default function CategoryGridSection({ title, subtitle, type, limit }: Ca
   if (categories.length === 0) return null
 
   return (
-    <section className="w-full py-12 lg:py-16" style={{ backgroundColor: '#FCECDC' }}>
+    <section className="w-full py-12 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 lg:mb-10 text-center">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#171717]">{title}</h2>
