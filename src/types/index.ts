@@ -207,6 +207,20 @@ export interface MediaAsset {
   uploadedAt: string
 }
 
+// ─── Bundle ─────────────────────────────────────────────────────────────────
+
+export interface Bundle {
+  id: string
+  slug: string
+  badge: string
+  name: string
+  description: string
+  regularPrice: number
+  offerPrice: number
+  currency: string
+  productIds: string[]
+}
+
 // ─── Odoo Integration Interfaces (Phase 1 stubs) ─────────────────────────────
 
 export interface OdooProduct {

@@ -1,12 +1,14 @@
-import type { Product, Category, Page } from '@/types'
+import type { Product, Category, Page, Bundle } from '@/types'
 import productsData from '@/data/products.json'
 import categoriesData from '@/data/categories.json'
 import pagesData from '@/data/pages.json'
+import bundlesData from '@/data/bundles.json'
 
 // Cast JSON to typed arrays
 const products = productsData as Product[]
 const categories = categoriesData as Category[]
 const pages = pagesData as Page[]
+const bundles = bundlesData as Bundle[]
 
 // ─── Products ─────────────────────────────────────────────────────────────────
 
@@ -78,6 +80,22 @@ export function getPageBySlug(slug: string): Page | undefined {
 
 export function getPageById(id: string): Page | undefined {
   return pages.find((p) => p.id === id)
+}
+
+// ─── Bundles ───────────────────────────────────────────────────────────────────
+
+export function getAllBundles(): Bundle[] {
+  return bundles
+}
+
+export function getBundleById(id: string): Bundle | undefined {
+  return bundles.find((b) => b.id === id)
+}
+
+export function getBundleProducts(bundle: Bundle): Product[] {
+  return bundle.productIds
+    .map((id) => getProductById(id))
+    .filter((p): p is Product => p !== undefined)
 }
 
 // ─── Price helpers ────────────────────────────────────────────────────────────

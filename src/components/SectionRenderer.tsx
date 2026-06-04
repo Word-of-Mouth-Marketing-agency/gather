@@ -6,9 +6,9 @@ import CategoryGridSection from './sections/CategoryGridSection'
 import TextBlockSection from './sections/TextBlockSection'
 import CtaBannerSection from './sections/CtaBannerSection'
 import MomentsWallSection from './sections/MomentsWallSection'
-import OffersGridSection from './sections/OffersGridSection'
 import WhyGatherSection from './sections/WhyGatherSection'
 import OccasionGridSection from './sections/OccasionGridSection'
+import OffersBundlesSection from './sections/OffersBundlesSection'
 
 interface Props {
   sections: Section[]
@@ -84,8 +84,8 @@ function SectionSwitch({ section }: { section: Section }) {
 
     case 'offers-grid':
       return (
-        <OffersGridSection
-          {...(section.props as React.ComponentProps<typeof OffersGridSection>)}
+        <OffersBundlesSection
+          {...(section.props as React.ComponentProps<typeof OffersBundlesSection>)}
         />
       )
 
