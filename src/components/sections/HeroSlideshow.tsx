@@ -8,7 +8,7 @@ const SLIDES = [
   { src: '/assets/gather/banner3.webp', alt: 'Celebrate with Gather' },
 ]
 
-const SLIDE_INTERVAL = 4000
+const SLIDE_INTERVAL = 6000
 const TRANSITION_MS = 800
 
 export default function HeroSlideshow() {
@@ -24,7 +24,7 @@ export default function HeroSlideshow() {
   }, [next])
 
   return (
-    <section className="relative w-full overflow-hidden bg-gray-100" style={{ height: 'clamp(400px, 50vw, 520px)' }}>
+    <section className="relative w-full overflow-hidden bg-gray-100 min-h-[280px] aspect-video">
       {SLIDES.map((slide, i) => (
         <div
           key={slide.src}
