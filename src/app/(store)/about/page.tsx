@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { getPageBySlug } from '@/lib/data'
+
+export const dynamic = 'force-dynamic'
 import SectionRenderer from '@/components/SectionRenderer'
 
 export const metadata: Metadata = {

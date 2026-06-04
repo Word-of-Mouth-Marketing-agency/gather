@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { CheckoutFormData, CartItem } from '@/types'
+import type { CheckoutFormData, Product } from '@/types'
 import { getCart, getCartTotal, getCartProducts, clearCart } from '@/lib/cart'
 import { formatPrice, getDisplayPrice } from '@/lib/data'
 
@@ -49,22 +49,24 @@ const empty: CheckoutFormData = {
   paymentMethod: 'cod',
 }
 
+type CartEntry = { product: Product; quantity: number }
+
+function loadEntries(): CartEntry[] {
+  if (typeof window === 'undefined') return []
+  return getCartProducts(getCart())
+}
+
 export default function CheckoutPageClient() {
   const router = useRouter()
   const [form, setForm] = useState<CheckoutFormData>(empty)
   const [errors, setErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({})
   const [showSameDayPopup, setShowSameDayPopup] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [items, setItems] = useState<CartItem[]>([])
+  const [entries] = useState<CartEntry[]>(loadEntries)
 
-  useEffect(() => {
-    setItems(getCart())
-  }, [])
+  const subtotal = getCartTotal(entries.map((e) => ({ productId: e.product.id, quantity: e.quantity })))
 
-  const entries = getCartProducts(items)
-  const subtotal = getCartTotal(items)
-
-  function set(field: keyof CheckoutFormData, value: string) {
+  function setFn(field: keyof CheckoutFormData, value: string) {
     setForm((f) => ({ ...f, [field]: value }))
     setErrors((e) => ({ ...e, [field]: undefined }))
 
@@ -98,8 +100,39 @@ export default function CheckoutPageClient() {
     e.preventDefault()
     if (!validate()) return
     setSubmitting(true)
-    // Simulate order placement
-    await new Promise((r) => setTimeout(r, 1200))
+
+    try {
+      await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: entries.map(({ product, quantity }) => ({
+            productId: product.id,
+            name: product.name,
+            price: getDisplayPrice(product),
+            quantity,
+          })),
+          subtotal,
+          total: subtotal,
+          currency: 'EGP',
+          customer: {
+            firstName: form.firstName,
+            lastName: form.lastName,
+            email: form.email,
+            phone: form.phone,
+          },
+          delivery: {
+            city: form.city,
+            address: form.address,
+            date: form.deliveryDate,
+            slot: form.deliverySlot,
+          },
+          paymentMethod: form.paymentMethod,
+          notes: form.orderNotes,
+        }),
+      })
+    } catch { /* ignore */ }
+
     clearCart()
     window.dispatchEvent(new Event('gather:cart-updated'))
     router.push('/checkout/success')
@@ -111,9 +144,7 @@ export default function CheckoutPageClient() {
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Left: form */}
           <div className="lg:col-span-3 space-y-6">
-            {/* Billing */}
             <section className="gather-section p-6 rounded-3xl space-y-4">
               <h2 className="text-lg font-black text-[#171717]">Billing Details</h2>
 
@@ -122,7 +153,7 @@ export default function CheckoutPageClient() {
                   <input
                     type="text"
                     value={form.firstName}
-                    onChange={(e) => set('firstName', e.target.value)}
+                    onChange={(e) => setFn('firstName', e.target.value)}
                     className={inputCls(!!errors.firstName)}
                     placeholder="Ahmed"
                   />
@@ -131,7 +162,7 @@ export default function CheckoutPageClient() {
                   <input
                     type="text"
                     value={form.lastName}
-                    onChange={(e) => set('lastName', e.target.value)}
+                    onChange={(e) => setFn('lastName', e.target.value)}
                     className={inputCls(!!errors.lastName)}
                     placeholder="Hassan"
                   />
@@ -142,7 +173,7 @@ export default function CheckoutPageClient() {
                 <input
                   type="email"
                   value={form.email}
-                  onChange={(e) => set('email', e.target.value)}
+                  onChange={(e) => setFn('email', e.target.value)}
                   className={inputCls(!!errors.email)}
                   placeholder="ahmed@example.com"
                 />
@@ -152,7 +183,7 @@ export default function CheckoutPageClient() {
                 <input
                   type="tel"
                   value={form.phone}
-                  onChange={(e) => set('phone', e.target.value)}
+                  onChange={(e) => setFn('phone', e.target.value)}
                   className={inputCls(!!errors.phone)}
                   placeholder="+20 10 0000 0000"
                 />
@@ -161,7 +192,7 @@ export default function CheckoutPageClient() {
               <Field label="City / Area" error={errors.city}>
                 <select
                   value={form.city}
-                  onChange={(e) => set('city', e.target.value)}
+                  onChange={(e) => setFn('city', e.target.value)}
                   className={inputCls(!!errors.city)}
                 >
                   <option value="">Select your city / area</option>
@@ -178,14 +209,13 @@ export default function CheckoutPageClient() {
                 <input
                   type="text"
                   value={form.address}
-                  onChange={(e) => set('address', e.target.value)}
+                  onChange={(e) => setFn('address', e.target.value)}
                   className={inputCls(!!errors.address)}
                   placeholder="123 El Nasr Street, Apt 4B"
                 />
               </Field>
             </section>
 
-            {/* Delivery */}
             <section className="rounded-[14px] p-5 bg-[#fffaf2] border border-[#f2d7a2] space-y-4">
               <h2 className="text-lg font-black text-[#171717]">Delivery Details</h2>
               <p className="text-sm text-[#6b4b00]">
@@ -198,7 +228,7 @@ export default function CheckoutPageClient() {
                     type="date"
                     value={form.deliveryDate}
                     min={todayString()}
-                    onChange={(e) => set('deliveryDate', e.target.value)}
+                    onChange={(e) => setFn('deliveryDate', e.target.value)}
                     className={inputCls(!!errors.deliveryDate)}
                   />
                 </Field>
@@ -206,7 +236,7 @@ export default function CheckoutPageClient() {
                 <Field label="Preferred Delivery Time" error={errors.deliverySlot}>
                   <select
                     value={form.deliverySlot}
-                    onChange={(e) => set('deliverySlot', e.target.value)}
+                    onChange={(e) => setFn('deliverySlot', e.target.value)}
                     className={inputCls(!!errors.deliverySlot)}
                   >
                     <option value="">Select preferred delivery time</option>
@@ -218,21 +248,19 @@ export default function CheckoutPageClient() {
               </div>
             </section>
 
-            {/* Order notes */}
             <section className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700">
                 Order Notes <span className="font-normal text-gray-400">(optional)</span>
               </label>
               <textarea
                 value={form.orderNotes}
-                onChange={(e) => set('orderNotes', e.target.value)}
+                onChange={(e) => setFn('orderNotes', e.target.value)}
                 rows={3}
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20 transition-colors resize-none"
                 placeholder="Any special instructions, card message, etc."
               />
             </section>
 
-            {/* Payment */}
             <section className="gather-section p-6 rounded-3xl space-y-3">
               <h2 className="text-lg font-black text-[#171717]">Payment</h2>
               {[
@@ -252,7 +280,7 @@ export default function CheckoutPageClient() {
                     name="paymentMethod"
                     value={method.value}
                     checked={form.paymentMethod === method.value}
-                    onChange={() => !method.disabled && set('paymentMethod', method.value)}
+                    onChange={() => !method.disabled && setFn('paymentMethod', method.value)}
                     className="accent-[#ff7a1a]"
                     disabled={method.disabled}
                   />
@@ -263,7 +291,6 @@ export default function CheckoutPageClient() {
             </section>
           </div>
 
-          {/* Right: order summary */}
           <div className="lg:col-span-2">
             <div className="gather-section p-6 rounded-3xl sticky top-24 space-y-4">
               <h2 className="text-lg font-black text-[#171717]">Your Order</h2>
@@ -297,7 +324,6 @@ export default function CheckoutPageClient() {
         </div>
       </form>
 
-      {/* Same-day popup */}
       {showSameDayPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-5" role="dialog" aria-modal="true">
           <div className="absolute inset-0 bg-black/62" onClick={() => setShowSameDayPopup(false)} />
@@ -308,9 +334,7 @@ export default function CheckoutPageClient() {
             >
               ×
             </button>
-            <div className="w-16 h-16 rounded-full bg-[#ff7a1a] text-white text-3xl flex items-center justify-center mx-auto mb-4">
-              🕒
-            </div>
+            <div className="w-16 h-16 rounded-full bg-[#ff7a1a] text-white text-3xl flex items-center justify-center mx-auto mb-4">🕒</div>
             <h3 className="text-2xl font-black text-[#171717] mb-2">Same-day delivery notice</h3>
             <p className="text-[#6b4b00] font-semibold text-sm leading-relaxed">
               Same-day delivery is available until 2:00 PM only. Your order will be delivered tomorrow.
@@ -318,7 +342,7 @@ export default function CheckoutPageClient() {
             <div className="grid gap-3 mt-6">
               <button
                 onClick={() => {
-                  set('deliveryDate', tomorrowString())
+                  setFn('deliveryDate', tomorrowString())
                   setShowSameDayPopup(false)
                 }}
                 className="w-full h-12 rounded-full bg-[#ff7a1a] text-white font-black text-sm hover:bg-[#fe6c00] transition-colors"
@@ -347,15 +371,7 @@ function inputCls(hasError: boolean) {
   }`
 }
 
-function Field({
-  label,
-  error,
-  children,
-}: {
-  label: string
-  error?: string
-  children: React.ReactNode
-}) {
+function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
       <label className="block text-sm font-semibold text-gray-700">{label}</label>

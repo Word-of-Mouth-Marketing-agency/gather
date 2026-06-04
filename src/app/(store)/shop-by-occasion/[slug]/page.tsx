@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getCategoryBySlug, getCategoriesByType, getProductsByOccasion } from '@/lib/data'
+
+export const dynamic = 'force-dynamic'
 import ProductCard from '@/components/ProductCard'
 
 interface Props {

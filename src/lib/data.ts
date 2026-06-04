@@ -4,38 +4,57 @@ import categoriesData from '@/data/categories.json'
 import pagesData from '@/data/pages.json'
 import bundlesData from '@/data/bundles.json'
 
-// Cast JSON to typed arrays
-const products = productsData as Product[]
-const categories = categoriesData as Category[]
-const pages = pagesData as Page[]
-const bundles = bundlesData as Bundle[]
+const STATIC_PRODUCTS = productsData as Product[]
+const STATIC_CATEGORIES = categoriesData as Category[]
+const STATIC_PAGES = pagesData as Page[]
+const STATIC_BUNDLES = bundlesData as Bundle[]
+
+const cache: Record<string, { data: unknown; ts: number }> = {}
+const CACHE_TTL = 2000
+
+function readCached<T>(key: string, staticFallback: T, filename: string): T {
+  const cached = cache[key]
+  if (cached && Date.now() - cached.ts < CACHE_TTL) return cached.data as T
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const fs = require('fs') as typeof import('fs')
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const path = require('path') as typeof import('path')
+    const raw = fs.readFileSync(path.join(process.cwd(), 'src', 'data', filename), 'utf-8')
+    const data = JSON.parse(raw) as T
+    cache[key] = { data, ts: Date.now() }
+    return data
+  } catch {
+    return staticFallback
+  }
+}
 
 // ─── Products ─────────────────────────────────────────────────────────────────
 
 export function getAllProducts(): Product[] {
-  return products
+  return readCached<Product[]>('products', STATIC_PRODUCTS, 'products.json')
 }
 
 export function getProductBySlug(slug: string): Product | undefined {
-  return products.find((p) => p.slug === slug)
+  return getAllProducts().find((p) => p.slug === slug)
 }
 
 export function getProductById(id: string): Product | undefined {
-  return products.find((p) => p.id === id)
+  return getAllProducts().find((p) => p.id === id)
 }
 
 export function getFeaturedProducts(limit?: number): Product[] {
-  const featured = products.filter((p) => p.featured)
+  const featured = getAllProducts().filter((p) => p.featured)
   return limit ? featured.slice(0, limit) : featured
 }
 
 export function getProductsByCategory(categoryId: string, limit?: number): Product[] {
-  const filtered = products.filter((p) => p.categoryIds.includes(categoryId))
+  const filtered = getAllProducts().filter((p) => p.categoryIds.includes(categoryId))
   return limit ? filtered.slice(0, limit) : filtered
 }
 
 export function getProductsByOccasion(occasionId: string, limit?: number): Product[] {
-  const filtered = products.filter((p) => p.occasionIds.includes(occasionId))
+  const filtered = getAllProducts().filter((p) => p.occasionIds.includes(occasionId))
   return limit ? filtered.slice(0, limit) : filtered
 }
 
@@ -50,46 +69,46 @@ export function getCrossSellProducts(productId: string): Product[] {
 // ─── Categories ───────────────────────────────────────────────────────────────
 
 export function getAllCategories(): Category[] {
-  return categories
+  return readCached<Category[]>('categories', STATIC_CATEGORIES, 'categories.json')
 }
 
 export function getCategoriesByType(type: 'category' | 'occasion', limit?: number): Category[] {
-  const filtered = categories
+  const filtered = getAllCategories()
     .filter((c) => c.type === type)
     .sort((a, b) => a.order - b.order)
   return limit ? filtered.slice(0, limit) : filtered
 }
 
 export function getCategoryBySlug(slug: string): Category | undefined {
-  return categories.find((c) => c.slug === slug)
+  return getAllCategories().find((c) => c.slug === slug)
 }
 
 export function getCategoryById(id: string): Category | undefined {
-  return categories.find((c) => c.id === id)
+  return getAllCategories().find((c) => c.id === id)
 }
 
 // ─── Pages ────────────────────────────────────────────────────────────────────
 
 export function getAllPages(): Page[] {
-  return pages
+  return readCached<Page[]>('pages', STATIC_PAGES, 'pages.json')
 }
 
 export function getPageBySlug(slug: string): Page | undefined {
-  return pages.find((p) => p.slug === slug)
+  return getAllPages().find((p) => p.slug === slug)
 }
 
 export function getPageById(id: string): Page | undefined {
-  return pages.find((p) => p.id === id)
+  return getAllPages().find((p) => p.id === id)
 }
 
 // ─── Bundles ───────────────────────────────────────────────────────────────────
 
 export function getAllBundles(): Bundle[] {
-  return bundles
+  return readCached<Bundle[]>('bundles', STATIC_BUNDLES, 'bundles.json')
 }
 
 export function getBundleById(id: string): Bundle | undefined {
-  return bundles.find((b) => b.id === id)
+  return getAllBundles().find((b) => b.id === id)
 }
 
 export function getBundleProducts(bundle: Bundle): Product[] {

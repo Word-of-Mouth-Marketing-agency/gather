@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { getCategoriesByType } from '@/lib/data'
+
+export const dynamic = 'force-dynamic'
 import CategoryCard from '@/components/CategoryCard'
 
 export const metadata: Metadata = {

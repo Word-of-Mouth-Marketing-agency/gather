@@ -9,91 +9,21 @@
     "salePrice": 720,
     "currency": "EGP",
     "images": [
-      "/images/products/luxury-birthday-box-1.jpg",
-      "/images/products/luxury-birthday-box-2.jpg"
+      "/uploads/1780570456131-bxydb.webp"
     ],
-    "categoryIds": ["cat-gift-boxes"],
-    "occasionIds": ["occ-birthday"],
+    "categoryIds": [
+      "cat-gift-boxes"
+    ],
+    "occasionIds": [
+      "occ-birthday"
+    ],
     "stock": 15,
-    "crossSellIds": ["prod-7", "prod-8"],
+    "crossSellIds": [
+      "prod-7",
+      "prod-8"
+    ],
     "featured": true,
     "createdAt": "2026-01-01T00:00:00Z"
-  },
-  {
-    "id": "prod-2",
-    "slug": "romantic-rose-bouquet",
-    "name": "Romantic Rose Bouquet",
-    "description": "A stunning arrangement of 24 premium red roses, elegantly wrapped and ready to deliver joy. Fresh daily and arranged by our expert florists.",
-    "shortDescription": "24 premium red roses, elegantly wrapped",
-    "price": 650,
-    "salePrice": null,
-    "currency": "EGP",
-    "images": [
-      "/images/products/romantic-rose-bouquet-1.jpg"
-    ],
-    "categoryIds": ["cat-flowers"],
-    "occasionIds": ["occ-engagement", "occ-birthday", "occ-mothers-day"],
-    "stock": 20,
-    "crossSellIds": ["prod-3", "prod-6"],
-    "featured": true,
-    "createdAt": "2026-01-02T00:00:00Z"
-  },
-  {
-    "id": "prod-3",
-    "slug": "belgian-chocolate-box",
-    "name": "Belgian Chocolate Box",
-    "description": "An exquisite selection of 16 handcrafted Belgian chocolates in a signature Gather gift box. Flavors include dark, milk, and white chocolate with various premium fillings.",
-    "shortDescription": "16 handcrafted Belgian chocolates",
-    "price": 420,
-    "salePrice": null,
-    "currency": "EGP",
-    "images": [
-      "/images/products/belgian-chocolate-box-1.jpg"
-    ],
-    "categoryIds": ["cat-chocolates"],
-    "occasionIds": ["occ-birthday", "occ-engagement", "occ-eid"],
-    "stock": 30,
-    "crossSellIds": ["prod-1", "prod-5"],
-    "featured": false,
-    "createdAt": "2026-01-03T00:00:00Z"
-  },
-  {
-    "id": "prod-4",
-    "slug": "luxury-scented-candle",
-    "name": "Luxury Scented Candle",
-    "description": "Hand-poured soy wax candle with premium fragrance oils. Burns for up to 50 hours. Available in our signature Gather scent — a warm blend of oud, amber, and vanilla.",
-    "shortDescription": "Hand-poured soy wax, 50hr burn time",
-    "price": 280,
-    "salePrice": null,
-    "currency": "EGP",
-    "images": [
-      "/images/products/luxury-scented-candle-1.jpg"
-    ],
-    "categoryIds": ["cat-candles"],
-    "occasionIds": ["occ-birthday", "occ-mothers-day"],
-    "stock": 25,
-    "crossSellIds": ["prod-3", "prod-8"],
-    "featured": false,
-    "createdAt": "2026-01-04T00:00:00Z"
-  },
-  {
-    "id": "prod-5",
-    "slug": "celebration-balloon-bouquet",
-    "name": "Celebration Balloon Bouquet",
-    "description": "A festive balloon bouquet featuring 10 premium helium balloons in coordinated colors. Custom message cards available on request.",
-    "shortDescription": "10 premium helium balloons",
-    "price": 350,
-    "salePrice": 299,
-    "currency": "EGP",
-    "images": [
-      "/images/products/celebration-balloon-bouquet-1.jpg"
-    ],
-    "categoryIds": ["cat-balloons"],
-    "occasionIds": ["occ-birthday", "occ-engagement"],
-    "stock": 18,
-    "crossSellIds": ["prod-1", "prod-7"],
-    "featured": true,
-    "createdAt": "2026-01-05T00:00:00Z"
   },
   {
     "id": "prod-6",
@@ -105,13 +35,19 @@
     "salePrice": 840,
     "currency": "EGP",
     "images": [
-      "/images/products/mothers-day-gift-set-1.jpg",
-      "/images/products/mothers-day-gift-set-2.jpg"
+      "/uploads/1780570758820-ejouj.webp"
     ],
-    "categoryIds": ["cat-gift-boxes"],
-    "occasionIds": ["occ-mothers-day"],
+    "categoryIds": [
+      "cat-gift-boxes"
+    ],
+    "occasionIds": [
+      "occ-mothers-day"
+    ],
     "stock": 12,
-    "crossSellIds": ["prod-2", "prod-4"],
+    "crossSellIds": [
+      "prod-2",
+      "prod-4"
+    ],
     "featured": true,
     "createdAt": "2026-01-06T00:00:00Z"
   },
@@ -125,70 +61,21 @@
     "salePrice": null,
     "currency": "EGP",
     "images": [
-      "/images/products/ramadan-kareem-basket-1.jpg"
+      "/uploads/1780570771993-lwbzu.webp"
     ],
-    "categoryIds": ["cat-gift-boxes"],
-    "occasionIds": ["occ-ramadan", "occ-eid"],
+    "categoryIds": [
+      "cat-gift-boxes"
+    ],
+    "occasionIds": [
+      "occ-ramadan",
+      "occ-eid"
+    ],
     "stock": 8,
-    "crossSellIds": ["prod-3", "prod-8"],
+    "crossSellIds": [
+      "prod-3",
+      "prod-8"
+    ],
     "featured": true,
     "createdAt": "2026-01-07T00:00:00Z"
-  },
-  {
-    "id": "prod-8",
-    "slug": "custom-celebration-cake",
-    "name": "Custom Celebration Cake",
-    "description": "A custom-made celebration cake crafted by our partner bakers. Choose your flavor, size, and decoration theme. Order at least 48 hours in advance.",
-    "shortDescription": "Custom-made, your choice of flavor & design",
-    "price": 750,
-    "salePrice": null,
-    "currency": "EGP",
-    "images": [
-      "/images/products/custom-celebration-cake-1.jpg"
-    ],
-    "categoryIds": ["cat-cakes"],
-    "occasionIds": ["occ-birthday", "occ-engagement"],
-    "stock": 5,
-    "crossSellIds": ["prod-5", "prod-3"],
-    "featured": false,
-    "createdAt": "2026-01-08T00:00:00Z"
-  },
-  {
-    "id": "prod-9",
-    "slug": "eid-mubarak-gift-box",
-    "name": "Eid Mubarak Gift Box",
-    "description": "Celebrate Eid Al-Fitr with our premium gift box filled with specialty sweets, premium nuts, luxury chocolates, and a beautiful Eid card.",
-    "shortDescription": "Specialty sweets, nuts & chocolates for Eid",
-    "price": 650,
-    "salePrice": 550,
-    "currency": "EGP",
-    "images": [
-      "/images/products/eid-mubarak-gift-box-1.jpg"
-    ],
-    "categoryIds": ["cat-gift-boxes"],
-    "occasionIds": ["occ-eid"],
-    "stock": 20,
-    "crossSellIds": ["prod-7", "prod-3"],
-    "featured": true,
-    "createdAt": "2026-01-09T00:00:00Z"
-  },
-  {
-    "id": "prod-10",
-    "slug": "corporate-welcome-kit",
-    "name": "Corporate Welcome Kit",
-    "description": "Make a great first impression with our Corporate Welcome Kit. Includes premium branded stationery, specialty coffee, artisan snacks, and a personalized note.",
-    "shortDescription": "Premium corporate gifting solution",
-    "price": 1500,
-    "salePrice": null,
-    "currency": "EGP",
-    "images": [
-      "/images/products/corporate-welcome-kit-1.jpg"
-    ],
-    "categoryIds": ["cat-gift-boxes"],
-    "occasionIds": ["occ-professional"],
-    "stock": 10,
-    "crossSellIds": ["prod-4", "prod-3"],
-    "featured": false,
-    "createdAt": "2026-01-10T00:00:00Z"
   }
 ]

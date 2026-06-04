@@ -1,30 +1,29 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import type { CartItem, Product } from '@/types'
+import type { Product } from '@/types'
 import { getCart, getCartTotal, getCartProducts, updateQuantity, removeFromCart } from '@/lib/cart'
 import { formatPrice, getDisplayPrice } from '@/lib/data'
 
 type CartEntry = { product: Product; quantity: number }
 
-export default function CartPageClient() {
-  const [entries, setEntries] = useState<CartEntry[]>([])
-  const [items, setItems] = useState<CartItem[]>([])
+function loadEntries(): CartEntry[] {
+  const cart = getCart()
+  return getCartProducts(cart)
+}
 
-  const refresh = () => {
-    const cart = getCart()
-    setItems(cart)
-    setEntries(getCartProducts(cart))
-  }
+export default function CartPageClient() {
+  const [entries, setEntries] = useState<CartEntry[]>(loadEntries)
 
   useEffect(() => {
-    refresh()
-    window.addEventListener('gather:cart-updated', refresh)
-    return () => window.removeEventListener('gather:cart-updated', refresh)
+    const handler = () => setEntries(loadEntries())
+    window.addEventListener('gather:cart-updated', handler)
+    return () => window.removeEventListener('gather:cart-updated', handler)
   }, [])
 
+  const items = entries.map((e) => ({ productId: e.product.id, quantity: e.quantity }))
   const total = getCartTotal(items)
 
   if (entries.length === 0) {
@@ -43,13 +42,11 @@ export default function CartPageClient() {
   function handleQty(productId: string, qty: number) {
     updateQuantity(productId, qty)
     window.dispatchEvent(new Event('gather:cart-updated'))
-    refresh()
   }
 
   function handleRemove(productId: string) {
     removeFromCart(productId)
     window.dispatchEvent(new Event('gather:cart-updated'))
-    refresh()
   }
 
   return (
@@ -59,7 +56,6 @@ export default function CartPageClient() {
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Items */}
         <div className="lg:col-span-2 space-y-4">
           {entries.map(({ product, quantity }) => (
             <div key={product.id} className="flex gap-4 p-4 rounded-2xl bg-white border border-[#f1e2d3] hover:shadow-md transition-shadow">
@@ -78,7 +74,6 @@ export default function CartPageClient() {
                 </p>
 
                 <div className="flex items-center gap-3 mt-3">
-                  {/* Qty */}
                   <div className="flex items-center border border-gray-200 rounded-full overflow-hidden text-sm">
                     <button
                       onClick={() => handleQty(product.id, quantity - 1)}
@@ -113,7 +108,6 @@ export default function CartPageClient() {
           ))}
         </div>
 
-        {/* Summary */}
         <div className="lg:col-span-1">
           <div className="gather-section p-6 rounded-3xl sticky top-24">
             <h2 className="text-lg font-black text-[#171717] mb-4">Order Summary</h2>

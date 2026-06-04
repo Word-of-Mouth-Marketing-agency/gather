@@ -3,6 +3,8 @@ import { getPageBySlug } from '@/lib/data'
 import SectionRenderer from '@/components/SectionRenderer'
 import HeroSlideshow from '@/components/sections/HeroSlideshow'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Gather — Premium Gifts Delivered Same-Day in Cairo',
 }

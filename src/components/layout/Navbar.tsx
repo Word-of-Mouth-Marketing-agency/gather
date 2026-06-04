@@ -63,7 +63,7 @@ export default function Navbar() {
 
             {/* Account */}
             <Link
-              href="/account"
+              href="/my-account"
               className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Account"
             >

@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import { getCategoryBySlug, getCategoriesByType, getProductsByCategory } from '@/lib/data'
 import ProductCard from '@/components/ProductCard'
 
+export const dynamic = 'force-dynamic'
+
 interface Props {
   params: Promise<{ slug: string }>
 }
