@@ -43,7 +43,7 @@ export default function ProductCard({ product }: Props) {
         )}
       </div>
 
-      <article className="w-full min-h-[250px] rounded-2xl bg-[#fdf6ee] p-4 shadow-[2px_4px_0_rgba(0,0,0,0.8)] flex flex-col gap-3 justify-between">
+      <article className="w-full rounded-2xl bg-[#fdf6ee] px-4 pb-4 pt-[120px] shadow-[2px_4px_0_rgba(0,0,0,0.8)] flex flex-col gap-3">
         {hasDiscount && (
           <span className="text-xs font-black text-[#DB7100] uppercase tracking-wider">SALE</span>
         )}
