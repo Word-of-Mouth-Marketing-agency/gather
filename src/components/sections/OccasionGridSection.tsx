@@ -26,7 +26,7 @@ export default function OccasionGridSection({
       </div>
 
       <div
-        className="absolute -bottom-16 sm:-bottom-20 right-4 sm:right-8 w-36 h-36 sm:w-48 sm:h-48 pointer-events-none select-none z-10"
+        className="absolute -bottom-2 sm:bottom-4 right-0 w-36 h-36 sm:w-48 sm:h-48 pointer-events-none select-none z-10"
         style={{ transform: `translateY(${translateY}px)` }}
       >
         <img
