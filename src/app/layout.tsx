@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   },
   description:
     "Gather — Cairo's premium gifting platform. Shop gift boxes, flowers, chocolates, and more for every occasion. Same-day delivery available.",
+  icons: {
+    icon: '/assets/gather/favicon.png',
+  },
   openGraph: {
     title: 'Gather — Premium Gifts Delivered Same-Day in Cairo',
     description: 'Shop premium gifts for every occasion. Same-day delivery across Cairo.',
