@@ -43,6 +43,8 @@ export type SectionType =
   | 'image-block'
   | 'moments-wall'
   | 'cta-banner'
+  | 'offers-grid'
+  | 'why-gather'
 
 export interface HeroSectionProps {
   title: string
@@ -106,6 +108,16 @@ export interface CtaBannerSectionProps {
   variant?: 'orange' | 'warm'
 }
 
+export interface OffersGridSectionProps {
+  title: string
+  subtitle?: string
+}
+
+export interface WhyGatherSectionProps {
+  title: string
+  subtitle?: string
+}
+
 type SectionPropsMap = {
   hero: HeroSectionProps
   banner: BannerSectionProps
@@ -116,6 +128,8 @@ type SectionPropsMap = {
   'image-block': ImageBlockSectionProps
   'moments-wall': MomentsWallSectionProps
   'cta-banner': CtaBannerSectionProps
+  'offers-grid': OffersGridSectionProps
+  'why-gather': WhyGatherSectionProps
 }
 
 export type Section<T extends SectionType = SectionType> = {

@@ -18,14 +18,12 @@ export default function HomePage() {
     )
   }
 
-  const nonHeroSections = page.sections.filter((s) => s.type !== 'hero')
+  const sections = page.sections.filter((s) => s.type !== 'hero')
 
   return (
     <main className="overflow-x-hidden">
       <HeroSlideshow />
-      <div className="py-8 lg:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <SectionRenderer sections={nonHeroSections} />
-      </div>
+      <SectionRenderer sections={sections} />
     </main>
   )
 }

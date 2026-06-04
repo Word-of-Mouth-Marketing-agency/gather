@@ -6,6 +6,8 @@ import CategoryGridSection from './sections/CategoryGridSection'
 import TextBlockSection from './sections/TextBlockSection'
 import CtaBannerSection from './sections/CtaBannerSection'
 import MomentsWallSection from './sections/MomentsWallSection'
+import OffersGridSection from './sections/OffersGridSection'
+import WhyGatherSection from './sections/WhyGatherSection'
 
 interface Props {
   sections: Section[]
@@ -76,6 +78,20 @@ function SectionSwitch({ section }: { section: Section }) {
       return (
         <MomentsWallSection
           {...(section.props as React.ComponentProps<typeof MomentsWallSection>)}
+        />
+      )
+
+    case 'offers-grid':
+      return (
+        <OffersGridSection
+          {...(section.props as React.ComponentProps<typeof OffersGridSection>)}
+        />
+      )
+
+    case 'why-gather':
+      return (
+        <WhyGatherSection
+          {...(section.props as React.ComponentProps<typeof WhyGatherSection>)}
         />
       )
 

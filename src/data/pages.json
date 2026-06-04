@@ -21,15 +21,14 @@
         }
       },
       {
-        "id": "home-occasions",
-        "type": "occasion-grid",
+        "id": "home-categories",
+        "type": "category-grid",
         "order": 2,
         "visible": true,
         "props": {
-          "title": "Shop by Occasion",
-          "subtitle": "Find the perfect gift for every special moment",
-          "type": "occasion",
-          "limit": 8
+          "title": "Shop by Category",
+          "subtitle": "Explore our full range of premium gift categories",
+          "type": "category"
         }
       },
       {
@@ -46,33 +45,41 @@
         }
       },
       {
-        "id": "home-categories",
-        "type": "category-grid",
+        "id": "home-occasions",
+        "type": "occasion-grid",
         "order": 4,
         "visible": true,
         "props": {
-          "title": "Shop by Category",
-          "subtitle": "Explore our full range of premium gift categories",
-          "type": "category"
+          "title": "Shop by Occasion",
+          "subtitle": "Find the perfect gift for every special moment",
+          "type": "occasion",
+          "limit": 8
         }
       },
       {
-        "id": "home-cta",
-        "type": "cta-banner",
+        "id": "home-offers",
+        "type": "offers-grid",
         "order": 5,
         "visible": true,
         "props": {
-          "title": "Same-Day Delivery Across Cairo",
-          "subtitle": "Available in Dokki, Mohandessin, Manial, Zamalek, and Haram",
-          "ctaText": "Order Now",
-          "ctaUrl": "/shop-by-category",
-          "variant": "orange"
+          "title": "Offers & Bundles",
+          "subtitle": "Curated bundles and exclusive savings"
+        }
+      },
+      {
+        "id": "home-why-gather",
+        "type": "why-gather",
+        "order": 6,
+        "visible": true,
+        "props": {
+          "title": "Why Gather",
+          "subtitle": "We make every celebration unforgettable"
         }
       },
       {
         "id": "home-moments",
         "type": "moments-wall",
-        "order": 6,
+        "order": 7,
         "visible": true,
         "props": {
           "title": "Gather Moments",
