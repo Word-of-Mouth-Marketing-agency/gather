@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, startTransition } from 'react'
+import { useCustomerSession } from '@/lib/customer-auth'
 
 interface Props {
   open: boolean
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function ShareMomentModal({ open, onClose }: Props) {
+  const session = useCustomerSession()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -20,6 +22,7 @@ export default function ShareMomentModal({ open, onClose }: Props) {
   const overlayRef = useRef<HTMLDivElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const prefilledOpenRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (!open) return
@@ -45,11 +48,25 @@ export default function ShareMomentModal({ open, onClose }: Props) {
   }, [open])
 
   useEffect(() => {
-    if (open) {
-      startTransition(() => { setSuccess(false) })
-      startTransition(() => { setErrors({}) })
-    }
+    if (!open) return
+    startTransition(() => { setSuccess(false) })
+    startTransition(() => { setErrors({}) })
+    prefilledOpenRef.current = null
   }, [open])
+
+  useEffect(() => {
+    if (!open || !session) return
+    if (prefilledOpenRef.current === 'done') return
+    prefilledOpenRef.current = 'done'
+    if (!name) startTransition(() => { setName(session.name) })
+    if (!email) startTransition(() => { setEmail(session.email) })
+    fetch(`/api/auth/customer?id=${encodeURIComponent(session.id)}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((profile) => {
+        if (profile?.phone && !phone) startTransition(() => { setPhone(profile.phone) })
+      })
+      .catch(() => {})
+  }, [open, session, name, email, phone])
 
   if (!open) return null
 
