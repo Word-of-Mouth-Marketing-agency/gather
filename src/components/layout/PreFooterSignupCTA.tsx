@@ -10,7 +10,7 @@ export default function PreFooterSignupCTA() {
   const session = useCustomerSession()
   const mounted = useSyncExternalStore(subscribeToMount, () => true, () => false)
 
-  if (!mounted || pathname.startsWith('/products/') || pathname.startsWith('/my-account') || pathname === '/login' || pathname === '/signup') return null
+  if (!mounted || pathname.startsWith('/products/') || pathname.startsWith('/my-account') || pathname === '/login' || pathname === '/signup' || pathname === '/checkout') return null
 
   return (
     <section className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16 bg-white">
