@@ -29,7 +29,7 @@ export default async function CategoryDetailPage({ params }: Props) {
   const { slug } = await params
   const category = getCategoryBySlug(slug)
 
-  if (!category || category.type !== 'category') notFound()
+  if (!category || category.type !== 'category' || category.isActive === false) notFound()
 
   const products = getProductsByCategory(category.id)
 

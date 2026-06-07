@@ -28,7 +28,9 @@ export interface Category {
   image: string
   type: 'category' | 'occasion'
   parentId: string | null
-  order: number
+  sortOrder: number
+  isActive: boolean
+  order?: number
 }
 
 // ─── Page Sections ─────────────────────────────────────────────────────────────

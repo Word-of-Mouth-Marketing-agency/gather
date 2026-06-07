@@ -12,6 +12,10 @@ const STATIC_BUNDLES = bundlesData as Bundle[]
 const cache: Record<string, { data: unknown; ts: number }> = {}
 const CACHE_TTL = 2000
 
+function categorySortOrder(category: Category): number {
+  return category.sortOrder ?? category.order ?? 0
+}
+
 function readCached<T>(key: string, staticFallback: T, filename: string): T {
   const cached = cache[key]
   if (cached && Date.now() - cached.ts < CACHE_TTL) return cached.data as T
@@ -75,7 +79,8 @@ export function getAllCategories(): Category[] {
 export function getCategoriesByType(type: 'category' | 'occasion', limit?: number): Category[] {
   const filtered = getAllCategories()
     .filter((c) => c.type === type)
-    .sort((a, b) => a.order - b.order)
+    .filter((c) => c.isActive !== false)
+    .sort((a, b) => categorySortOrder(a) - categorySortOrder(b))
   return limit ? filtered.slice(0, limit) : filtered
 }
 

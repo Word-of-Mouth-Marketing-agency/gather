@@ -11,7 +11,8 @@ const EMPTY_FORM: CategoryForm = {
   description: '',
   type: 'category',
   parentId: null,
-  order: 0,
+  sortOrder: 0,
+  isActive: true,
   image: '',
 }
 
@@ -39,10 +40,23 @@ export default function AdminCategoriesPage() {
 
   useEffect(() => { startTransition(() => { load() }) }, [])
 
-  const filtered = items.filter((c) => c.type === activeTab)
+  const filtered = items
+    .filter((c) => c.type === activeTab)
+    .sort((a, b) => (a.sortOrder ?? a.order ?? 0) - (b.sortOrder ?? b.order ?? 0))
 
   function openNew() {
-    setModal({ open: true, editing: null, form: { ...EMPTY_FORM, type: activeTab } })
+    const nextSortOrder =
+      Math.max(
+        0,
+        ...items
+          .filter((item) => item.type === activeTab)
+          .map((item) => item.sortOrder ?? item.order ?? 0)
+      ) + 1
+    setModal({
+      open: true,
+      editing: null,
+      form: { ...EMPTY_FORM, type: activeTab, sortOrder: nextSortOrder },
+    })
   }
 
   function openEdit(item: Category) {
@@ -56,6 +70,8 @@ export default function AdminCategoriesPage() {
         type: item.type,
         parentId: item.parentId,
         order: item.order,
+        sortOrder: item.sortOrder ?? item.order ?? 0,
+        isActive: item.isActive !== false,
         image: item.image,
       },
     })
@@ -138,6 +154,7 @@ export default function AdminCategoriesPage() {
                 <th className="text-left px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wide">Name</th>
                 <th className="text-left px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wide hidden md:table-cell">Slug</th>
                 <th className="text-left px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wide hidden lg:table-cell">Order</th>
+                <th className="text-left px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wide hidden lg:table-cell">Status</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
@@ -156,7 +173,16 @@ export default function AdminCategoriesPage() {
                     </div>
                   </td>
                   <td className="px-5 py-3 hidden md:table-cell text-gray-500 font-mono text-xs">{cat.slug}</td>
-                  <td className="px-5 py-3 hidden lg:table-cell text-gray-500">{cat.order}</td>
+                  <td className="px-5 py-3 hidden lg:table-cell text-gray-500">{cat.sortOrder ?? cat.order ?? 0}</td>
+                  <td className="px-5 py-3 hidden lg:table-cell">
+                    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${
+                      cat.isActive !== false
+                        ? 'bg-green-50 text-green-700'
+                        : 'bg-gray-100 text-gray-500'
+                    }`}>
+                      {cat.isActive !== false ? 'Enabled' : 'Disabled'}
+                    </span>
+                  </td>
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2 justify-end">
                       <button onClick={() => openEdit(cat)} className="text-xs text-[#ff7a1a] hover:underline font-semibold">Edit</button>
@@ -226,11 +252,25 @@ export default function AdminCategoriesPage() {
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Order</label>
                 <input
                   type="number"
-                  value={modal.form.order}
-                  onChange={(e) => setFormField('order', Number(e.target.value))}
+                  value={modal.form.sortOrder}
+                  onChange={(e) => setFormField('sortOrder', Number(e.target.value))}
                   className="w-full mt-1 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a]"
                 />
               </div>
+              <label className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 px-3 py-3">
+                <span>
+                  <span className="block text-xs font-bold text-gray-400 uppercase tracking-wide">Enabled</span>
+                  <span className="block text-xs text-gray-500 mt-0.5">
+                    Show in homepage sections and shop filter pills.
+                  </span>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={modal.form.isActive !== false}
+                  onChange={(e) => setFormField('isActive', e.target.checked)}
+                  className="h-5 w-5 accent-[#ff7a1a]"
+                />
+              </label>
               <div>
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Image URL</label>
                 <input

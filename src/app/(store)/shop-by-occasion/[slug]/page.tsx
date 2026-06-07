@@ -29,7 +29,7 @@ export default async function OccasionDetailPage({ params }: Props) {
   const { slug } = await params
   const occasion = getCategoryBySlug(slug)
 
-  if (!occasion || occasion.type !== 'occasion') notFound()
+  if (!occasion || occasion.type !== 'occasion' || occasion.isActive === false) notFound()
 
   const products = getProductsByOccasion(occasion.id)
 

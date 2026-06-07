@@ -93,7 +93,12 @@ export class JsonCategoryRepository implements CategoryRepository {
 
   create(data: Omit<Category, 'id'>): Category {
     const items = this.getAll()
-    const item: Category = { ...data, id: generateId('cat') }
+    const item: Category = {
+      ...data,
+      id: generateId('cat'),
+      sortOrder: data.sortOrder ?? data.order ?? 0,
+      isActive: data.isActive ?? true,
+    }
     items.push(item)
     writeJson(CATEGORIES_FILE, items)
     return item
