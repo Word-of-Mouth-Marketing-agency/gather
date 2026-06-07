@@ -13,9 +13,22 @@ export interface Product {
   categoryIds: string[]
   occasionIds: string[]
   stock: number
+  stockStatus?: string
+  rating?: number
+  reviewCount?: number
+  reviews?: ProductReview[]
   crossSellIds: string[]
   featured: boolean
   createdAt: string
+}
+
+export interface ProductReview {
+  id: string
+  author: string
+  rating: number
+  title?: string
+  body: string
+  createdAt?: string
 }
 
 // ─── Category ─────────────────────────────────────────────────────────────────

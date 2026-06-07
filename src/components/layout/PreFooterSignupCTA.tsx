@@ -1,6 +1,15 @@
+'use client'
+
+import { useSyncExternalStore } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export default function PreFooterSignupCTA() {
+  const pathname = usePathname()
+  const mounted = useSyncExternalStore(subscribeToMount, () => true, () => false)
+
+  if (!mounted || pathname.startsWith('/products/')) return null
+
   return (
     <section className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16 bg-white">
       <div className="max-w-7xl mx-auto overflow-hidden rounded-[32px] bg-[#fff4e8] border border-[rgba(255,122,26,0.22)] shadow-[0_18px_44px_rgba(122,98,71,0.12)]">
@@ -28,4 +37,9 @@ export default function PreFooterSignupCTA() {
       </div>
     </section>
   )
+}
+
+function subscribeToMount(onStoreChange: () => void) {
+  onStoreChange()
+  return () => {}
 }

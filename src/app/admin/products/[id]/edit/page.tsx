@@ -46,6 +46,8 @@ export default function EditProductPage() {
     salePrice: product.salePrice,
     currency: product.currency,
     stock: product.stock,
+    rating: product.rating,
+    reviewCount: product.reviewCount,
     images: product.images,
     categoryIds: product.categoryIds,
     occasionIds: product.occasionIds,

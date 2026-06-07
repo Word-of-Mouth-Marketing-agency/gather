@@ -14,6 +14,8 @@ export interface ProductFormData {
   salePrice: number | null
   currency: string
   stock: number
+  rating?: number
+  reviewCount?: number
   images: string[]
   categoryIds: string[]
   occasionIds: string[]
@@ -30,6 +32,8 @@ const EMPTY: ProductFormData = {
   salePrice: null,
   currency: 'EGP',
   stock: 0,
+  rating: undefined,
+  reviewCount: undefined,
   images: [],
   categoryIds: [],
   occasionIds: [],
@@ -200,6 +204,32 @@ export default function ProductForm({ initialData, productId }: Props) {
               value={form.stock}
               onChange={(e) => setField('stock', Number(e.target.value))}
               className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Rating</label>
+            <input
+              type="number"
+              min={0}
+              max={5}
+              step="0.1"
+              value={form.rating ?? ''}
+              onChange={(e) => setField('rating', e.target.value ? Number(e.target.value) : undefined)}
+              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+              placeholder="4.8"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Review Count</label>
+            <input
+              type="number"
+              min={0}
+              value={form.reviewCount ?? ''}
+              onChange={(e) => setField('reviewCount', e.target.value ? Number(e.target.value) : undefined)}
+              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+              placeholder="24"
             />
           </div>
         </div>
