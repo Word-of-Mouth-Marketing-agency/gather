@@ -1,21 +1,80 @@
 import type { Metadata } from 'next'
-import { getPageBySlug } from '@/lib/data'
-
-export const dynamic = 'force-dynamic'
-import SectionRenderer from '@/components/SectionRenderer'
+import PageTitleSection from '@/components/PageTitleSection'
 
 export const metadata: Metadata = {
   title: 'About Gather',
-  description: "Learn about Gather — Cairo's premium gifting platform.",
+  description: 'Learn about Gather and how we make celebrations easier.',
 }
 
 export default function AboutPage() {
-  const page = getPageBySlug('about')
-  if (!page) return <main className="py-20 text-center text-gray-400">Page not found</main>
-
   return (
-    <main className="py-10 lg:py-14">
-      <SectionRenderer sections={page.sections} />
-    </main>
+    <>
+      <PageTitleSection title="About" />
+      <main className="bg-white">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+            <div>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#171717]">
+                Our Story
+              </h2>
+              <div className="mt-5 space-y-5 text-base sm:text-lg font-semibold leading-8 text-[#5f4b36]">
+                <p>
+                  GATHER is an e-commerce platform created to be part of your happiest moments.
+                  Our idea is simple: make celebrating easier by bringing together everything you need for gatherings, parties, and special occasions in one convenient place.
+                </p>
+                <p>
+                  Whether you are planning a birthday, engagement, family gathering, friends’ get-together, or even a work event, GATHER helps you find the essentials quickly and easily. From decorations and balloons to snacks, desserts, chocolates, drinks, and other celebration must-haves, we aim to make the preparation process smooth, enjoyable, and stress-free.
+                </p>
+              </div>
+            </div>
+
+            <AboutImagePlaceholder />
+          </div>
+        </section>
+
+        <section className="bg-[#fffaf3] border-y border-[rgba(255,122,26,0.18)]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+              <div className="lg:order-1">
+                <AboutImagePlaceholder />
+              </div>
+
+              <div className="lg:order-2">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#171717]">
+                  What we OFFER
+                </h2>
+                <p className="mt-5 text-base sm:text-lg font-semibold leading-8 text-[#5f4b36]">
+                  We offer a growing range of products for celebrations, gatherings, and events, including:
+                </p>
+                <ul className="mt-6 space-y-3">
+                  {[
+                    'Party decorations and celebration supplies',
+                    'Balloons and occasion accessories',
+                    'Snacks, desserts, and chocolates',
+                    'Drinks and hosting essentials',
+                    'Curated items for different types of social occasions',
+                  ].map((item) => (
+                    <li key={item} className="flex gap-3 text-base sm:text-lg font-bold text-[#171717]">
+                      <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-[#FE7501]" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </>
+  )
+}
+
+function AboutImagePlaceholder() {
+  return (
+    <div className="min-h-[280px] sm:min-h-[360px] rounded-[28px] border-2 border-dashed border-[#f1c9a4] bg-[#fff4e8] flex items-center justify-center p-8 shadow-[0_18px_44px_rgba(122,98,71,0.10)]">
+      <span className="rounded-full bg-white px-5 py-3 text-sm font-black text-[#FE7501] shadow-sm">
+        Gather image placeholder
+      </span>
+    </div>
   )
 }
