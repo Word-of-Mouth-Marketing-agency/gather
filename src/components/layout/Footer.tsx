@@ -63,11 +63,25 @@ export default function Footer() {
             <img
               src="/assets/gather/gather-logo.webp"
               alt="Gather"
-              className="h-14 w-auto"
+              className="h-20 w-auto"
             />
             <p className="mt-4 text-sm font-semibold text-[#7a6247] leading-relaxed">
               Everything your gathering needs.
             </p>
+            <div className="flex items-center gap-2 mt-5">
+              {socialLinks.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  className="w-9 h-9 rounded-full border border-[rgba(255,122,26,0.22)] flex items-center justify-center text-[#7a6247] hover:bg-[#ff7a1a] hover:text-white hover:border-[#ff7a1a] transition-colors duration-200"
+                >
+                  {s.icon}
+                </a>
+              ))}
+            </div>
           </div>
 
           {/* Quick links */}
@@ -113,25 +127,11 @@ export default function Footer() {
             <h3 className="text-base font-bold text-[#171717] mb-4">
               Contact info
             </h3>
-            <ul className="space-y-2.5 text-sm text-[#7a6247]">
+            <ul className="space-y-2.5 text-sm font-semibold text-[#7a6247]">
               <li>+20123456789</li>
               <li>info@gather-eg.com</li>
               <li>Cairo, Egypt</li>
             </ul>
-            <div className="flex items-center gap-2 mt-5">
-              {socialLinks.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={s.label}
-                  className="w-9 h-9 rounded-full border border-[rgba(255,122,26,0.22)] flex items-center justify-center text-[#7a6247] hover:bg-[#ff7a1a] hover:text-white hover:border-[#ff7a1a] transition-colors duration-200"
-                >
-                  {s.icon}
-                </a>
-              ))}
-            </div>
           </div>
         </div>
       </div>
