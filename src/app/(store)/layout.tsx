@@ -1,6 +1,7 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import PreFooterSignupCTA from '@/components/layout/PreFooterSignupCTA'
+import RabbitAssistant from '@/components/RabbitAssistant'
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,6 +10,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
       <div className="flex-1">{children}</div>
       <PreFooterSignupCTA />
       <Footer />
+      <RabbitAssistant />
     </div>
   )
 }
