@@ -54,19 +54,23 @@ export default function ShareMomentModal({ open, onClose }: Props) {
     prefilledOpenRef.current = null
   }, [open])
 
+  const customerName = session?.name ?? ''
+  const customerEmail = session?.email ?? ''
+
   useEffect(() => {
     if (!open || !session) return
     if (prefilledOpenRef.current === 'done') return
     prefilledOpenRef.current = 'done'
-    if (!name) startTransition(() => { setName(session.name) })
-    if (!email) startTransition(() => { setEmail(session.email) })
+    if (customerName) startTransition(() => { setName((prev) => prev || customerName) })
+    if (customerEmail) startTransition(() => { setEmail((prev) => prev || customerEmail) })
     fetch(`/api/auth/customer?id=${encodeURIComponent(session.id)}`)
       .then((r) => r.ok ? r.json() : null)
       .then((profile) => {
-        if (profile?.phone && !phone) startTransition(() => { setPhone(profile.phone) })
+        const p = profile?.phone
+        if (p) startTransition(() => { setPhone((prev) => prev || p) })
       })
       .catch(() => {})
-  }, [open, session, name, email, phone])
+  }, [open, session, customerName, customerEmail])
 
   if (!open) return null
 
