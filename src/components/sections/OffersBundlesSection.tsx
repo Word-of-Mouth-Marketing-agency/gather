@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from 'react'
 import type { OffersGridSectionProps } from '@/types'
 import { getAllBundles } from '@/lib/data'
+import { useScrollParallax } from '@/lib/useScrollParallax'
 import BundleCard from '@/components/BundleCard'
 
 export default function OffersBundlesSection({ title, subtitle }: OffersGridSectionProps) {
@@ -11,6 +12,7 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
   const [current, setCurrent] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const trackRef = useRef<HTMLDivElement>(null)
+  const { ref: sectionRef, translateY } = useScrollParallax({ maxTranslate: -400 })
 
   const total = bundles.length
 
@@ -30,14 +32,17 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
   if (total === 0) return null
 
   return (
-    <section className="relative w-full bg-cover bg-center bg-no-repeat py-16 sm:py-20"
+    <section ref={sectionRef} className="relative w-full bg-cover bg-center bg-no-repeat py-16 sm:py-20"
       style={{ backgroundImage: "url('/assets/gather/offers-bg.webp')" }}
     >
-      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 w-20 h-20 sm:w-28 sm:h-28 opacity-30 pointer-events-none select-none z-0">
+      <div
+        className="absolute top-4 right-4 sm:top-6 sm:right-6 w-36 h-36 sm:w-48 sm:h-48 pointer-events-none select-none z-20"
+        style={{ transform: `translateY(${translateY}px)` }}
+      >
         <img
           src="/assets/gather/floating-rabbit.webp"
           alt=""
-          className="w-full h-full object-contain animate-float"
+          className="w-full h-full object-contain"
           aria-hidden
         />
       </div>
