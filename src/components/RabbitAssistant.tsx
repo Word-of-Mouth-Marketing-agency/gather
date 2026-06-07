@@ -20,9 +20,9 @@ export default function RabbitAssistant() {
         href="https://wa.me/201000000000?text=Hi%20GATHER%2C%20I%20need%20help%20with%20my%20order."
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center gap-3 group"
+        className="flex items-center gap-3"
       >
-        <span className="hidden sm:block bg-white text-[#171717] text-sm font-bold px-4 py-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+        <span className="hidden sm:block bg-white text-[#171717] text-sm font-bold px-4 py-2 rounded-full shadow-lg whitespace-nowrap">
           Need help?
         </span>
         <div className="w-[68px] h-[68px] shrink-0 rounded-full bg-[#fff4e8] border-2 border-[#FE7501] flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer overflow-hidden">
