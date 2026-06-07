@@ -10,7 +10,7 @@ export default function PreFooterSignupCTA() {
   const session = useCustomerSession()
   const mounted = useSyncExternalStore(subscribeToMount, () => true, () => false)
 
-  if (!mounted || pathname.startsWith('/products/')) return null
+  if (!mounted || pathname.startsWith('/products/') || pathname.startsWith('/my-account')) return null
 
   return (
     <section className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16 bg-white">
@@ -23,9 +23,6 @@ export default function PreFooterSignupCTA() {
               </h2>
               <p className="mt-4 text-base sm:text-lg font-bold leading-relaxed text-[#7a6247]">
                 Don&apos;t miss to sign up to join Gather Family/club to enjoy attractive offers and benefits.
-              </p>
-              <p className="mt-2 text-sm sm:text-base text-[#7a6247]">
-                Be the first to hear about special occasion deals, exclusive offers, and future Gather Club benefits made for your celebrations.
               </p>
             </div>
 
