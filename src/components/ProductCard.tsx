@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 import type { Product } from '@/types'
 import { formatPrice, getDisplayPrice } from '@/lib/data'
 import { addToCart } from '@/lib/cart'
@@ -14,14 +14,14 @@ interface Props {
 export default function ProductCard({ product }: Props) {
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
-  const [wishlisted, setWishlisted] = useState(false)
+  const wishlisted = useSyncExternalStore(
+    subscribeToWishlist,
+    () => isInWishlist(product.id),
+    () => false
+  )
 
   const displayPrice = getDisplayPrice(product)
   const hasDiscount = product.salePrice !== null
-
-  useEffect(() => {
-    setWishlisted(isInWishlist(product.id))
-  }, [product.id])
 
   async function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault()
@@ -38,8 +38,7 @@ export default function ProductCard({ product }: Props) {
   function handleToggleWishlist(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
-    const now = toggleWishlist(product.id)
-    setWishlisted(now)
+    toggleWishlist(product.id)
     window.dispatchEvent(new Event('gather:wishlist-updated'))
   }
 
@@ -116,4 +115,10 @@ export default function ProductCard({ product }: Props) {
       </article>
     </Link>
   )
+}
+
+function subscribeToWishlist(onStoreChange: () => void) {
+  if (typeof window === 'undefined') return () => {}
+  window.addEventListener('gather:wishlist-updated', onStoreChange)
+  return () => window.removeEventListener('gather:wishlist-updated', onStoreChange)
 }
