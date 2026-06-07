@@ -9,7 +9,7 @@ export default function CategoryCard({ category }: Props) {
   const href =
     category.type === 'occasion'
       ? `/shop-by-occasion/${category.slug}`
-      : `/shop-by-category/${category.slug}`
+      : `/shop-by-category?category=${category.slug}`
 
   return (
     <Link href={href} className="group flex flex-col items-center gap-3">
