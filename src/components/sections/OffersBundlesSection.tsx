@@ -33,6 +33,15 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
     <section className="relative w-full bg-cover bg-center bg-no-repeat py-16 sm:py-20"
       style={{ backgroundImage: "url('/assets/gather/offers-bg.webp')" }}
     >
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 w-20 h-20 sm:w-28 sm:h-28 opacity-30 pointer-events-none select-none z-0">
+        <img
+          src="/assets/gather/floating-rabbit.webp"
+          alt=""
+          className="w-full h-full object-contain animate-float"
+          aria-hidden
+        />
+      </div>
+
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between gap-4 mb-8">
           <div>
