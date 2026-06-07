@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "cust-1780823095873-lji7f",
+    "name": "client",
+    "email": "client@gather-eg.com",
+    "phone": "01111111111",
+    "password": "helloworld9gg",
+    "addresses": [],
+    "createdAt": "2026-06-07T09:04:55.873Z"
+  }
+]

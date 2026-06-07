@@ -10,13 +10,25 @@ export interface CustomerSession {
   name: string
 }
 
+let cachedRaw: string | null | undefined = undefined
+let cachedSession: CustomerSession | null = null
+
 function readSession(): CustomerSession | null {
   if (typeof window === 'undefined') return null
   try {
     const raw = localStorage.getItem(SESSION_KEY)
-    if (!raw) return null
-    return JSON.parse(raw) as CustomerSession
+    if (raw === cachedRaw) return cachedSession
+    cachedRaw = raw
+    if (!raw) {
+      cachedSession = null
+      return null
+    }
+    cachedSession = JSON.parse(raw) as CustomerSession
+    return cachedSession
   } catch {
+    cachedRaw = null
+    cachedSession = null
+    try { localStorage.removeItem(SESSION_KEY) } catch { /* ignore */ }
     return null
   }
 }
@@ -31,12 +43,17 @@ export function getCustomerSession(): CustomerSession | null {
 }
 
 export function setCustomerSession(session: CustomerSession): void {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+  const raw = JSON.stringify(session)
+  localStorage.setItem(SESSION_KEY, raw)
+  cachedRaw = raw
+  cachedSession = session
   window.dispatchEvent(new Event('storage'))
 }
 
 export function clearCustomerSession(): void {
   localStorage.removeItem(SESSION_KEY)
+  cachedRaw = null
+  cachedSession = null
   window.dispatchEvent(new Event('storage'))
 }
 
