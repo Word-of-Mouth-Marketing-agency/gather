@@ -3,9 +3,11 @@
 import { useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useCustomerSession } from '@/lib/customer-auth'
 
 export default function PreFooterSignupCTA() {
   const pathname = usePathname()
+  const session = useCustomerSession()
   const mounted = useSyncExternalStore(subscribeToMount, () => true, () => false)
 
   if (!mounted || pathname.startsWith('/products/')) return null
@@ -17,19 +19,25 @@ export default function PreFooterSignupCTA() {
           <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 text-center lg:text-left">
             <div className="max-w-2xl">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-[#171717]">
-                Ready to make every gathering easier?
+                Join the Gather Family
               </h2>
               <p className="mt-4 text-base sm:text-lg font-bold leading-relaxed text-[#7a6247]">
-                Create your Gather account to save favorites, track orders, and get faster checkout for your next celebration.
+                Don&apos;t miss to sign up to join Gather Family/club to enjoy attractive offers and benefits.
+              </p>
+              <p className="mt-2 text-sm sm:text-base text-[#7a6247]">
+                Be the first to hear about special occasion deals, exclusive offers, and future Gather Club benefits made for your celebrations.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-end gap-3 sm:gap-4 lg:shrink-0">
-              <Link href="/my-account" className="gather-btn-primary px-8 py-3.5 text-base shadow-lg">
+              <Link
+                href={session ? '/my-account' : '/signup'}
+                className="gather-btn-primary px-8 py-3.5 text-base shadow-lg"
+              >
                 Sign Up
               </Link>
-              <Link href="/shop-by-category" className="gather-btn-secondary px-8 py-3.5 text-base">
-                Continue Shopping
+              <Link href="/my-account" className="gather-btn-secondary px-8 py-3.5 text-base">
+                My Account
               </Link>
             </div>
           </div>
