@@ -345,3 +345,25 @@ export interface OdooSyncResult {
   syncedAt: string
   errors: string[]
 }
+
+// ─── Customer / Auth ─────────────────────────────────────────────────────────
+
+export interface Address {
+  id: string
+  label: string
+  city: AllowedCity | string
+  street: string
+  apartment?: string
+  phone: string
+  isDefault: boolean
+}
+
+export interface Customer {
+  id: string
+  name: string
+  email: string
+  phone: string
+  password: string
+  addresses: Address[]
+  createdAt: string
+}

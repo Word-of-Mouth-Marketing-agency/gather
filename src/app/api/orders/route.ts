@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server'
 import { getAllOrders, createOrder, updateOrderStatus } from '@/lib/orders'
 
-export async function GET() {
-  const orders = getAllOrders()
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const email = searchParams.get('email')
+  let orders = getAllOrders()
+  if (email) {
+    orders = orders.filter((o) => o.customer.email.toLowerCase() === email.toLowerCase())
+  }
   return NextResponse.json(orders)
 }
 

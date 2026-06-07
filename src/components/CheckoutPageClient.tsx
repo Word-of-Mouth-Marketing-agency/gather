@@ -8,6 +8,7 @@ import type { CheckoutFormData, BundleCartItem } from '@/types'
 import PageTitleSection from '@/components/PageTitleSection'
 import { getCart, getCartTotal, getCartProducts, getCartBundles, clearCart } from '@/lib/cart'
 import { formatPrice } from '@/lib/data'
+import { useCustomerSession } from '@/lib/customer-auth'
 
 const DELIVERY_CITIES = ['Dokki', 'Mohandessin', 'Manial', 'Zamalek', 'Haram'] as const
 
@@ -94,6 +95,7 @@ export default function CheckoutPageClient() {
   const [products, setProducts] = useState<ProductEntry[]>([])
   const [bundles, setBundles] = useState<BundleCartItem[]>([])
   const [total, setTotal] = useState(0)
+  const session = useCustomerSession()
 
   useEffect(() => {
     const data = loadData()
@@ -101,9 +103,27 @@ export default function CheckoutPageClient() {
       setProducts(data.products)
       setBundles(data.bundles)
       setTotal(data.total)
+      if (session) {
+        setForm((f) => ({
+          ...f,
+          firstName: session.name.split(' ')[0] || '',
+          lastName: session.name.split(' ').slice(1).join(' ') || '',
+          email: session.email,
+        }))
+        fetch(`/api/auth/customer?id=${encodeURIComponent(session.id)}`)
+          .then((r) => r.json())
+          .then((profile) => {
+            if (profile.phone) setForm((f) => ({ ...f, phone: profile.phone }))
+            if (profile.addresses?.length > 0) {
+              const addr = profile.addresses.find((a: { isDefault: boolean }) => a.isDefault) || profile.addresses[0]
+              setForm((f) => ({ ...f, city: addr.city, address: addr.street, phone: addr.phone || f.phone }))
+            }
+          })
+          .catch(() => {})
+      }
       setMounted(true)
     })
-  }, [])
+  }, [session])
 
   function setFn(field: keyof CheckoutFormData, value: string) {
     setForm((f) => ({ ...f, [field]: value }))
