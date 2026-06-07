@@ -3,7 +3,7 @@ import { findCustomerByEmail, createCustomer } from '@/lib/customer-data'
 
 export async function POST(request: Request) {
   try {
-    const { name, email, phone, password } = await request.json()
+    const { name, email, phone, password, acceptedDataPolicy, acceptedTermsAndConditions, acceptedCustomerPoliciesAt } = await request.json()
 
     if (!name || !email || !phone || !password) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 })
@@ -13,12 +13,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 })
     }
 
+    if (!acceptedDataPolicy || !acceptedTermsAndConditions) {
+      return NextResponse.json({ error: 'You must accept the Data Policy and Terms & Conditions' }, { status: 400 })
+    }
+
     const existing = findCustomerByEmail(email)
     if (existing) {
       return NextResponse.json({ error: 'An account with this email already exists' }, { status: 409 })
     }
 
-    const customer = createCustomer({ name, email, phone, password })
+    const customer = createCustomer({ name, email, phone, password, acceptedDataPolicy, acceptedTermsAndConditions, acceptedCustomerPoliciesAt })
 
     return NextResponse.json({
       id: customer.id,

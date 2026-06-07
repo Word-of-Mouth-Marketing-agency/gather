@@ -25,6 +25,9 @@ export interface Order {
   }
   paymentMethod: string
   notes: string
+  acceptedPrivacyPolicy: boolean
+  acceptedRefundPolicy: boolean
+  acceptedPoliciesAt: string
   status: 'pending' | 'confirmed' | 'delivered' | 'cancelled'
   createdAt: string
 }

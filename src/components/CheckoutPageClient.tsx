@@ -91,6 +91,9 @@ export default function CheckoutPageClient() {
   const [form, setForm] = useState<CheckoutFormData>(empty)
   const [errors, setErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({})
   const [showSameDayPopup, setShowSameDayPopup] = useState(false)
+  const [acceptedPrivacyPolicy, setAcceptedPrivacyPolicy] = useState(false)
+  const [acceptedRefundPolicy, setAcceptedRefundPolicy] = useState(false)
+  const [policyError, setPolicyError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [products, setProducts] = useState<ProductEntry[]>([])
   const [bundles, setBundles] = useState<BundleCartItem[]>([])
@@ -152,6 +155,11 @@ export default function CheckoutPageClient() {
     if (!form.deliveryDate) e.deliveryDate = 'Required'
     if (!form.deliverySlot) e.deliverySlot = 'Required'
     setErrors(e)
+    if (!acceptedPrivacyPolicy || !acceptedRefundPolicy) {
+      setPolicyError('You must agree to the Privacy Policy and Refund & Returns Policy to place your order.')
+      return false
+    }
+    setPolicyError('')
     return Object.keys(e).length === 0
   }
 
@@ -179,6 +187,7 @@ export default function CheckoutPageClient() {
         })),
       ]
 
+      const acceptedPoliciesAt = new Date().toISOString()
       await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -201,6 +210,9 @@ export default function CheckoutPageClient() {
           },
           paymentMethod: form.paymentMethod,
           notes: form.orderNotes,
+          acceptedPrivacyPolicy,
+          acceptedRefundPolicy,
+          acceptedPoliciesAt,
         }),
       })
     } catch { /* ignore */ }
@@ -434,6 +446,42 @@ export default function CheckoutPageClient() {
               <div className="pt-4 border-t border-[rgba(255,122,26,0.15)] flex justify-between items-center">
                 <span className="text-sm font-bold text-[#7a6247]">Total</span>
                 <span className="text-2xl font-black text-[#ff7a1a]">{formatPrice(total, 'EGP')}</span>
+              </div>
+
+              <div className="space-y-3 pt-2">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={acceptedPrivacyPolicy}
+                    onChange={(e) => { setAcceptedPrivacyPolicy(e.target.checked); setPolicyError('') }}
+                    className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-[#FE7501] focus:ring-[#FE7501]/40"
+                  />
+                  <span className="text-xs sm:text-sm text-[#7a6247] leading-relaxed">
+                    I have read and agree to the{' '}
+                    <Link href="/privacy-policy" className="text-[#ff7a1a] font-semibold hover:underline" target="_blank">
+                      Privacy Policy
+                    </Link>
+                    .
+                  </span>
+                </label>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={acceptedRefundPolicy}
+                    onChange={(e) => { setAcceptedRefundPolicy(e.target.checked); setPolicyError('') }}
+                    className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-[#FE7501] focus:ring-[#FE7501]/40"
+                  />
+                  <span className="text-xs sm:text-sm text-[#7a6247] leading-relaxed">
+                    I have read and agree to the{' '}
+                    <Link href="/refund_returns" className="text-[#ff7a1a] font-semibold hover:underline" target="_blank">
+                      Refund and Returns Policy
+                    </Link>
+                    .
+                  </span>
+                </label>
+                {policyError && (
+                  <p className="text-xs text-red-500 font-medium">{policyError}</p>
+                )}
               </div>
 
               <button

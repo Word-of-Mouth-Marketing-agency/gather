@@ -365,5 +365,8 @@ export interface Customer {
   phone: string
   password: string
   addresses: Address[]
+  acceptedDataPolicy?: boolean
+  acceptedTermsAndConditions?: boolean
+  acceptedCustomerPoliciesAt?: string
   createdAt: string
 }

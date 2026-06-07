@@ -9,6 +9,8 @@ import { setCustomerSession } from '@/lib/customer-auth'
 export default function SignupPage() {
   const router = useRouter()
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' })
+  const [acceptedDataPolicy, setAcceptedDataPolicy] = useState(false)
+  const [acceptedTermsAndConditions, setAcceptedTermsAndConditions] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -31,9 +33,15 @@ export default function SignupPage() {
       return
     }
 
+    if (!acceptedDataPolicy || !acceptedTermsAndConditions) {
+      setError('You must accept the Data Policy and Terms & Conditions to create an account.')
+      return
+    }
+
     setLoading(true)
 
     try {
+      const acceptedCustomerPoliciesAt = new Date().toISOString()
       const res = await fetch('/api/auth/customer/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -42,6 +50,9 @@ export default function SignupPage() {
           email: form.email,
           phone: form.phone,
           password: form.password,
+          acceptedDataPolicy,
+          acceptedTermsAndConditions,
+          acceptedCustomerPoliciesAt,
         }),
       })
 
@@ -138,6 +149,39 @@ export default function SignupPage() {
                 className="w-full min-h-[50px] rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20 transition-colors"
                 placeholder="Repeat your password"
               />
+            </div>
+
+            <div className="space-y-3">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptedDataPolicy}
+                  onChange={(e) => setAcceptedDataPolicy(e.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-[#FE7501] focus:ring-[#FE7501]/40"
+                />
+                <span className="text-sm text-[#7a6247] leading-relaxed">
+                  I read and consent to the{' '}
+                  <Link href="/data-policy" className="text-[#ff7a1a] font-semibold hover:underline" target="_blank">
+                    Data Policy
+                  </Link>
+                  .
+                </span>
+              </label>
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptedTermsAndConditions}
+                  onChange={(e) => setAcceptedTermsAndConditions(e.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-[#FE7501] focus:ring-[#FE7501]/40"
+                />
+                <span className="text-sm text-[#7a6247] leading-relaxed">
+                  I read and consent to the{' '}
+                  <Link href="/terms-and-conditions" className="text-[#ff7a1a] font-semibold hover:underline" target="_blank">
+                    Terms and Conditions
+                  </Link>
+                  .
+                </span>
+              </label>
             </div>
 
             <button

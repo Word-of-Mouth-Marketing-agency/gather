@@ -23,7 +23,15 @@ export function findCustomerById(id: string): Customer | undefined {
   return getCustomers().find((c) => c.id === id)
 }
 
-export function createCustomer(data: { name: string; email: string; phone: string; password: string }): Customer {
+export function createCustomer(data: {
+  name: string
+  email: string
+  phone: string
+  password: string
+  acceptedDataPolicy?: boolean
+  acceptedTermsAndConditions?: boolean
+  acceptedCustomerPoliciesAt?: string
+}): Customer {
   const customers = getCustomers()
   const customer: Customer = {
     id: generateId('cust'),
@@ -32,6 +40,9 @@ export function createCustomer(data: { name: string; email: string; phone: strin
     phone: data.phone,
     password: data.password,
     addresses: [],
+    acceptedDataPolicy: data.acceptedDataPolicy,
+    acceptedTermsAndConditions: data.acceptedTermsAndConditions,
+    acceptedCustomerPoliciesAt: data.acceptedCustomerPoliciesAt,
     createdAt: new Date().toISOString(),
   }
   customers.push(customer)
