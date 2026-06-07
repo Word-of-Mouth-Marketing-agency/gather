@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import type { OffersGridSectionProps } from '@/types'
 import { getAllBundles } from '@/lib/data'
-import { useScrollParallax } from '@/lib/useScrollParallax'
 import BundleCard from '@/components/BundleCard'
 
 export default function OffersBundlesSection({ title, subtitle }: OffersGridSectionProps) {
@@ -12,7 +11,22 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
   const [current, setCurrent] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const trackRef = useRef<HTMLDivElement>(null)
-  const { ref: sectionRef, translateY } = useScrollParallax({ maxTranslate: -400 })
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const [translateY, setTranslateY] = useState(0)
+
+  useEffect(() => {
+    const el = sectionRef.current
+    if (!el) return
+    const handleScroll = () => {
+      const rect = el.getBoundingClientRect()
+      const windowHeight = window.innerHeight
+      const progress = Math.max(0, Math.min(1, (windowHeight - rect.top) / (windowHeight + rect.height)))
+      setTranslateY(progress * -400)
+    }
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const total = bundles.length
 
@@ -36,7 +50,7 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
       style={{ backgroundImage: "url('/assets/gather/offers-bg.webp')" }}
     >
       <div
-        className="absolute top-4 right-4 sm:top-6 sm:right-6 w-36 h-36 sm:w-48 sm:h-48 pointer-events-none select-none z-20"
+        className="absolute top-0 right-0 w-36 h-36 sm:w-48 sm:h-48 pointer-events-none select-none"
         style={{ transform: `translateY(${translateY}px)` }}
       >
         <img
