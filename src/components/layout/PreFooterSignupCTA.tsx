@@ -13,7 +13,7 @@ export default function PreFooterSignupCTA() {
   if (!mounted || pathname.startsWith('/products/') || pathname.startsWith('/my-account') || pathname === '/login' || pathname === '/signup' || pathname === '/checkout') return null
 
   return (
-    <section className="relative w-full bg-[#fffaf3] pt-8 sm:pt-12 lg:pt-14 pb-4 sm:pb-6 overflow-hidden">
+    <section className="relative w-full bg-[#fffaf3] mt-8 sm:mt-12 lg:mt-16 pt-8 sm:pt-12 lg:pt-14 pb-4 sm:pb-6 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="absolute left-0 bottom-0 w-48 h-48 sm:w-56 sm:h-56 lg:w-72 lg:h-72 pointer-events-none select-none hidden sm:block">
           <img
