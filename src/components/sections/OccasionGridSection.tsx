@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import type { OccasionSectionProps } from '@/types'
 import { getCategoriesByType } from '@/lib/data'
+import AnimatedTitle from '@/components/AnimatedTitle'
+import GsapReveal from '@/components/GsapReveal'
 
 export default function OccasionGridSection({
   title,
@@ -25,14 +27,22 @@ export default function OccasionGridSection({
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="mb-8 lg:mb-10 text-center">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#171717]">{title}</h2>
+          <AnimatedTitle
+            as="h2"
+            text={title}
+            className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#171717]"
+          />
           {subtitle && <p className="mt-2 text-sm sm:text-base text-[#7a6247]">{subtitle}</p>}
         </div>
 
-        <div className="grid grid-cols-4 gap-6 sm:gap-8">
+        <GsapReveal
+          className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8"
+          itemSelector="[data-reveal-item]"
+        >
           {occasions.map((occasion) => (
             <Link
               key={occasion.id}
+              data-reveal-item
               href={`/shop-by-occasion?tag=${occasion.slug}`}
               className="group relative aspect-[3/2] rounded-2xl overflow-hidden bg-gray-200"
             >
@@ -47,7 +57,7 @@ export default function OccasionGridSection({
               </span>
             </Link>
           ))}
-        </div>
+        </GsapReveal>
       </div>
     </section>
   )

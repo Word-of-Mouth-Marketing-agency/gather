@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import PageTitleSection from '@/components/PageTitleSection'
+import AnimatedTitle from '@/components/AnimatedTitle'
+import GsapReveal from '@/components/GsapReveal'
 
 export const metadata: Metadata = {
   title: 'About Gather',
@@ -13,10 +15,12 @@ export default function AboutPage() {
       <main className="bg-white">
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
-            <div>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#171717]">
-                Our Story
-              </h2>
+            <GsapReveal>
+              <AnimatedTitle
+                as="h2"
+                text="Our Story"
+                className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#171717]"
+              />
               <div className="mt-5 space-y-5 text-base sm:text-lg font-semibold leading-8 text-[#5f4b36]">
                 <p>
                   GATHER is an e-commerce platform created to be part of your happiest moments.
@@ -26,7 +30,7 @@ export default function AboutPage() {
                   Whether you are planning a birthday, engagement, family gathering, friends’ get-together, or even a work event, GATHER helps you find the essentials quickly and easily. From decorations and balloons to snacks, desserts, chocolates, drinks, and other celebration must-haves, we aim to make the preparation process smooth, enjoyable, and stress-free.
                 </p>
               </div>
-            </div>
+            </GsapReveal>
 
             <AboutImagePlaceholder />
           </div>
@@ -39,10 +43,13 @@ export default function AboutPage() {
                 <AboutImagePlaceholder />
               </div>
 
-              <div className="lg:order-2">
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#171717]">
-                  What we OFFER
-                </h2>
+              <GsapReveal className="lg:order-2">
+                <AnimatedTitle
+                  as="h2"
+                  text="What we OFFER"
+                  accentWord="OFFER"
+                  className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#171717]"
+                />
                 <p className="mt-5 text-base sm:text-lg font-semibold leading-8 text-[#5f4b36]">
                   We offer a growing range of products for celebrations, gatherings, and events, including:
                 </p>
@@ -60,7 +67,7 @@ export default function AboutPage() {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </GsapReveal>
             </div>
           </div>
         </section>

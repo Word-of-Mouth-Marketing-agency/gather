@@ -1,4 +1,6 @@
 import type { WhyGatherSectionProps } from '@/types'
+import AnimatedTitle from '@/components/AnimatedTitle'
+import GsapReveal from '@/components/GsapReveal'
 
 const REASONS = [
   {
@@ -44,13 +46,21 @@ export default function WhyGatherSection({ title, subtitle }: WhyGatherSectionPr
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 lg:pt-16">
       <div className="text-center mb-10">
-        <h2 className="text-2xl sm:text-3xl font-black text-[#171717]">{title}</h2>
+        <AnimatedTitle
+          as="h2"
+          text={title}
+          accentWord="Gather"
+          className="text-2xl sm:text-3xl font-black text-[#171717]"
+        />
         {subtitle && <p className="mt-1 text-sm text-[#7a6247]">{subtitle}</p>}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <GsapReveal
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+        itemSelector="[data-reveal-item]"
+      >
         {REASONS.map((reason) => (
-          <div key={reason.title} className="text-center">
+          <div key={reason.title} data-reveal-item className="text-center">
             <div className="w-16 h-16 rounded-2xl bg-[#fff4e8] flex items-center justify-center mx-auto">
               {reason.icon}
             </div>
@@ -58,7 +68,7 @@ export default function WhyGatherSection({ title, subtitle }: WhyGatherSectionPr
             <p className="mt-2 text-sm text-[#7a6247] leading-relaxed">{reason.description}</p>
           </div>
         ))}
-      </div>
+      </GsapReveal>
     </section>
   )
 }

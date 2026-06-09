@@ -4,6 +4,8 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import type { OffersGridSectionProps } from '@/types'
 import { getAllBundles } from '@/lib/data'
 import BundleCard from '@/components/BundleCard'
+import AnimatedTitle from '@/components/AnimatedTitle'
+import GsapReveal from '@/components/GsapReveal'
 
 export default function OffersBundlesSection({ title, subtitle }: OffersGridSectionProps) {
   const allBundles = getAllBundles()
@@ -64,7 +66,11 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#171717]">{title}</h2>
+            <AnimatedTitle
+              as="h2"
+              text={title}
+              className="text-2xl sm:text-3xl font-black text-[#171717]"
+            />
             {subtitle && <p className="mt-1 text-sm text-[#7a6247]">{subtitle}</p>}
           </div>
 
@@ -89,16 +95,17 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
         </div>
 
         <div className="overflow-hidden" ref={trackRef}>
-          <div
+          <GsapReveal
             className="flex transition-transform ease-in-out duration-[400ms]"
+            itemSelector="[data-reveal-item]"
             style={{ transform: `translateX(-${current * 100}%)` }}
           >
             {bundles.map((bundle) => (
-              <div key={bundle.id} className="w-full shrink-0 px-0.5">
+              <div key={bundle.id} data-reveal-item className="w-full shrink-0 px-0.5">
                 <BundleCard bundle={bundle} />
               </div>
             ))}
-          </div>
+          </GsapReveal>
         </div>
 
         {total > 1 && (

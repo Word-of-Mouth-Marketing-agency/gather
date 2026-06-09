@@ -115,6 +115,7 @@ export default function ProductInfoPanel({ product, categories, occasions }: Pro
             <button
               onClick={handleAddToCart}
               disabled={!inStock || adding}
+              aria-label={`Add ${product.name} to cart`}
               className={`h-[52px] flex-1 rounded-full px-6 text-base font-black transition-all duration-200 ${
                 added
                   ? 'bg-green-500 text-white'

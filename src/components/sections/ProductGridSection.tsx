@@ -7,6 +7,8 @@ import {
 } from '@/lib/data'
 import ProductCard from '@/components/ProductCard'
 import ProductSlider from './ProductSlider'
+import AnimatedTitle from '@/components/AnimatedTitle'
+import GsapReveal from '@/components/GsapReveal'
 
 export default function ProductGridSection({
   title,
@@ -35,18 +37,27 @@ export default function ProductGridSection({
     <section className="w-full py-12 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 lg:mb-10">
-          <h2 className="text-2xl sm:text-3xl font-black text-[#171717]">{title}</h2>
+          <AnimatedTitle
+            as="h2"
+            text={title}
+            className="text-2xl sm:text-3xl font-black text-[#171717]"
+          />
           {subtitle && <p className="mt-1 text-sm text-[#7a6247]">{subtitle}</p>}
         </div>
 
         {slider ? (
           <ProductSlider products={products} />
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 sm:gap-10">
+          <GsapReveal
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 sm:gap-10"
+            itemSelector="[data-reveal-item]"
+          >
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <div key={product.id} data-reveal-item>
+                <ProductCard product={product} />
+              </div>
             ))}
-          </div>
+          </GsapReveal>
         )}
       </div>
     </section>

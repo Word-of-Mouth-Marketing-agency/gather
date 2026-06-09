@@ -10,6 +10,8 @@ import ProductGallery from '@/components/product/ProductGallery'
 import ProductInfoPanel from '@/components/product/ProductInfoPanel'
 import FrequentlyBoughtTogether from '@/components/product/FrequentlyBoughtTogether'
 import ProductDescriptionReviews from '@/components/product/ProductDescriptionReviews'
+import AnimatedTitle from '@/components/AnimatedTitle'
+import GsapReveal from '@/components/GsapReveal'
 import type { Category, Product } from '@/types'
 
 export const dynamic = 'force-dynamic'
@@ -79,14 +81,21 @@ export default async function ProductPage({ params }: Props) {
 
         {relatedProducts.length > 0 && (
           <section className="mt-12 sm:mt-16">
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#171717] mb-6">
-              Related Products
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+            <AnimatedTitle
+              as="h2"
+              text="Related Products"
+              className="text-2xl sm:text-3xl font-bold text-[#171717] mb-6"
+            />
+            <GsapReveal
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5"
+              itemSelector="[data-reveal-item]"
+            >
               {relatedProducts.map((item) => (
-                <ProductCard key={item.id} product={item} />
+                <div key={item.id} data-reveal-item>
+                  <ProductCard product={item} />
+                </div>
               ))}
-            </div>
+            </GsapReveal>
           </section>
         )}
       </div>

@@ -23,13 +23,12 @@ export default function ProductCard({ product }: Props) {
   const displayPrice = getDisplayPrice(product)
   const hasDiscount = product.salePrice !== null
 
-  async function handleAddToCart(e: React.MouseEvent) {
+  function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
     setAdding(true)
     addToCart(product.id)
     window.dispatchEvent(new Event('gather:cart-updated'))
-    await new Promise((r) => setTimeout(r, 400))
     setAdding(false)
     setAdded(true)
     setTimeout(() => setAdded(false), 1800)
@@ -43,8 +42,12 @@ export default function ProductCard({ product }: Props) {
   }
 
   return (
-    <Link href={`/products/${product.slug}`} className="group block relative pt-[72px]">
-      <div className="absolute left-0 right-0 top-0 h-[165px] z-10 flex items-center justify-center">
+    <article className="group block relative pt-[72px]">
+      <Link
+        href={`/products/${product.slug}`}
+        className="absolute left-0 right-0 top-0 h-[165px] z-10 flex items-center justify-center"
+        aria-label={product.name}
+      >
         {product.images[0] ? (
           <img
             src={product.images[0]}
@@ -54,9 +57,9 @@ export default function ProductCard({ product }: Props) {
         ) : (
           <div className="w-full h-full flex items-center justify-center text-6xl">🎁</div>
         )}
-      </div>
+      </Link>
 
-      <article className="w-full min-h-[276px] rounded-2xl bg-[#fdf6ee] px-4 pb-4 pt-[101px] shadow-[2px_4px_0_rgba(0,0,0,0.8)] flex flex-col gap-2">
+      <div className="w-full min-h-[276px] rounded-2xl bg-[#fdf6ee] px-4 pb-4 pt-[101px] shadow-[2px_4px_0_rgba(0,0,0,0.8)] flex flex-col gap-2">
         <div className="h-5">
           {hasDiscount ? (
             <span className="inline-block text-[10px] font-black text-white bg-[#DB7100] px-2 py-0.5 rounded-md uppercase tracking-wider">SALE</span>
@@ -64,7 +67,9 @@ export default function ProductCard({ product }: Props) {
         </div>
 
         <h3 className="text-lg sm:text-xl font-medium text-[#171717] leading-tight line-clamp-2">
-          <span>{product.name}</span>
+          <Link href={`/products/${product.slug}`} className="hover:text-[#DB7100]">
+            {product.name}
+          </Link>
         </h3>
 
         <div className="flex items-baseline gap-2 text-base font-semibold">
@@ -112,8 +117,8 @@ export default function ProductCard({ product }: Props) {
             </svg>
           </button>
         </div>
-      </article>
-    </Link>
+      </div>
+    </article>
   )
 }
 

@@ -4,6 +4,8 @@ import { useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCustomerSession } from '@/lib/customer-auth'
+import AnimatedTitle from '@/components/AnimatedTitle'
+import GsapReveal from '@/components/GsapReveal'
 
 export default function PreFooterSignupCTA() {
   const pathname = usePathname()
@@ -25,10 +27,13 @@ export default function PreFooterSignupCTA() {
           />
         </div>
 
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-[#171717]">
-            Join the Gather Family
-          </h2>
+        <GsapReveal className="max-w-2xl mx-auto text-center" y={18}>
+          <AnimatedTitle
+            as="h2"
+            text="Join the Gather Family"
+            accentWord="Gather"
+            className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-[#171717]"
+          />
           <p className="mt-4 text-base sm:text-lg font-bold leading-relaxed text-[#7a6247]">
             Don&apos;t miss to sign up to join Gather Family/club to enjoy attractive offers and benefits.
           </p>
@@ -44,7 +49,7 @@ export default function PreFooterSignupCTA() {
               My Account
             </Link>
           </div>
-        </div>
+        </GsapReveal>
       </div>
     </section>
   )

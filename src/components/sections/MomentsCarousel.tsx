@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import GsapReveal from '@/components/GsapReveal'
 
 interface Props {
   images: string[]
@@ -74,8 +75,10 @@ export default function MomentsCarousel({ images, gap = 20 }: Props) {
       ref={containerRef}
     >
       <div className="overflow-hidden">
-        <div
+        <GsapReveal
           className="flex transition-transform ease-in-out"
+          itemSelector="[data-reveal-item]"
+          stagger={0.06}
           style={{
             transform: `translateX(calc(-${current} * (${itemWidth} + ${gap}px)))`,
             transitionDuration: '500ms',
@@ -85,6 +88,7 @@ export default function MomentsCarousel({ images, gap = 20 }: Props) {
           {images.map((src, i) => (
             <div
               key={i}
+              data-reveal-item
               className="shrink-0 overflow-hidden rounded-2xl"
               style={{ width: itemWidth }}
             >
@@ -96,7 +100,7 @@ export default function MomentsCarousel({ images, gap = 20 }: Props) {
               />
             </div>
           ))}
-        </div>
+        </GsapReveal>
       </div>
 
       {totalSlides > slidesPerView && (

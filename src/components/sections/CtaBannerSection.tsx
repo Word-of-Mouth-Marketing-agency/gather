@@ -1,21 +1,23 @@
 import Link from 'next/link'
 import type { CtaBannerSectionProps } from '@/types'
+import AnimatedTitle from '@/components/AnimatedTitle'
+import GsapReveal from '@/components/GsapReveal'
 
 export default function CtaBannerSection({ title, subtitle, ctaText, ctaUrl, variant = 'orange' }: CtaBannerSectionProps) {
   const isOrange = variant === 'orange'
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div
+      <GsapReveal
         className={`rounded-3xl px-8 py-12 text-center ${
           isOrange ? 'bg-[#ff7a1a]' : 'bg-[#fffaf3] border border-[rgba(255,122,26,0.22)]'
         }`}
       >
-        <h2
+        <AnimatedTitle
+          as="h2"
+          text={title}
           className={`text-2xl sm:text-3xl font-black ${isOrange ? 'text-white' : 'text-[#171717]'}`}
-        >
-          {title}
-        </h2>
+        />
         {subtitle && (
           <p className={`mt-2 text-sm ${isOrange ? 'text-white/80' : 'text-[#7a6247]'}`}>
             {subtitle}
@@ -31,7 +33,7 @@ export default function CtaBannerSection({ title, subtitle, ctaText, ctaUrl, var
         >
           {ctaText}
         </Link>
-      </div>
+      </GsapReveal>
     </section>
   )
 }

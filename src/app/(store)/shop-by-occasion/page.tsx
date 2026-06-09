@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic'
 import PageTitleSection from '@/components/PageTitleSection'
 import ProductCard from '@/components/ProductCard'
 import TaxonomyFilterBar from '@/components/TaxonomyFilterBar'
+import GsapReveal from '@/components/GsapReveal'
 
 export const metadata: Metadata = {
   title: 'Shop by Occasion',
@@ -39,11 +40,16 @@ export default async function ShopByOccasionPage({ searchParams }: Props) {
         {products.length === 0 ? (
           <div className="text-center py-20 text-gray-400">No products for this occasion yet.</div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+          <GsapReveal
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5"
+            itemSelector="[data-reveal-item]"
+          >
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <div key={product.id} data-reveal-item>
+                <ProductCard product={product} />
+              </div>
             ))}
-          </div>
+          </GsapReveal>
         )}
       </main>
     </>

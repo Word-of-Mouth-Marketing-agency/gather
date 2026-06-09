@@ -1,7 +1,9 @@
+import { Suspense } from 'react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import PreFooterSignupCTA from '@/components/layout/PreFooterSignupCTA'
 import RabbitAssistant from '@/components/RabbitAssistant'
+import RabbitPageTransition from '@/components/layout/RabbitPageTransition'
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,6 +13,9 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
       <PreFooterSignupCTA />
       <Footer />
       <RabbitAssistant />
+      <Suspense fallback={null}>
+        <RabbitPageTransition />
+      </Suspense>
     </div>
   )
 }
