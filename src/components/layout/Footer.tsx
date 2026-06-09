@@ -137,19 +137,16 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-black/20 py-5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#7a6247]">
-          <span>&copy; 2026 Gather. All rights reserved.</span>
-          <span>
-            Powered by{' '}
-            <a
-              href="https://wordofmoutheg.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-bold text-[#7a6247] hover:underline"
-            >
-              WORD OF MOUTH
-            </a>
-          </span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left text-xs text-[#7a6247]">
+          &copy; 2026 Gather. All rights reserved. | Powered by{' '}
+          <a
+            href="https://wordofmoutheg.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#7a6247] hover:underline"
+          >
+            WORD OF MOUTH
+          </a>
         </div>
       </div>
     </footer>
