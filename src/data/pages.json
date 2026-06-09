@@ -67,24 +67,9 @@
         }
       },
       {
-        "id": "home-about-gather",
-        "type": "about-gather",
-        "order": 6,
-        "visible": true,
-        "props": {
-          "title": "About Gather",
-          "subtitle": "Designing joy for every milestone, delivered to your doorstep. Make every second count",
-          "body": "From birthday cakes to balloons, snacks to decorations — order everything you need for any gathering, delivered to your door.",
-          "ctaText": "About us",
-          "ctaUrl": "/about",
-          "leftImage": "/assets/gather/about/balloon.gif",
-          "rightImage": "/assets/gather/about/cake.gif"
-        }
-      },
-      {
         "id": "home-moments",
         "type": "moments",
-        "order": 7,
+        "order": 6,
         "visible": true,
         "props": {
           "title": "Gather Moments",
@@ -99,6 +84,21 @@
           ],
           "buttonText": "Share Your Moment",
           "backgroundImage": "/assets/gather/moments/moments-bg.webp"
+        }
+      },
+      {
+        "id": "home-about-gather",
+        "type": "about-gather",
+        "order": 7,
+        "visible": true,
+        "props": {
+          "title": "About Gather",
+          "subtitle": "Designing joy for every milestone, delivered to your doorstep. Make every second count",
+          "body": "From birthday cakes to balloons, snacks to decorations — order everything you need for any gathering, delivered to your door.",
+          "ctaText": "About us",
+          "ctaUrl": "/about",
+          "leftImage": "/assets/gather/about/balloon.gif",
+          "rightImage": "/assets/gather/about/cake.gif"
         }
       },
       {
