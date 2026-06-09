@@ -27,7 +27,7 @@ export default async function ShopByOccasionPage({ searchParams }: Props) {
 
   return (
     <>
-      <PageTitleSection title="Shop by Occasion" />
+      <PageTitleSection title="Shop by Occasion" accentWord="Occasion" />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <TaxonomyFilterBar
           baseHref="/shop-by-occasion"
