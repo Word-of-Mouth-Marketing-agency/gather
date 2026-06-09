@@ -13,9 +13,20 @@ export default function PreFooterSignupCTA() {
   if (!mounted || pathname.startsWith('/products/') || pathname.startsWith('/my-account') || pathname === '/login' || pathname === '/signup' || pathname === '/checkout') return null
 
   return (
-    <section className="relative w-full bg-[#fffaf3] mt-8 sm:mt-12 lg:mt-16 pt-8 sm:pt-12 lg:pt-14 pb-4 sm:pb-6 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="absolute left-0 bottom-0 w-48 h-48 sm:w-56 sm:h-56 lg:w-72 lg:h-72 pointer-events-none select-none hidden sm:block">
+    <section className="relative w-full bg-[#fffaf3] mt-8 sm:mt-12 lg:mt-16">
+      {/* Subtle background glow circles */}
+      <div
+        className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full pointer-events-none"
+        style={{ background: 'rgba(255,122,26,0.04)', transform: 'translate(33%, -50%)' }}
+      />
+      <div
+        className="absolute bottom-0 left-1/3 w-[400px] h-[400px] rounded-full pointer-events-none"
+        style={{ background: 'rgba(255,122,26,0.04)', transform: 'translateY(33%)' }}
+      />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 lg:pt-18 pb-4 sm:pb-0">
+        {/* Decorative sitting rabbit — overlaps into footer */}
+        <div className="absolute left-6 sm:left-8 lg:left-12 bottom-0 w-40 h-40 sm:w-48 sm:h-48 lg:w-64 lg:h-64 translate-y-1/4 pointer-events-none select-none hidden sm:block z-10">
           <img
             src="/assets/gather/sitting-rabbit.webp"
             alt=""
@@ -24,15 +35,15 @@ export default function PreFooterSignupCTA() {
           />
         </div>
 
-        <div className="sm:pl-48 lg:pl-72 text-center lg:text-left">
+        <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-[#171717]">
             Join the Gather Family
           </h2>
-          <p className="mt-4 text-base sm:text-lg font-bold leading-relaxed text-[#7a6247] max-w-2xl lg:max-w-none">
+          <p className="mt-4 text-base sm:text-lg font-bold leading-relaxed text-[#7a6247]">
             Don&apos;t miss to sign up to join Gather Family/club to enjoy attractive offers and benefits.
           </p>
 
-          <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 sm:gap-4">
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <Link
               href={session ? '/my-account' : '/signup'}
               className="gather-btn-primary px-8 py-3.5 text-base shadow-lg"
