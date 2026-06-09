@@ -14,17 +14,7 @@ export default function PreFooterSignupCTA() {
 
   return (
     <section className="relative w-full bg-[#fffaf3] mt-8 sm:mt-12 lg:mt-16">
-      {/* Subtle background glow circles */}
-      <div
-        className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full pointer-events-none"
-        style={{ background: 'rgba(255,122,26,0.04)', transform: 'translate(33%, -50%)' }}
-      />
-      <div
-        className="absolute bottom-0 left-1/3 w-[400px] h-[400px] rounded-full pointer-events-none"
-        style={{ background: 'rgba(255,122,26,0.04)', transform: 'translateY(33%)' }}
-      />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 lg:pt-18 pb-4 sm:pb-0">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 lg:pt-18 pb-8 sm:pb-10 lg:pb-12">
         {/* Decorative sitting rabbit — overlaps into footer */}
         <div className="absolute left-6 sm:left-8 lg:left-12 bottom-0 w-40 h-40 sm:w-48 sm:h-48 lg:w-64 lg:h-64 translate-y-1/4 pointer-events-none select-none hidden sm:block z-10">
           <img
