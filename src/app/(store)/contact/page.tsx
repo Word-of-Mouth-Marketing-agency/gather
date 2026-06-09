@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import ContactHero from '@/components/sections/ContactHero'
+import PageTitleSection from '@/components/PageTitleSection'
 import ContactInfo from '@/components/sections/ContactInfo'
 import ContactForm from '@/components/sections/ContactForm'
 
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <main>
-      <ContactHero />
+      <PageTitleSection title="Contact Us" accentWord="Us" />
 
       <section className="bg-white py-16 sm:py-20 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
