@@ -50,7 +50,7 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
       style={{ backgroundImage: "url('/assets/gather/offers-bg.webp')" }}
     >
       <div
-        className="absolute top-0 right-0 w-36 h-36 sm:w-48 sm:h-48 pointer-events-none select-none z-40"
+        className="absolute top-0 right-0 w-36 h-36 sm:w-48 sm:h-48 lg:w-60 lg:h-60 pointer-events-none select-none z-40"
         style={{ transform: `translateY(${translateY}px)` }}
       >
         <img
