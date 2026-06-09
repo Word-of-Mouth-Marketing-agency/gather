@@ -9,34 +9,14 @@ const STATIC_CATEGORIES = categoriesData as Category[]
 const STATIC_PAGES = pagesData as Page[]
 const STATIC_BUNDLES = bundlesData as Bundle[]
 
-const cache: Record<string, { data: unknown; ts: number }> = {}
-const CACHE_TTL = 2000
-
 function categorySortOrder(category: Category): number {
   return category.sortOrder ?? category.order ?? 0
-}
-
-function readCached<T>(key: string, staticFallback: T, filename: string): T {
-  const cached = cache[key]
-  if (cached && Date.now() - cached.ts < CACHE_TTL) return cached.data as T
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const fs = require('fs') as typeof import('fs')
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const path = require('path') as typeof import('path')
-    const raw = fs.readFileSync(path.join(process.cwd(), 'src', 'data', filename), 'utf-8')
-    const data = JSON.parse(raw) as T
-    cache[key] = { data, ts: Date.now() }
-    return data
-  } catch {
-    return staticFallback
-  }
 }
 
 // ─── Products ─────────────────────────────────────────────────────────────────
 
 export function getAllProducts(): Product[] {
-  return readCached<Product[]>('products', STATIC_PRODUCTS, 'products.json')
+  return STATIC_PRODUCTS
 }
 
 export function getProductBySlug(slug: string): Product | undefined {
@@ -73,7 +53,7 @@ export function getCrossSellProducts(productId: string): Product[] {
 // ─── Categories ───────────────────────────────────────────────────────────────
 
 export function getAllCategories(): Category[] {
-  return readCached<Category[]>('categories', STATIC_CATEGORIES, 'categories.json')
+  return STATIC_CATEGORIES
 }
 
 export function getCategoriesByType(type: 'category' | 'occasion', limit?: number): Category[] {
@@ -95,7 +75,7 @@ export function getCategoryById(id: string): Category | undefined {
 // ─── Pages ────────────────────────────────────────────────────────────────────
 
 export function getAllPages(): Page[] {
-  return readCached<Page[]>('pages', STATIC_PAGES, 'pages.json')
+  return STATIC_PAGES
 }
 
 export function getPageBySlug(slug: string): Page | undefined {
@@ -109,7 +89,7 @@ export function getPageById(id: string): Page | undefined {
 // ─── Bundles ───────────────────────────────────────────────────────────────────
 
 export function getAllBundles(): Bundle[] {
-  return readCached<Bundle[]>('bundles', STATIC_BUNDLES, 'bundles.json')
+  return STATIC_BUNDLES
 }
 
 export function getBundleById(id: string): Bundle | undefined {
