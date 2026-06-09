@@ -23,7 +23,7 @@ export default function HomePage() {
   const sections = page.sections.filter((s) => s.type !== 'hero')
 
   return (
-    <main className="overflow-x-hidden">
+    <main className="overflow-x-clip">
       <HeroSlideshow />
       <SectionRenderer sections={sections} />
     </main>
