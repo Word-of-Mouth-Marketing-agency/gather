@@ -32,6 +32,7 @@ export default function RabbitPageTransition() {
     if (timeoutRef.current) window.clearTimeout(timeoutRef.current)
     enterTimelineRef.current?.kill()
     exitTimelineRef.current?.kill()
+    restoreDocumentScroll()
     pendingHrefRef.current = null
     hasNavigatedRef.current = false
     isTransitioningRef.current = false
@@ -54,6 +55,15 @@ export default function RabbitPageTransition() {
   useEffect(() => {
     routeKeyRef.current = routeKey
   }, [routeKey])
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current)
+      enterTimelineRef.current?.kill()
+      exitTimelineRef.current?.kill()
+      restoreDocumentScroll()
+    }
+  }, [])
 
   useEffect(() => {
     function getInternalHref(event: MouseEvent) {
@@ -102,6 +112,7 @@ export default function RabbitPageTransition() {
       isTransitioningRef.current = true
       hasNavigatedRef.current = false
       pendingHrefRef.current = href
+      lockDocumentScroll()
       enterTimelineRef.current?.kill()
       exitTimelineRef.current?.kill()
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current)
@@ -196,7 +207,7 @@ export default function RabbitPageTransition() {
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[9999] pointer-events-none flex items-center justify-center overflow-hidden bg-white"
+      className="fixed inset-0 h-screen w-screen z-[9999] pointer-events-auto touch-none overscroll-none flex items-center justify-center overflow-hidden bg-white"
       aria-hidden
     >
       <div className="flex flex-col items-center justify-center gap-4 px-6 text-center">
@@ -212,4 +223,28 @@ export default function RabbitPageTransition() {
       </div>
     </div>
   )
+}
+
+function lockDocumentScroll() {
+  const body = document.body
+  const html = document.documentElement
+  if (body.dataset.gatherTransitionScrollLocked === 'true') return
+
+  body.dataset.gatherTransitionScrollLocked = 'true'
+  body.dataset.gatherPreviousOverflow = body.style.overflow
+  html.dataset.gatherPreviousOverflow = html.style.overflow
+  body.style.overflow = 'hidden'
+  html.style.overflow = 'hidden'
+}
+
+function restoreDocumentScroll() {
+  const body = document.body
+  const html = document.documentElement
+  if (body.dataset.gatherTransitionScrollLocked !== 'true') return
+
+  body.style.overflow = body.dataset.gatherPreviousOverflow ?? ''
+  html.style.overflow = html.dataset.gatherPreviousOverflow ?? ''
+  delete body.dataset.gatherTransitionScrollLocked
+  delete body.dataset.gatherPreviousOverflow
+  delete html.dataset.gatherPreviousOverflow
 }
