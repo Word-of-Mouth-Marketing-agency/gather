@@ -27,7 +27,7 @@
         "visible": true,
         "props": {
           "title": "Shop by Category",
-          "subtitle": "Explore our full range of premium gift categories",
+          "subtitle": "Everything your gathering needs",
           "type": "category"
         }
       },
@@ -37,7 +37,7 @@
         "order": 3,
         "visible": true,
         "props": {
-          "title": "Featured Gifts",
+          "title": "Featured items",
           "subtitle": "Our most-loved selections",
           "limit": 8,
           "showViewAll": true,
@@ -62,8 +62,8 @@
         "order": 5,
         "visible": true,
         "props": {
-          "title": "Offers & Bundles",
-          "subtitle": "Ready-made bundles to make your gathering easier, happier, and better priced."
+          "title": "Offers & Discounts",
+          "subtitle": "make your gathering easier, happier, and better priced."
         }
       },
       {

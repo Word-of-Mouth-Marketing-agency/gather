@@ -96,7 +96,7 @@ export default function HeroSlideshow() {
                 textShadow: 'clamp(2px, 0.28vw, 3px) clamp(2px, 0.36vw, 4px) 0 rgba(0,0,0,0.72)',
               }}
             >
-              Gather,
+              Gather
             </p>
             <h1
               data-hero-copy
