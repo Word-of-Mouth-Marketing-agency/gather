@@ -27,6 +27,23 @@ export default function Navbar() {
     if (searchOpen) searchRef.current?.focus()
   }, [searchOpen])
 
+  useEffect(() => {
+    if (!mobileOpen) return
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setMobileOpen(false)
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [mobileOpen])
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     const q = searchQuery.trim()
@@ -72,7 +89,7 @@ export default function Navbar() {
             {/* Search */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
+              className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Search"
             >
               <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
@@ -83,7 +100,7 @@ export default function Navbar() {
             {/* Account */}
             <Link
               href={session ? '/my-account' : '/login'}
-              className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
+              className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Account"
             >
               {session ? (
@@ -100,7 +117,7 @@ export default function Navbar() {
             {/* Wishlist */}
             <Link
               href="/wishlist"
-              className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
+              className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Wishlist"
             >
               <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
@@ -110,7 +127,7 @@ export default function Navbar() {
 
             {/* Language */}
             <button
-              className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
+              className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Language"
               title="Language"
             >
@@ -125,27 +142,58 @@ export default function Navbar() {
             {/* Mobile burger */}
             <button
               className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              aria-label="Toggle menu"
-              onClick={() => setMobileOpen((v) => !v)}
+              aria-label="Open menu"
+              aria-expanded={mobileOpen}
+              onClick={() => setMobileOpen(true)}
             >
-              <span className={`block w-5 h-0.5 bg-gray-700 transition-all ${mobileOpen ? 'translate-y-1.5 rotate-45' : ''}`} />
-              <span className={`block w-5 h-0.5 bg-gray-700 mt-1 transition-all ${mobileOpen ? 'opacity-0' : ''}`} />
-              <span className={`block w-5 h-0.5 bg-gray-700 mt-1 transition-all ${mobileOpen ? '-translate-y-1.5 -rotate-45' : ''}`} />
+              <span className="block w-5 h-0.5 bg-gray-700" />
+              <span className="block w-5 h-0.5 bg-gray-700 mt-1" />
+              <span className="block w-5 h-0.5 bg-gray-700 mt-1" />
             </button>
           </div>
         </div>
       </div>
 
       {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="lg:hidden border-t border-gray-100 bg-white px-4 pb-4">
-          <nav className="flex flex-col gap-1 pt-2">
+      <div className={`fixed inset-0 z-[60] lg:hidden ${mobileOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+        <button
+          type="button"
+          aria-label="Close menu"
+          onClick={closeMobile}
+          className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${
+            mobileOpen ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+        <aside
+          className={`absolute right-0 top-0 flex h-dvh w-[min(86vw,360px)] flex-col bg-white shadow-[-18px_0_36px_rgba(0,0,0,0.16)] transition-transform duration-300 ease-out ${
+            mobileOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+          aria-hidden={!mobileOpen}
+        >
+          <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+            <img
+              src="/assets/gather/gather-logo.webp"
+              alt="Gather"
+              className="h-11 w-auto"
+            />
+            <button
+              type="button"
+              onClick={closeMobile}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff4e8] text-2xl leading-none text-[#171717]"
+              aria-label="Close menu"
+            >
+              &times;
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-5 py-5">
+            <nav className="flex flex-col gap-2">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={closeMobile}
-                className={`px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
+                className={`px-4 py-3 rounded-2xl text-sm font-bold transition-colors ${
                   pathname === link.href
                     ? 'bg-[#fff4e8] text-[#ff7a1a]'
                     : 'text-gray-700 hover:bg-gray-50'
@@ -154,9 +202,52 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-          </nav>
-        </div>
-      )}
+            </nav>
+
+            <div className="mt-6 border-t border-gray-100 pt-5">
+              <p className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-[#7a6247]">
+                Quick actions
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => { closeMobile(); setSearchOpen(true) }}
+                  className="rounded-2xl border border-[#f1e2d3] bg-[#fffaf3] px-3 py-3 text-left text-sm font-bold text-[#171717]"
+                >
+                  Search
+                </button>
+                <Link
+                  href={session ? '/my-account' : '/login'}
+                  onClick={closeMobile}
+                  className="rounded-2xl border border-[#f1e2d3] bg-[#fffaf3] px-3 py-3 text-sm font-bold text-[#171717]"
+                >
+                  Account
+                </Link>
+                <Link
+                  href="/wishlist"
+                  onClick={closeMobile}
+                  className="rounded-2xl border border-[#f1e2d3] bg-[#fffaf3] px-3 py-3 text-sm font-bold text-[#171717]"
+                >
+                  Wishlist
+                </Link>
+                <Link
+                  href="/cart"
+                  onClick={closeMobile}
+                  className="rounded-2xl border border-[#f1e2d3] bg-[#fffaf3] px-3 py-3 text-sm font-bold text-[#171717]"
+                >
+                  Cart
+                </Link>
+                <button
+                  type="button"
+                  className="col-span-2 rounded-2xl border border-[#f1e2d3] bg-white px-3 py-3 text-left text-sm font-bold text-[#171717]"
+                >
+                  Language
+                </button>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
 
       {/* Search overlay */}
       {searchOpen && (
