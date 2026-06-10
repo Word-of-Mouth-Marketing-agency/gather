@@ -15,15 +15,15 @@ export default function AboutGatherSection({
   return (
     <section>
 
-      <div className="bg-white w-full px-3 sm:px-5 lg:px-8">
+      <div className="bg-white w-full">
         <div className="grid grid-cols-1 lg:grid-cols-3 min-h-[400px] lg:min-h-[96vh]">
-          <div className="aspect-square w-full overflow-hidden bg-[#FCECDC] lg:aspect-auto lg:h-full flex items-center justify-center p-6 lg:p-12">
+          <div className="aspect-square w-full overflow-hidden bg-[#FCECDC] lg:aspect-auto lg:h-full flex items-center justify-center">
             {leftImage && (
               <img
                 src={leftImage}
                 alt=""
                 aria-hidden
-                className="max-h-[88%] max-w-[88%] object-contain"
+                className="h-full w-full object-cover"
               />
             )}
           </div>
@@ -57,13 +57,13 @@ export default function AboutGatherSection({
             </GsapReveal>
           </div>
 
-          <div className="aspect-square w-full overflow-hidden bg-[#FCECDC] lg:aspect-auto lg:h-full flex items-center justify-center p-6 lg:p-12">
+          <div className="aspect-square w-full overflow-hidden bg-[#FCECDC] lg:aspect-auto lg:h-full flex items-center justify-center">
             {rightImage && (
               <img
                 src={rightImage}
                 alt=""
                 aria-hidden
-                className="max-h-[88%] max-w-[88%] object-contain"
+                className="h-full w-full object-cover"
               />
             )}
           </div>
