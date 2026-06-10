@@ -31,8 +31,7 @@ export default function PreFooterSignupCTA() {
           <AnimatedTitle
             as="h2"
             text="Join the Gather Family"
-            accentWord="Gather"
-            className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight text-[#171717]"
+            className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight text-[#FE7501]"
           />
           <p className="mt-3 text-sm sm:text-base font-bold leading-relaxed text-[#7a6247]">
             Don&apos;t miss to sign up to join Gather Family/club to enjoy attractive offers and benefits.
