@@ -15,7 +15,7 @@ export default function CategoryCard({ category }: Props) {
     <Link href={href} className="group flex flex-col items-center gap-3">
       <div className={`aspect-square rounded-2xl flex items-center justify-center p-3 overflow-hidden ${
           category.slug === 'chocolate'
-            ? 'w-[100px] sm:w-[120px] lg:w-[140px]'
+            ? 'w-[100px] sm:w-[120px] lg:w-[140px] items-end'
             : 'w-full max-w-[130px] sm:max-w-[150px] lg:max-w-[180px]'
         }`}>
         <img
