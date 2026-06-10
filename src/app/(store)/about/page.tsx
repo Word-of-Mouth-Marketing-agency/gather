@@ -32,7 +32,13 @@ export default function AboutPage() {
               </div>
             </GsapReveal>
 
-            <AboutImagePlaceholder />
+            <div className="min-h-[280px] sm:min-h-[360px] rounded-[28px] overflow-hidden bg-[#fff4e8] shadow-[0_18px_44px_rgba(122,98,71,0.10)]">
+              <img
+                src="/assets/gather/occasions/family-gathering.webp"
+                alt="Family gathering celebration"
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
         </section>
 
@@ -65,8 +71,12 @@ export default function AboutPage() {
                 </ul>
               </GsapReveal>
 
-              <div className="lg:order-1">
-                <AboutImagePlaceholder />
+              <div className="lg:order-1 min-h-[280px] sm:min-h-[360px] rounded-[28px] overflow-hidden bg-[#fff4e8] shadow-[0_18px_44px_rgba(122,98,71,0.10)]">
+                <img
+                  src="/assets/gather/cute-rabbit.webp"
+                  alt="Gather cute rabbit"
+                  className="w-full h-full object-contain"
+                />
               </div>
             </div>
           </div>
@@ -76,12 +86,3 @@ export default function AboutPage() {
   )
 }
 
-function AboutImagePlaceholder() {
-  return (
-    <div className="min-h-[280px] sm:min-h-[360px] rounded-[28px] border-2 border-dashed border-[#f1c9a4] bg-[#fff4e8] flex items-center justify-center p-8 shadow-[0_18px_44px_rgba(122,98,71,0.10)]">
-      <span className="rounded-full bg-white px-5 py-3 text-sm font-black text-[#FE7501] shadow-sm">
-        Gather image placeholder
-      </span>
-    </div>
-  )
-}
