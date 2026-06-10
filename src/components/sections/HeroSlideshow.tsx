@@ -49,7 +49,7 @@ export default function HeroSlideshow() {
   }, [])
 
   return (
-    <section className="relative w-full overflow-hidden bg-gray-100 min-h-[360px] sm:min-h-[460px] lg:min-h-[620px] aspect-[4/5] sm:aspect-video">
+    <section className="relative w-full overflow-hidden bg-gray-100 min-h-[clamp(320px,52vw,560px)] aspect-[4/5] sm:aspect-video">
       {SLIDES.map((slide, i) => (
         <div
           key={slide.src}
@@ -70,51 +70,66 @@ export default function HeroSlideshow() {
       ))}
 
       <div className="absolute inset-0 flex items-center">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div ref={copyRef} className="max-w-[820px] text-white">
+        <div className="mx-auto w-full max-w-7xl px-[clamp(1rem,4vw,4rem)]">
+          <div ref={copyRef} className="max-w-[min(680px,92vw)] text-white">
             <p
               data-hero-copy
-              className="text-6xl sm:text-8xl lg:text-9xl font-black leading-none text-white"
+              className="font-black leading-none text-white"
               style={{
-                WebkitTextStroke: '1.5px #FE7501',
-                textShadow: '4px 5px 0 rgba(0,0,0,0.78)',
+                fontSize: 'clamp(2.8rem, 7vw, 6rem)',
+                WebkitTextStroke: 'clamp(0.8px, 0.12vw, 1.25px) #FE7501',
+                textShadow: 'clamp(2px, 0.35vw, 4px) clamp(3px, 0.45vw, 5px) 0 rgba(0,0,0,0.72)',
               }}
             >
               Gather,
             </p>
             <h1
               data-hero-copy
-              className="mt-2 text-4xl sm:text-6xl lg:text-7xl font-black leading-[0.95] text-white"
+              className="mt-[clamp(0.25rem,0.8vw,0.6rem)] font-black leading-[0.96] text-white"
               style={{
-                WebkitTextStroke: '1px #FE7501',
-                textShadow: '3px 4px 0 rgba(0,0,0,0.75)',
+                fontSize: 'clamp(1.8rem, 4.5vw, 4rem)',
+                WebkitTextStroke: 'clamp(0.6px, 0.1vw, 1px) #FE7501',
+                textShadow: 'clamp(2px, 0.28vw, 3px) clamp(3px, 0.36vw, 4px) 0 rgba(0,0,0,0.72)',
               }}
             >
               Bring Us Together
             </h1>
             <p
               data-hero-copy
-              className="mt-5 max-w-xl text-lg sm:text-2xl lg:text-3xl font-black leading-tight text-white"
+              className="mt-[clamp(0.75rem,1.5vw,1.25rem)] max-w-[36rem] font-black leading-tight text-white"
               style={{
-                WebkitTextStroke: '0.6px #DB7100',
-                textShadow: '2px 3px 0 rgba(0,0,0,0.72)',
+                fontSize: 'clamp(1rem, 1.8vw, 1.5rem)',
+                WebkitTextStroke: 'clamp(0.35px, 0.06vw, 0.6px) #DB7100',
+                textShadow: 'clamp(1px, 0.18vw, 2px) clamp(2px, 0.28vw, 3px) 0 rgba(0,0,0,0.7)',
               }}
             >
               Everything your gathering needs.
             </p>
             <div
               data-hero-copy
-              className="mt-7 flex flex-col sm:flex-row gap-3 sm:gap-4"
+              className="mt-[clamp(1rem,2.2vw,1.75rem)] flex flex-col sm:flex-row gap-[clamp(0.6rem,1.2vw,1rem)]"
             >
               <Link
                 href="/shop-by-category"
-                className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#FE7501] px-7 py-3 text-sm sm:text-base font-black text-white shadow-[3px_4px_0_rgba(0,0,0,0.75)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#DB7100]"
+                className="inline-flex items-center justify-center rounded-full bg-[#FE7501] font-black text-white shadow-[2px_3px_0_rgba(0,0,0,0.72)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#DB7100]"
+                style={{
+                  minHeight: 'clamp(2.5rem, 4vw, 3rem)',
+                  paddingInline: 'clamp(1.2rem, 2.4vw, 1.8rem)',
+                  paddingBlock: 'clamp(0.55rem, 1vw, 0.8rem)',
+                  fontSize: 'clamp(0.82rem, 1.2vw, 1rem)',
+                }}
               >
                 Shop Now
               </Link>
               <Link
                 href="/shop-by-occasion"
-                className="inline-flex min-h-12 items-center justify-center rounded-full border-2 border-[#FE7501] bg-white px-7 py-3 text-sm sm:text-base font-black text-[#171717] shadow-[3px_4px_0_rgba(0,0,0,0.65)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#fff4e8]"
+                className="inline-flex items-center justify-center rounded-full border-2 border-[#FE7501] bg-white font-black text-[#171717] shadow-[2px_3px_0_rgba(0,0,0,0.62)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#fff4e8]"
+                style={{
+                  minHeight: 'clamp(2.5rem, 4vw, 3rem)',
+                  paddingInline: 'clamp(1.2rem, 2.4vw, 1.8rem)',
+                  paddingBlock: 'clamp(0.55rem, 1vw, 0.8rem)',
+                  fontSize: 'clamp(0.82rem, 1.2vw, 1rem)',
+                }}
               >
                 Shop by Occasion
               </Link>
