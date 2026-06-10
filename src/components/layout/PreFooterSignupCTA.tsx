@@ -15,10 +15,10 @@ export default function PreFooterSignupCTA() {
   if (!mounted || pathname.startsWith('/products/') || pathname.startsWith('/my-account') || pathname === '/login' || pathname === '/signup' || pathname === '/checkout') return null
 
   return (
-    <section className="relative w-full bg-[#fffaf3] mt-8 sm:mt-12 lg:mt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 lg:pt-18 pb-8 sm:pb-10 lg:pb-12">
+    <section className="relative w-full bg-[#fffaf3] mt-8 sm:mt-10 lg:mt-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 lg:pt-12 pb-7 sm:pb-8 lg:pb-9">
         {/* Decorative sitting rabbit — overlaps into footer */}
-        <div className="absolute left-6 sm:left-8 lg:left-12 bottom-0 w-40 h-40 sm:w-48 sm:h-48 lg:w-64 lg:h-64 translate-y-1/4 pointer-events-none select-none hidden sm:block z-10">
+        <div className="absolute left-6 sm:left-8 lg:left-12 bottom-0 w-44 h-44 sm:w-52 sm:h-52 lg:w-72 lg:h-72 translate-y-[18%] pointer-events-none select-none hidden sm:block z-10">
           <img
             src="/assets/gather/sitting-rabbit.webp"
             alt=""
@@ -32,20 +32,20 @@ export default function PreFooterSignupCTA() {
             as="h2"
             text="Join the Gather Family"
             accentWord="Gather"
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-[#171717]"
+            className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight text-[#171717]"
           />
-          <p className="mt-4 text-base sm:text-lg font-bold leading-relaxed text-[#7a6247]">
+          <p className="mt-3 text-sm sm:text-base font-bold leading-relaxed text-[#7a6247]">
             Don&apos;t miss to sign up to join Gather Family/club to enjoy attractive offers and benefits.
           </p>
 
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+          <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3">
             <Link
               href={session ? '/my-account' : '/signup'}
-              className="gather-btn-primary px-8 py-3.5 text-base shadow-lg"
+              className="gather-btn-primary px-7 py-3 text-sm shadow-lg"
             >
               Sign Up
             </Link>
-            <Link href="/my-account" className="gather-btn-secondary px-8 py-3.5 text-base">
+            <Link href="/my-account" className="gather-btn-secondary px-7 py-3 text-sm">
               My Account
             </Link>
           </div>
