@@ -13,7 +13,11 @@ export default function CategoryCard({ category }: Props) {
 
   return (
     <Link href={href} className="group flex flex-col items-center gap-3">
-      <div className="w-full max-w-[130px] sm:max-w-[150px] lg:max-w-[180px] aspect-square rounded-2xl flex items-center justify-center p-3 overflow-hidden">
+      <div className={`w-full aspect-square rounded-2xl flex items-center justify-center p-3 overflow-hidden ${
+          category.slug === 'chocolate'
+            ? 'max-w-[100px] sm:max-w-[120px] lg:max-w-[140px]'
+            : 'max-w-[130px] sm:max-w-[150px] lg:max-w-[180px]'
+        }`}>
         <img
           src={category.image}
           alt={category.name}
