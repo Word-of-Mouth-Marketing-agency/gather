@@ -1,15 +1,15 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import GsapReveal from '@/components/GsapReveal'
 
 interface Props {
   images: string[]
   gap?: number
 }
 
+const DEFAULT_SLIDES_PER_VIEW = 5
+
 function getSlidesPerView(): number {
-  if (typeof window === 'undefined') return 5
   if (window.innerWidth >= 1024) return 5
   if (window.innerWidth >= 640) return 3
   return 1
@@ -17,7 +17,7 @@ function getSlidesPerView(): number {
 
 export default function MomentsCarousel({ images, gap = 20 }: Props) {
   const [current, setCurrent] = useState(0)
-  const [slidesPerView, setSlidesPerView] = useState(() => getSlidesPerView())
+  const [slidesPerView, setSlidesPerView] = useState(DEFAULT_SLIDES_PER_VIEW)
   const [isPaused, setIsPaused] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -31,6 +31,7 @@ export default function MomentsCarousel({ images, gap = 20 }: Props) {
       setSlidesPerView(spv)
       setCurrent((prev) => Math.min(prev, Math.max(0, totalSlides - spv)))
     }
+    onResize()
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
   }, [totalSlides])
@@ -65,7 +66,8 @@ export default function MomentsCarousel({ images, gap = 20 }: Props) {
 
   if (totalSlides === 0) return null
 
-  const itemWidth = `calc((100% - ${gap * (slidesPerView - 1)}px) / ${slidesPerView})`
+  const translatePercent = (current / slidesPerView) * 100
+  const translateGap = (current * gap) / slidesPerView
 
   return (
     <div
@@ -75,32 +77,28 @@ export default function MomentsCarousel({ images, gap = 20 }: Props) {
       ref={containerRef}
     >
       <div className="overflow-hidden">
-        <GsapReveal
-          className="flex transition-transform ease-in-out"
-          itemSelector="[data-reveal-item]"
-          stagger={0.06}
+        <div
+          className="flex gap-5 transition-transform ease-in-out"
           style={{
-            transform: `translateX(calc(-${current} * (${itemWidth} + ${gap}px)))`,
+            transform: `translateX(calc(-${translatePercent}% - ${translateGap}px))`,
             transitionDuration: '500ms',
-            gap: `${gap}px`,
           }}
         >
           {images.map((src, i) => (
             <div
               key={i}
-              data-reveal-item
-              className="shrink-0 overflow-hidden rounded-2xl"
-              style={{ width: itemWidth }}
+              className="shrink-0 basis-full overflow-hidden rounded-2xl sm:basis-[calc((100%_-_40px)_/_3)] lg:basis-[calc((100%_-_80px)_/_5)]"
             >
               <img
                 src={src}
                 alt={`Gather moment ${i + 1}`}
-                loading="lazy"
+                loading={i === 0 ? 'eager' : 'lazy'}
+                fetchPriority={i === 0 ? 'high' : 'auto'}
                 className="w-full aspect-square object-cover"
               />
             </div>
           ))}
-        </GsapReveal>
+        </div>
       </div>
 
       {totalSlides > slidesPerView && (
