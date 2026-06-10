@@ -23,7 +23,7 @@ export default function AboutGatherSection({
                 src={leftImage}
                 alt=""
                 aria-hidden
-                className="h-full w-full object-cover"
+                className="w-full max-h-[80%] object-contain"
               />
             )}
           </div>
@@ -63,7 +63,7 @@ export default function AboutGatherSection({
                 src={rightImage}
                 alt=""
                 aria-hidden
-                className="h-full w-full object-cover"
+                className="w-full max-h-[80%] object-contain"
               />
             )}
           </div>
