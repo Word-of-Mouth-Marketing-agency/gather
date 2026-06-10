@@ -17,7 +17,11 @@ export default function CategoryCard({ category }: Props) {
         <img
           src={category.image}
           alt={category.name}
-          className="w-full h-full object-contain transition-all duration-300 ease-in-out group-hover:rotate-[8deg] group-hover:scale-[0.8]"
+          className={`w-full h-full transition-all duration-300 ease-in-out group-hover:rotate-[8deg] group-hover:scale-[0.8] ${
+            category.slug === 'mothers-day'
+              ? 'object-cover object-top'
+              : 'object-contain'
+          }`}
         />
       </div>
       <span className="text-sm sm:text-base font-semibold text-[#333] text-center leading-tight">
