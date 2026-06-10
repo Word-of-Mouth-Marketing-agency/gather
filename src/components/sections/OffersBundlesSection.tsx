@@ -23,7 +23,7 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
       const rect = el.getBoundingClientRect()
       const windowHeight = window.innerHeight
       const progress = Math.max(0, Math.min(1, (windowHeight - rect.top) / (windowHeight + rect.height)))
-      setTranslateY(progress * -400)
+      setTranslateY(progress * -550)
     }
     handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -52,7 +52,7 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
       style={{ backgroundImage: "url('/assets/gather/offers-bg.webp')" }}
     >
       <div
-        className="absolute top-0 right-0 w-36 h-36 sm:w-48 sm:h-48 lg:w-60 lg:h-60 pointer-events-none select-none z-40"
+        className="absolute top-0 right-0 w-40 h-40 sm:w-52 sm:h-52 lg:w-64 lg:h-64 pointer-events-none select-none z-40"
         style={{ transform: `translateY(${translateY}px)` }}
       >
         <img

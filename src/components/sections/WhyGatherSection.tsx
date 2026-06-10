@@ -44,7 +44,7 @@ const REASONS = [
 
 export default function WhyGatherSection({ title, subtitle }: WhyGatherSectionProps) {
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 lg:pt-16">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 lg:pt-16 pb-10 sm:pb-14 lg:pb-16">
       <div className="text-center mb-10">
         <AnimatedTitle
           as="h2"
