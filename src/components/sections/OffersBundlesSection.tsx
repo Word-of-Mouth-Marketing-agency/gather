@@ -23,7 +23,7 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
       const rect = el.getBoundingClientRect()
       const windowHeight = window.innerHeight
       const progress = Math.max(0, Math.min(1, (windowHeight - rect.top) / (windowHeight + rect.height)))
-      setTranslateY(progress * -550)
+      setTranslateY(progress * -800)
     }
     handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })

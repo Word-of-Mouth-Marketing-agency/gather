@@ -15,7 +15,7 @@ export default function PreFooterSignupCTA() {
   if (!mounted || pathname.startsWith('/products/') || pathname.startsWith('/my-account') || pathname === '/login' || pathname === '/signup' || pathname === '/checkout') return null
 
   return (
-    <section className="relative w-full bg-white border-t-4 border-[#FE7501]">
+    <section className="relative w-full bg-white border-t-2 border-[#FE7501]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 lg:pt-12 pb-7 sm:pb-8 lg:pb-9">
         {/* Decorative sitting rabbit — overlaps into footer */}
         <div className="absolute left-2 bottom-0 h-36 w-36 translate-y-[21%] pointer-events-none select-none sm:left-8 sm:h-52 sm:w-52 lg:left-12 lg:h-72 lg:w-72 z-10">
