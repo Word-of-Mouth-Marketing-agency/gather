@@ -38,7 +38,7 @@
         "visible": true,
         "props": {
           "title": "Featured Gifts",
-          "subtitle": "Our most-loved, curator-approved selections",
+          "subtitle": "Our most-loved selections",
           "limit": 8,
           "showViewAll": true,
           "viewAllUrl": "/shop-by-category",
