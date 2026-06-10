@@ -32,7 +32,6 @@ export default function RabbitPageTransition() {
     if (timeoutRef.current) window.clearTimeout(timeoutRef.current)
     enterTimelineRef.current?.kill()
     exitTimelineRef.current?.kill()
-    restoreDocumentScroll()
     pendingHrefRef.current = null
     hasNavigatedRef.current = false
     isTransitioningRef.current = false
@@ -61,7 +60,6 @@ export default function RabbitPageTransition() {
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current)
       enterTimelineRef.current?.kill()
       exitTimelineRef.current?.kill()
-      restoreDocumentScroll()
     }
   }, [])
 
@@ -112,7 +110,6 @@ export default function RabbitPageTransition() {
       isTransitioningRef.current = true
       hasNavigatedRef.current = false
       pendingHrefRef.current = href
-      lockDocumentScroll()
       enterTimelineRef.current?.kill()
       exitTimelineRef.current?.kill()
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current)
@@ -223,38 +220,4 @@ export default function RabbitPageTransition() {
       </div>
     </div>
   )
-}
-
-function lockDocumentScroll() {
-  const body = document.body
-  const html = document.documentElement
-  if (body.dataset.gatherTransitionScrollLocked === 'true') return
-
-  const scrollbarWidth = window.innerWidth - html.clientWidth
-  const currentPaddingRight = window.getComputedStyle(body).paddingRight
-
-  body.dataset.gatherTransitionScrollLocked = 'true'
-  body.dataset.gatherPreviousOverflow = body.style.overflow
-  body.dataset.gatherPreviousPaddingRight = body.style.paddingRight
-  html.dataset.gatherPreviousOverflow = html.style.overflow
-  body.style.overflow = 'hidden'
-  html.style.overflow = 'hidden'
-
-  if (scrollbarWidth > 0) {
-    body.style.paddingRight = `calc(${currentPaddingRight} + ${scrollbarWidth}px)`
-  }
-}
-
-function restoreDocumentScroll() {
-  const body = document.body
-  const html = document.documentElement
-  if (body.dataset.gatherTransitionScrollLocked !== 'true') return
-
-  body.style.overflow = body.dataset.gatherPreviousOverflow ?? ''
-  body.style.paddingRight = body.dataset.gatherPreviousPaddingRight ?? ''
-  html.style.overflow = html.dataset.gatherPreviousOverflow ?? ''
-  delete body.dataset.gatherTransitionScrollLocked
-  delete body.dataset.gatherPreviousOverflow
-  delete body.dataset.gatherPreviousPaddingRight
-  delete html.dataset.gatherPreviousOverflow
 }
