@@ -84,14 +84,14 @@ export default function HeroSlideshow() {
         </div>
       ))}
 
-      <div className="absolute inset-0 flex items-start justify-center pt-[clamp(1.25rem,7vw,2.5rem)] sm:items-center sm:justify-start sm:pt-0">
+      <div className="absolute inset-0 flex items-start justify-center pt-[clamp(2rem,11vw,4rem)] sm:items-center sm:justify-start sm:pt-0">
         <div className="mx-auto w-full max-w-7xl px-[clamp(1rem,4vw,4rem)]">
           <div ref={copyRef} className="mx-auto max-w-[min(680px,92vw)] text-center text-white sm:ml-[clamp(0.75rem,5vw,4rem)] sm:mr-0 sm:text-left xl:ml-0">
             <p
               data-hero-copy
               className="font-black leading-none text-white"
               style={{
-                fontSize: 'clamp(2.3rem, 5.8vw, 4.8rem)',
+                fontSize: 'clamp(2.55rem, 6.4vw, 5.2rem)',
                 WebkitTextStroke: 'clamp(0.7px, 0.1vw, 1px) #FE7501',
                 textShadow: 'clamp(2px, 0.28vw, 3px) clamp(2px, 0.36vw, 4px) 0 rgba(0,0,0,0.72)',
               }}
@@ -102,7 +102,7 @@ export default function HeroSlideshow() {
               data-hero-copy
               className="mt-[clamp(0.25rem,0.8vw,0.6rem)] font-black leading-[0.96] text-white"
               style={{
-                fontSize: 'clamp(1.5rem, 3.6vw, 3.1rem)',
+                fontSize: 'clamp(1.65rem, 4vw, 3.35rem)',
                 WebkitTextStroke: 'clamp(0.45px, 0.08vw, 0.8px) #FE7501',
                 textShadow: 'clamp(1px, 0.22vw, 2px) clamp(2px, 0.3vw, 3px) 0 rgba(0,0,0,0.72)',
               }}
@@ -113,7 +113,7 @@ export default function HeroSlideshow() {
               data-hero-copy
               className="mt-[clamp(0.75rem,1.5vw,1.25rem)] max-w-[36rem] font-black leading-tight text-white"
               style={{
-                fontSize: 'clamp(0.95rem, 1.45vw, 1.25rem)',
+                fontSize: 'clamp(1rem, 1.6vw, 1.35rem)',
                 WebkitTextStroke: 'clamp(0.25px, 0.05vw, 0.45px) #DB7100',
                 textShadow: '1px 2px 0 rgba(0,0,0,0.7)',
               }}
@@ -128,10 +128,10 @@ export default function HeroSlideshow() {
                 href="/shop-by-category"
                 className="inline-flex items-center justify-center rounded-full bg-[#FE7501] font-black text-white shadow-[2px_3px_0_rgba(0,0,0,0.72)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#DB7100]"
                 style={{
-                  minHeight: 'clamp(2.25rem, 3.4vw, 2.65rem)',
-                  paddingInline: 'clamp(1rem, 2vw, 1.45rem)',
-                  paddingBlock: 'clamp(0.48rem, 0.85vw, 0.65rem)',
-                  fontSize: 'clamp(0.78rem, 1vw, 0.9rem)',
+                  minHeight: 'clamp(2.4rem, 3.7vw, 2.8rem)',
+                  paddingInline: 'clamp(1.1rem, 2.2vw, 1.6rem)',
+                  paddingBlock: 'clamp(0.52rem, 0.95vw, 0.72rem)',
+                  fontSize: 'clamp(0.82rem, 1.08vw, 0.96rem)',
                 }}
               >
                 Shop Now
@@ -140,10 +140,10 @@ export default function HeroSlideshow() {
                 href="/shop-by-occasion"
                 className="inline-flex items-center justify-center rounded-full border-2 border-[#FE7501] bg-white font-black text-[#171717] shadow-[2px_3px_0_rgba(0,0,0,0.62)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#fff4e8]"
                 style={{
-                  minHeight: 'clamp(2.25rem, 3.4vw, 2.65rem)',
-                  paddingInline: 'clamp(1rem, 2vw, 1.45rem)',
-                  paddingBlock: 'clamp(0.48rem, 0.85vw, 0.65rem)',
-                  fontSize: 'clamp(0.78rem, 1vw, 0.9rem)',
+                  minHeight: 'clamp(2.4rem, 3.7vw, 2.8rem)',
+                  paddingInline: 'clamp(1.1rem, 2.2vw, 1.6rem)',
+                  paddingBlock: 'clamp(0.52rem, 0.95vw, 0.72rem)',
+                  fontSize: 'clamp(0.82rem, 1.08vw, 0.96rem)',
                 }}
               >
                 Shop by Occasion
