@@ -28,7 +28,7 @@ export default function AboutGatherSection({
             )}
           </div>
 
-          <div className="flex items-center justify-center py-10 lg:py-16">
+          <div className="flex items-center justify-center py-10 lg:py-16 px-4 sm:px-6 lg:px-12">
             <GsapReveal className="max-w-lg text-center" y={18}>
               <AnimatedTitle
                 as="h2"
