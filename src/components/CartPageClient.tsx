@@ -5,9 +5,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { BundleCartItem, Product } from '@/types'
 import PageTitleSection from '@/components/PageTitleSection'
-import ProductCard from '@/components/ProductCard'
-import { getCart, getCartProducts, getCartBundles, updateQuantity, removeFromCart } from '@/lib/cart'
-import { formatPrice, getAllProducts } from '@/lib/data'
+import { addToCart, getCart, getCartProducts, getCartBundles, updateQuantity, removeFromCart } from '@/lib/cart'
+import { formatPrice, getAllProducts, getDisplayPrice } from '@/lib/data'
 
 type CartEntry = { product: import('@/types').Product; quantity: number }
 
@@ -73,6 +72,71 @@ function uniqueProducts(products: Product[]): Product[] {
     seen.add(product.id)
     return true
   })
+}
+
+function CartUpsellCard({ product }: { product: Product }) {
+  const [adding, setAdding] = useState(false)
+  const [added, setAdded] = useState(false)
+
+  function handleAdd() {
+    setAdding(true)
+    addToCart(product.id)
+    window.dispatchEvent(new Event('gather:cart-updated'))
+    setAdding(false)
+    setAdded(true)
+    window.setTimeout(() => setAdded(false), 1600)
+  }
+
+  return (
+    <article className="flex items-center gap-3 rounded-[18px] border border-[#f1e2d3] bg-white p-3 shadow-[0_8px_22px_rgba(0,0,0,0.04)] transition-shadow hover:shadow-md">
+      <Link
+        href={`/products/${product.slug}`}
+        className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[14px] bg-[#fffaf3]"
+        aria-label={product.name}
+      >
+        {product.images[0] ? (
+          <Image
+            src={product.images[0]}
+            alt={product.name}
+            fill
+            className="object-contain p-2"
+            sizes="80px"
+          />
+        ) : (
+          <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-[#7a6247]">
+            No image
+          </span>
+        )}
+      </Link>
+
+      <div className="min-w-0 flex-1">
+        <Link
+          href={`/products/${product.slug}`}
+          className="line-clamp-2 text-sm font-bold leading-snug text-[#171717] hover:text-[#ff7a1a]"
+        >
+          {product.name}
+        </Link>
+        <p className="mt-1 text-sm font-black text-[#ff7a1a]">
+          {formatPrice(getDisplayPrice(product), product.currency)}
+        </p>
+      </div>
+
+      <button
+        onClick={handleAdd}
+        disabled={adding || product.stock === 0}
+        className={`h-9 shrink-0 rounded-full px-4 text-xs font-black transition-colors ${
+          added
+            ? 'bg-green-500 text-white'
+            : product.stock === 0
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : 'bg-[#ff7a1a] text-white hover:bg-[#fe6c00]'
+        }`}
+        aria-label={`Add ${product.name} to cart`}
+      >
+        {added ? 'Added' : adding ? '...' : product.stock === 0 ? 'Out' : 'Add'}
+      </button>
+    </article>
+  )
 }
 
 export default function CartPageClient() {
@@ -332,9 +396,9 @@ export default function CartPageClient() {
                 Complete your gathering with these picks.
               </p>
             </div>
-            <div className="grid grid-cols-1 min-[520px]:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
               {suggestions.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <CartUpsellCard key={product.id} product={product} />
               ))}
             </div>
           </section>
