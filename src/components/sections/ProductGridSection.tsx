@@ -34,7 +34,7 @@ export default function ProductGridSection({
   if (products.length === 0) return null
 
   return (
-    <section className="w-full py-12 lg:py-16">
+    <section id="featured-gifts" className="w-full py-12 lg:py-16 scroll-mt-20 lg:scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 lg:mb-10">
           <AnimatedTitle

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import Link from 'next/link'
+
 import gsap from 'gsap'
 
 const SLIDES = [
@@ -124,8 +124,8 @@ export default function HeroSlideshow() {
               data-hero-copy
               className="mt-[clamp(1rem,2.2vw,1.75rem)] flex flex-col items-center gap-[clamp(0.6rem,1.2vw,1rem)] min-[420px]:flex-row min-[420px]:justify-center sm:items-stretch sm:justify-start"
             >
-              <Link
-                href="/shop-by-category"
+              <a
+                href="#featured-gifts"
                 className="inline-flex items-center justify-center rounded-full bg-[#FE7501] font-black text-white shadow-[2px_3px_0_rgba(0,0,0,0.72)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#DB7100]"
                 style={{
                   minHeight: 'clamp(2.4rem, 3.7vw, 2.8rem)',
@@ -135,9 +135,9 @@ export default function HeroSlideshow() {
                 }}
               >
                 Shop Now
-              </Link>
-              <Link
-                href="/shop-by-occasion"
+              </a>
+              <a
+                href="#shop-by-occasion"
                 className="inline-flex items-center justify-center rounded-full border-2 border-[#FE7501] bg-white font-black text-[#171717] shadow-[2px_3px_0_rgba(0,0,0,0.62)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#fff4e8]"
                 style={{
                   minHeight: 'clamp(2.4rem, 3.7vw, 2.8rem)',
@@ -147,7 +147,7 @@ export default function HeroSlideshow() {
                 }}
               >
                 Shop by Occasion
-              </Link>
+              </a>
             </div>
           </div>
         </div>

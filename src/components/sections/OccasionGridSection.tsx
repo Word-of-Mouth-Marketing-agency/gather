@@ -15,7 +15,7 @@ export default function OccasionGridSection({
   if (occasions.length === 0) return null
 
   return (
-    <section className="relative w-full py-12 lg:py-16 overflow-hidden bg-[#FDF6EE]">
+    <section id="shop-by-occasion" className="relative w-full py-12 lg:py-16 overflow-hidden bg-[#FDF6EE] scroll-mt-20 lg:scroll-mt-24">
       <div className="absolute -bottom-8 -right-8 w-64 h-64 sm:w-80 sm:h-80 opacity-40 pointer-events-none select-none">
         <img
           src="/assets/gather/occasions/decoration.svg"
