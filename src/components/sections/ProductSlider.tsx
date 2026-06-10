@@ -10,9 +10,9 @@ interface Props {
 
 const AUTOPLAY_MS = 5000
 const TRANSITION_MS = 500
+const DEFAULT_SLIDES_PER_VIEW = 4
 
 function getSlidesPerView(): number {
-  if (typeof window === 'undefined') return 4
   if (window.innerWidth >= 1024) return 4
   if (window.innerWidth >= 640) return 2
   return 1
@@ -20,7 +20,7 @@ function getSlidesPerView(): number {
 
 export default function ProductSlider({ products }: Props) {
   const [current, setCurrent] = useState(0)
-  const [slidesPerView, setSlidesPerView] = useState(() => getSlidesPerView())
+  const [slidesPerView, setSlidesPerView] = useState(DEFAULT_SLIDES_PER_VIEW)
   const [isPaused, setIsPaused] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -30,9 +30,11 @@ export default function ProductSlider({ products }: Props) {
 
   useEffect(() => {
     const onResize = () => {
-      setSlidesPerView(getSlidesPerView())
-      setCurrent((prev) => Math.min(prev, Math.max(0, totalSlides - getSlidesPerView())))
+      const nextSlidesPerView = getSlidesPerView()
+      setSlidesPerView(nextSlidesPerView)
+      setCurrent((prev) => Math.min(prev, Math.max(0, totalSlides - nextSlidesPerView)))
     }
+    onResize()
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
   }, [totalSlides])
