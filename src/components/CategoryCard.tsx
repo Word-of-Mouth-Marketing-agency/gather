@@ -19,7 +19,7 @@ export default function CategoryCard({ category }: Props) {
           alt={category.name}
           className={`w-full h-full transition-all duration-300 ease-in-out group-hover:rotate-[8deg] group-hover:scale-[0.8] ${
             category.slug === 'mothers-day'
-              ? 'object-cover object-top'
+              ? 'object-contain object-top'
               : 'object-contain'
           }`}
         />
