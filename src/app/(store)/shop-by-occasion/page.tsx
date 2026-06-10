@@ -41,7 +41,7 @@ export default async function ShopByOccasionPage({ searchParams }: Props) {
           <div className="text-center py-20 text-gray-400">No products for this occasion yet.</div>
         ) : (
           <GsapReveal
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5"
+            className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5"
             itemSelector="[data-reveal-item]"
           >
             {products.map((product) => (

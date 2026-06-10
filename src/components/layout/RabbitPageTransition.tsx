@@ -95,7 +95,7 @@ export default function RabbitPageTransition() {
 
       const current = new URL(window.location.href)
       if (url.href === current.href) return null
-      if (url.pathname === current.pathname && url.search === current.search && url.hash) return null
+      if (url.pathname === current.pathname) return null
 
       return `${url.pathname}${url.search}${url.hash}`
     }
