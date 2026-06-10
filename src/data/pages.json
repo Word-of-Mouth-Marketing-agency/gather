@@ -69,7 +69,7 @@
       {
         "id": "home-moments",
         "type": "moments",
-        "order": 8,
+        "order": 7,
         "visible": true,
         "props": {
           "title": "Gather Moments",
@@ -104,7 +104,7 @@
       {
         "id": "home-why-gather",
         "type": "why-gather",
-        "order": 7,
+        "order": 8,
         "visible": true,
         "props": {
           "title": "Why Gather",
