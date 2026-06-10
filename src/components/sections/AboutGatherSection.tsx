@@ -23,7 +23,7 @@ export default function AboutGatherSection({
                 src={leftImage}
                 alt=""
                 aria-hidden
-                className="h-full w-full object-contain lg:object-cover"
+                className="h-full w-full object-contain lg:object-cover scale-[1.15] origin-center"
               />
             )}
           </div>
