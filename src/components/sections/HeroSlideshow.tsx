@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import Link from 'next/link'
 import gsap from 'gsap'
 
 const SLIDES = [
@@ -68,30 +69,56 @@ export default function HeroSlideshow() {
         </div>
       ))}
 
-      <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-black/5" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
-
       <div className="absolute inset-0 flex items-center">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div ref={copyRef} className="max-w-[680px] text-white">
+          <div ref={copyRef} className="max-w-[820px] text-white">
             <p
               data-hero-copy
-              className="text-sm sm:text-base lg:text-lg font-black uppercase tracking-[0.18em] text-[#ffd8b5]"
+              className="text-6xl sm:text-8xl lg:text-9xl font-black leading-none text-white"
+              style={{
+                WebkitTextStroke: '1.5px #FE7501',
+                textShadow: '4px 5px 0 rgba(0,0,0,0.78)',
+              }}
             >
               Gather,
             </p>
             <h1
               data-hero-copy
-              className="mt-3 text-4xl sm:text-6xl lg:text-7xl font-black leading-[0.95] drop-shadow-[0_3px_16px_rgba(0,0,0,0.35)]"
+              className="mt-2 text-4xl sm:text-6xl lg:text-7xl font-black leading-[0.95] text-white"
+              style={{
+                WebkitTextStroke: '1px #FE7501',
+                textShadow: '3px 4px 0 rgba(0,0,0,0.75)',
+              }}
             >
               Bring Us Together
             </h1>
             <p
               data-hero-copy
-              className="mt-5 max-w-xl text-base sm:text-xl lg:text-2xl font-bold leading-relaxed text-white/95"
+              className="mt-5 max-w-xl text-lg sm:text-2xl lg:text-3xl font-black leading-tight text-white"
+              style={{
+                WebkitTextStroke: '0.6px #DB7100',
+                textShadow: '2px 3px 0 rgba(0,0,0,0.72)',
+              }}
             >
               Everything your gathering needs.
             </p>
+            <div
+              data-hero-copy
+              className="mt-7 flex flex-col sm:flex-row gap-3 sm:gap-4"
+            >
+              <Link
+                href="/shop-by-category"
+                className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#FE7501] px-7 py-3 text-sm sm:text-base font-black text-white shadow-[3px_4px_0_rgba(0,0,0,0.75)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#DB7100]"
+              >
+                Shop Now
+              </Link>
+              <Link
+                href="/shop-by-occasion"
+                className="inline-flex min-h-12 items-center justify-center rounded-full border-2 border-[#FE7501] bg-white px-7 py-3 text-sm sm:text-base font-black text-[#171717] shadow-[3px_4px_0_rgba(0,0,0,0.65)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#fff4e8]"
+              >
+                Shop by Occasion
+              </Link>
+            </div>
           </div>
         </div>
       </div>
