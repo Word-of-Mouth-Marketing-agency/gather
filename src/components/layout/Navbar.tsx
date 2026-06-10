@@ -14,6 +14,45 @@ const navLinks = [
   { href: '/contact', label: 'Contact' },
 ]
 
+const socialLinks = [
+  {
+    href: 'https://facebook.com',
+    label: 'Facebook',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+      </svg>
+    ),
+  },
+  {
+    href: 'https://instagram.com',
+    label: 'Instagram',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+        <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 0 2.5 1.25 1.25 0 0 1 0-2.5M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10m0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />
+      </svg>
+    ),
+  },
+  {
+    href: 'https://tiktok.com',
+    label: 'TikTok',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.52 2.89 2.89 0 0 1 0-5.78 2.9 2.9 0 0 1 1.2.26V9.03a6.33 6.33 0 0 0-.33-.06 6.33 6.33 0 0 0-5.49 9.32 6.33 6.33 0 0 0 11.04-3.79V10.9a8.2 8.2 0 0 0 4.68 1.56v-3.4a4.84 4.84 0 0 1-1.2-.37z" />
+      </svg>
+    ),
+  },
+  {
+    href: 'https://youtube.com',
+    label: 'YouTube',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+        <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58zM9.75 15.02V8.98L15.5 12z" />
+      </svg>
+    ),
+  },
+]
+
 export default function Navbar() {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -50,6 +89,11 @@ export default function Navbar() {
     if (q) router.push(`/search?q=${encodeURIComponent(q)}`)
     setSearchOpen(false)
     setSearchQuery('')
+  }
+
+  const handleMobileSearch = (e: React.FormEvent) => {
+    handleSearch(e)
+    closeMobile()
   }
 
   const closeMobile = () => setMobileOpen(false)
@@ -186,63 +230,107 @@ export default function Navbar() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-5 py-5">
-            <nav className="flex flex-col gap-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={closeMobile}
-                className={`px-4 py-3 rounded-2xl text-sm font-bold transition-colors ${
-                  pathname === link.href
-                    ? 'bg-[#fff4e8] text-[#ff7a1a]'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
+          <div className="flex flex-1 flex-col overflow-y-auto px-5 py-5">
+            <form onSubmit={handleMobileSearch} className="mb-5 flex gap-2">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search products..."
+                className="min-w-0 flex-1 rounded-2xl border border-[#f1e2d3] bg-[#fffaf3] px-4 py-3 text-sm font-semibold text-[#171717] placeholder:text-[#9b8064] focus:outline-none focus:ring-2 focus:ring-[#ff7a1a]/25"
+              />
+              <button
+                type="submit"
+                className="rounded-2xl bg-[#ff7a1a] px-4 py-3 text-sm font-black text-white"
               >
-                {link.label}
-              </Link>
-            ))}
+                Go
+              </button>
+            </form>
+
+            <nav className="flex flex-col gap-2">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={closeMobile}
+                  className={`px-4 py-3 rounded-2xl text-sm font-bold transition-colors ${
+                    pathname === link.href
+                      ? 'bg-[#fff4e8] text-[#ff7a1a]'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
             </nav>
 
             <div className="mt-6 border-t border-gray-100 pt-5">
-              <p className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-[#7a6247]">
-                Quick actions
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => { closeMobile(); setSearchOpen(true) }}
-                  className="rounded-2xl border border-[#f1e2d3] bg-[#fffaf3] px-3 py-3 text-left text-sm font-bold text-[#171717]"
-                >
-                  Search
-                </button>
-                <Link
-                  href={session ? '/my-account' : '/login'}
-                  onClick={closeMobile}
-                  className="rounded-2xl border border-[#f1e2d3] bg-[#fffaf3] px-3 py-3 text-sm font-bold text-[#171717]"
-                >
-                  Account
-                </Link>
+              <div className="flex items-center justify-between gap-2 rounded-3xl border border-[#f1e2d3] bg-[#fffaf3] p-2">
                 <Link
                   href="/wishlist"
                   onClick={closeMobile}
-                  className="rounded-2xl border border-[#f1e2d3] bg-[#fffaf3] px-3 py-3 text-sm font-bold text-[#171717]"
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#7a6247] hover:text-[#ff7a1a]"
+                  aria-label="Wishlist"
                 >
-                  Wishlist
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </Link>
+                <Link
+                  href={session ? '/my-account' : '/login'}
+                  onClick={closeMobile}
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#7a6247] hover:text-[#ff7a1a]"
+                  aria-label="Account"
+                >
+                  {session ? (
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#ff7a1a] text-[11px] font-black text-white">
+                      {session.name.charAt(0).toUpperCase()}
+                    </span>
+                  ) : (
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  )}
                 </Link>
                 <Link
                   href="/cart"
                   onClick={closeMobile}
-                  className="rounded-2xl border border-[#f1e2d3] bg-[#fffaf3] px-3 py-3 text-sm font-bold text-[#171717]"
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#7a6247] hover:text-[#ff7a1a]"
+                  aria-label="Cart"
                 >
-                  Cart
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 8h14M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
+                  </svg>
                 </Link>
                 <button
                   type="button"
-                  className="col-span-2 rounded-2xl border border-[#f1e2d3] bg-white px-3 py-3 text-left text-sm font-bold text-[#171717]"
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#7a6247] hover:text-[#ff7a1a]"
+                  aria-label="Language"
                 >
-                  Language
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </button>
+              </div>
+            </div>
+
+            <div className="mt-auto border-t border-gray-100 pt-5">
+              <p className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-[#7a6247]">
+                Follow Gather
+              </p>
+              <div className="flex items-center gap-2">
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={link.label}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-[#f1e2d3] bg-white text-[#7a6247] transition-colors hover:border-[#ff7a1a] hover:bg-[#ff7a1a] hover:text-white"
+                  >
+                    {link.icon}
+                  </a>
+                ))}
               </div>
             </div>
           </div>

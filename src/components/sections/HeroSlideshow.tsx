@@ -61,7 +61,7 @@ export default function HeroSlideshow() {
   }, [])
 
   return (
-    <section className="relative w-full overflow-hidden bg-gray-100 min-h-[clamp(320px,52vw,560px)] aspect-[4/5] sm:aspect-video">
+    <section className="relative w-full overflow-hidden bg-gray-100 aspect-[863/1822] sm:aspect-video sm:min-h-[clamp(320px,52vw,560px)]">
       {SLIDES.map((slide, i) => (
         <div
           key={slide.src}
@@ -77,7 +77,7 @@ export default function HeroSlideshow() {
             <img
               src={slide.src}
               alt={slide.alt}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain sm:object-cover"
               fetchPriority={i === 0 ? 'high' : 'low'}
             />
           </picture>
