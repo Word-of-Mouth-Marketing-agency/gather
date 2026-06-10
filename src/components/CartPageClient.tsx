@@ -3,10 +3,11 @@
 import { useState, useEffect, startTransition } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import type { BundleCartItem } from '@/types'
+import type { BundleCartItem, Product } from '@/types'
 import PageTitleSection from '@/components/PageTitleSection'
+import ProductCard from '@/components/ProductCard'
 import { getCart, getCartProducts, getCartBundles, updateQuantity, removeFromCart } from '@/lib/cart'
-import { formatPrice } from '@/lib/data'
+import { formatPrice, getAllProducts } from '@/lib/data'
 
 type CartEntry = { product: import('@/types').Product; quantity: number }
 
@@ -34,6 +35,44 @@ function EmptyCartState() {
       </Link>
     </main>
   )
+}
+
+function getCartSuggestions(products: CartEntry[], bundles: BundleCartItem[], limit = 4): Product[] {
+  const allProducts = getAllProducts()
+  const cartProductIds = new Set([
+    ...products.map(({ product }) => product.id),
+    ...bundles.flatMap((bundle) => bundle.productIds),
+  ])
+  const sourceProducts = allProducts.filter((product) => cartProductIds.has(product.id))
+
+  if (sourceProducts.length === 0) {
+    return allProducts
+      .filter((product) => product.featured && !cartProductIds.has(product.id))
+      .slice(0, limit)
+  }
+
+  const categoryIds = new Set(sourceProducts.flatMap((product) => product.categoryIds))
+  const occasionIds = new Set(sourceProducts.flatMap((product) => product.occasionIds))
+  const availableProducts = allProducts.filter((product) => !cartProductIds.has(product.id))
+
+  const sameCategory = availableProducts.filter((product) =>
+    product.categoryIds.some((id) => categoryIds.has(id))
+  )
+  const sameOccasion = availableProducts.filter((product) =>
+    product.occasionIds.some((id) => occasionIds.has(id))
+  )
+  const featured = availableProducts.filter((product) => product.featured)
+
+  return uniqueProducts([...sameCategory, ...sameOccasion, ...featured, ...availableProducts]).slice(0, limit)
+}
+
+function uniqueProducts(products: Product[]): Product[] {
+  const seen = new Set<string>()
+  return products.filter((product) => {
+    if (seen.has(product.id)) return false
+    seen.add(product.id)
+    return true
+  })
 }
 
 export default function CartPageClient() {
@@ -80,6 +119,7 @@ export default function CartPageClient() {
   ]
   const total = allCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const itemCount = products.length + bundles.length
+  const suggestions = getCartSuggestions(products, bundles)
 
   function handleQty(id: string, qty: number) {
     updateQuantity(id, qty)
@@ -281,6 +321,24 @@ export default function CartPageClient() {
           </div>
         </div>
       </div>
+
+        {suggestions.length > 0 && (
+          <section className="mt-12 sm:mt-14">
+            <div className="mb-5">
+              <h2 className="text-2xl sm:text-3xl font-black text-[#171717]">
+                You may also like
+              </h2>
+              <p className="mt-1.5 text-sm sm:text-base font-semibold text-[#7a6247]">
+                Complete your gathering with these picks.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 min-[520px]:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+              {suggestions.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     </>
   )
