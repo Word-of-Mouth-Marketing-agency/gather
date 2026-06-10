@@ -28,6 +28,8 @@ export function useGsapReveal<T extends HTMLElement>(
     const media = window.matchMedia('(prefers-reduced-motion: reduce)')
     if (media.matches) return
 
+    if (window.innerWidth < 768) return
+
     const elements = targets
       ? Array.from(root.querySelectorAll<HTMLElement>(targets))
       : [root]
