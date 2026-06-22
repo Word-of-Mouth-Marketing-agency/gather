@@ -32,7 +32,7 @@ export default function PreFooterSignupCTA() {
             <span className="text-[#FE7501]">Gather Family</span>
           </h2>
           <p className="mt-3 text-sm sm:text-base font-bold leading-relaxed text-[#7a6247]">
-            Don&apos;t miss to sign up to join Gather Family/club to enjoy attractive offers and benefits.
+            Don&apos;t miss to sign up to join Gather Family to enjoy attractive offers and benefits.
           </p>
 
           <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3">
