@@ -48,7 +48,13 @@ interface Props {
 export default function BundleForm({ initialData, bundleId }: Props) {
   const router = useRouter()
   const isEdit = !!bundleId
-  const [form, setForm] = useState<BundleFormData>(initialData ?? EMPTY)
+  const [form, setForm] = useState<BundleFormData>(() => {
+    if (!initialData) return EMPTY
+    return {
+      ...initialData,
+      productIds: [...new Set(initialData.productIds)],
+    }
+  })
   const [products, setProducts] = useState<Product[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -116,10 +122,11 @@ export default function BundleForm({ initialData, bundleId }: Props) {
     try {
       const url = isEdit ? `/api/bundles/${bundleId}` : '/api/bundles'
       const method = isEdit ? 'PUT' : 'POST'
+      const payload = { ...form, productIds: [...new Set(form.productIds)] }
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       })
       if (res.ok) router.push('/admin/bundles')
       else {

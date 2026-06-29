@@ -15,6 +15,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   if (data.startsAt && data.endsAt && data.endsAt < data.startsAt) {
     return NextResponse.json({ error: 'Offer end date cannot be before start date' }, { status: 400 })
   }
+  if (Array.isArray(data.productIds)) {
+    data.productIds = [...new Set(data.productIds)]
+  }
   const repo = getBundleRepository()
   const updated = repo.update(id, data)
   if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })

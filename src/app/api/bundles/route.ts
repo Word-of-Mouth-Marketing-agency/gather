@@ -12,6 +12,9 @@ export async function POST(request: Request) {
     if (data.startsAt && data.endsAt && data.endsAt < data.startsAt) {
       return NextResponse.json({ error: 'Offer end date cannot be before start date' }, { status: 400 })
     }
+    if (Array.isArray(data.productIds)) {
+      data.productIds = [...new Set(data.productIds)]
+    }
     const repo = getBundleRepository()
     const item = repo.create(data)
     return NextResponse.json(item, { status: 201 })

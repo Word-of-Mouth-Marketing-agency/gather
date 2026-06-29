@@ -69,7 +69,8 @@ export default function AdminBundlesPage() {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {bundles.map((bundle) => {
-                const bundleProducts = products.filter((p) => bundle.productIds.includes(p.id))
+                const uniqueIds = [...new Set(bundle.productIds)]
+                const bundleProducts = uniqueIds.map((id) => products.find((p) => p.id === id)).filter(Boolean) as NonNullable<ReturnType<typeof products.find>>[]
                 const status = getBundleStatus(bundle)
                 return (
                   <tr key={bundle.id} className="hover:bg-gray-50 transition-colors">
@@ -109,7 +110,7 @@ export default function AdminBundlesPage() {
                             </div>
                           ))}
                         </div>
-                        <span className="text-xs text-gray-400 ml-1">{bundle.productIds.length} products</span>
+                        <span className="text-xs text-gray-400 ml-1">{new Set(bundle.productIds).size} products</span>
                       </div>
                     </td>
                     <td className="px-5 py-3 hidden lg:table-cell">

@@ -114,7 +114,8 @@ export function getBundleById(id: string): Bundle | undefined {
 }
 
 export function getBundleProducts(bundle: Bundle): Product[] {
-  return bundle.productIds
+  const uniqueIds = [...new Set(bundle.productIds)]
+  return uniqueIds
     .map((id) => getProductById(id))
     .filter((p): p is Product => p !== undefined)
 }
