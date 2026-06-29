@@ -22,22 +22,14 @@ const DELIVERY_SLOTS = [
   { value: 'outside-hours', label: 'Outside working hours (special request)' },
 ] as const
 
-const LAST_ALLOWED_SAME_DAY_HOUR = 14
-
-function todayString() {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
 function tomorrowString() {
   const d = new Date()
   d.setDate(d.getDate() + 1)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-function slotStartHour(slot: string): number | null {
-  if (!slot || slot === 'outside-hours') return null
-  return parseInt(slot.split('-')[0].split(':')[0], 10)
+function isValidDeliveryDate(date: string) {
+  return Boolean(date) && date >= tomorrowString()
 }
 
 const empty: CheckoutFormData = {
@@ -90,7 +82,6 @@ export default function CheckoutPageClient() {
   const [mounted, setMounted] = useState(false)
   const [form, setForm] = useState<CheckoutFormData>(empty)
   const [errors, setErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({})
-  const [showSameDayPopup, setShowSameDayPopup] = useState(false)
   const [acceptedPrivacyPolicy, setAcceptedPrivacyPolicy] = useState(false)
   const [acceptedRefundPolicy, setAcceptedRefundPolicy] = useState(false)
   const [policyError, setPolicyError] = useState('')
@@ -129,19 +120,10 @@ export default function CheckoutPageClient() {
   }, [session])
 
   function setFn(field: keyof CheckoutFormData, value: string) {
-    setForm((f) => ({ ...f, [field]: value }))
-    setErrors((e) => ({ ...e, [field]: undefined }))
+    const nextValue = field === 'deliveryDate' && value && value < tomorrowString() ? tomorrowString() : value
 
-    if (field === 'deliveryDate' || field === 'deliverySlot') {
-      const date = field === 'deliveryDate' ? value : form.deliveryDate
-      const slot = field === 'deliverySlot' ? value : form.deliverySlot
-      if (date === todayString() && slot) {
-        const hour = slotStartHour(slot)
-        if (hour !== null && hour >= LAST_ALLOWED_SAME_DAY_HOUR) {
-          setShowSameDayPopup(true)
-        }
-      }
-    }
+    setForm((f) => ({ ...f, [field]: nextValue }))
+    setErrors((e) => ({ ...e, [field]: undefined }))
   }
 
   function validate(): boolean {
@@ -153,6 +135,7 @@ export default function CheckoutPageClient() {
     if (!form.city) e.city = 'Please select a delivery city'
     if (!form.address.trim()) e.address = 'Required'
     if (!form.deliveryDate) e.deliveryDate = 'Required'
+    else if (!isValidDeliveryDate(form.deliveryDate)) e.deliveryDate = 'Please choose tomorrow or a later date'
     if (!form.deliverySlot) e.deliverySlot = 'Required'
     setErrors(e)
     if (!acceptedPrivacyPolicy || !acceptedRefundPolicy) {
@@ -330,7 +313,7 @@ export default function CheckoutPageClient() {
                   <input
                     type="date"
                     value={form.deliveryDate}
-                    min={todayString()}
+                    min={tomorrowString()}
                     onChange={(e) => setFn('deliveryDate', e.target.value)}
                     className={inputCls(!!errors.deliveryDate)}
                   />
@@ -341,6 +324,7 @@ export default function CheckoutPageClient() {
                     value={form.deliverySlot}
                     onChange={(e) => setFn('deliverySlot', e.target.value)}
                     className={inputCls(!!errors.deliverySlot)}
+                    disabled={!isValidDeliveryDate(form.deliveryDate)}
                   >
                     <option value="">Select preferred delivery time</option>
                     {DELIVERY_SLOTS.map((s) => (
@@ -496,41 +480,6 @@ export default function CheckoutPageClient() {
         </div>
       </form>
 
-      {showSameDayPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-5" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 bg-black/62" onClick={() => setShowSameDayPopup(false)} />
-          <div className="relative z-10 w-full max-w-[460px] rounded-3xl bg-[#fffaf2] border border-[#f2d7a2] shadow-[0_24px_70px_rgba(0,0,0,0.24)] p-7 text-center">
-            <button
-              onClick={() => setShowSameDayPopup(false)}
-              className="absolute top-3 right-3.5 w-8 h-8 rounded-full bg-white text-gray-700 text-2xl leading-none hover:bg-gray-50 transition-colors"
-            >
-              ×
-            </button>
-            <div className="w-16 h-16 rounded-full bg-[#ff7a1a] text-white text-3xl flex items-center justify-center mx-auto mb-4">🕒</div>
-            <h3 className="text-2xl font-black text-[#171717] mb-2">Same-day delivery notice</h3>
-            <p className="text-[#6b4b00] font-semibold text-sm leading-relaxed">
-              Same-day delivery is available until 2:00 PM only. Your order will be delivered tomorrow.
-            </p>
-            <div className="grid gap-3 mt-6">
-              <button
-                onClick={() => {
-                  setFn('deliveryDate', tomorrowString())
-                  setShowSameDayPopup(false)
-                }}
-                className="w-full h-12 rounded-full bg-[#ff7a1a] text-white font-black text-sm hover:bg-[#fe6c00] transition-colors"
-              >
-                Set delivery to tomorrow
-              </button>
-              <button
-                onClick={() => setShowSameDayPopup(false)}
-                className="w-full h-12 rounded-full border border-[#f1c9a4] bg-white text-[#7a4a18] font-black text-sm hover:bg-[#fff4e8] transition-colors"
-              >
-                Change time slot
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
     </>
   )
