@@ -2,7 +2,7 @@
   {
     "id": "ship-dokki",
     "city": "Dokki",
-    "fee": 50,
+    "fee": 55,
     "isActive": true,
     "sortOrder": 1
   },
@@ -35,10 +35,10 @@
     "sortOrder": 5
   },
   {
-    "id": "ship-other",
-    "city": "Other",
+    "city": "test",
     "fee": 50,
     "isActive": true,
-    "sortOrder": 6
+    "sortOrder": 6,
+    "id": "ship-1782736117934-xu7o5"
   }
 ]

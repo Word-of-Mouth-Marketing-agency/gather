@@ -6,9 +6,10 @@
     "phone": "test",
     "occasionType": "Eid Al-Fitr",
     "imageUrl": "/uploads/moments/1782135950074-trust-logo-white_png",
-    "status": "pending",
+    "status": "approved",
     "showInSlider": false,
-    "submittedAt": "2026-06-22T13:45:50.076Z"
+    "submittedAt": "2026-06-22T13:45:50.076Z",
+    "reviewedAt": "2026-06-29T14:29:27.566Z"
   },
   {
     "id": "moment-1780579209305-os6nk",

@@ -19,7 +19,7 @@
     "type": "category",
     "parentId": null,
     "sortOrder": 2,
-    "isActive": false
+    "isActive": true
   },
   {
     "id": "cat-chocolate",

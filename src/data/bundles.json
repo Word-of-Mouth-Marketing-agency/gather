@@ -10,7 +10,8 @@
       "prod-5",
       "prod-8",
       "prod-3",
-      "prod-6"
+      "prod-6",
+      "prod-7"
     ],
     "regularPrice": 1560,
     "offerPrice": 600,
@@ -22,7 +23,7 @@
     "isFeatured": true,
     "sortOrder": 0,
     "createdAt": "2026-01-01T00:00:00Z",
-    "updatedAt": "2026-06-04T12:58:02.974Z"
+    "updatedAt": "2026-06-29T14:27:00.157Z"
   },
   {
     "id": "bundle-movie-night",
