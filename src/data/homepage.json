@@ -1,0 +1,67 @@
+{
+  "heroSlides": [
+    {
+      "id": "slide-1",
+      "src": "/assets/gather/banner1.webp",
+      "mobileSrc": "/assets/gather/mobile-banner1.webp",
+      "alt": "Premium gifts for every occasion",
+      "sortOrder": 1,
+      "isActive": true
+    },
+    {
+      "id": "slide-2",
+      "src": "/assets/gather/banner2.webp",
+      "mobileSrc": "/assets/gather/mobile-banner2.webp",
+      "alt": "Same-day delivery across Cairo",
+      "sortOrder": 2,
+      "isActive": true
+    },
+    {
+      "id": "slide-3",
+      "src": "/assets/gather/banner3.webp",
+      "mobileSrc": "/assets/gather/mobile-banner3.webp",
+      "alt": "Celebrate with Gather",
+      "sortOrder": 3,
+      "isActive": true
+    }
+  ],
+  "heroText": {
+    "brandLine": "Gather",
+    "headline": "Bring Us Together",
+    "subtitle": "Everything your gathering needs.",
+    "ctaPrimaryLabel": "Shop Now",
+    "ctaPrimaryUrl": "#featured-gifts",
+    "ctaSecondaryLabel": "Shop by Occasion",
+    "ctaSecondaryUrl": "#shop-by-occasion"
+  },
+  "aboutGather": {
+    "title": "About Gather",
+    "subtitle": "Designing joy for every milestone, delivered to your doorstep. Make every second count",
+    "body": "From birthday cakes to balloons, snacks to decorations — order everything you need for any gathering, delivered to your door.",
+    "ctaText": "About us",
+    "ctaUrl": "/about",
+    "leftImage": "/assets/gather/about/balloon.gif",
+    "rightImage": "/assets/gather/about/cake.gif"
+  },
+  "whyGatherCards": [
+    {
+      "id": "why-1",
+      "title": "Premium Quality",
+      "description": "Every product is carefully curated and selected from the finest suppliers.",
+      "sortOrder": 1
+    },
+    {
+      "id": "why-2",
+      "title": "Fast Delivery",
+      "description": "Get your gathering stuff delivered at your doorstep as fast as possible",
+      "sortOrder": 2
+    },
+    {
+      "id": "why-3",
+      "title": "Easy & Secure",
+      "description": "Seamless checkout with multiple payment options. Your security is our priority.",
+      "sortOrder": 3
+    }
+  ],
+  "updatedAt": "2026-06-29T00:00:00Z"
+}

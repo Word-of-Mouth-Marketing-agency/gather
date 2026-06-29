@@ -199,6 +199,52 @@ export interface Page {
   updatedAt: string
 }
 
+// ─── Homepage Content ─────────────────────────────────────────────────────────
+
+export interface HeroSlide {
+  id: string
+  src: string
+  mobileSrc: string
+  alt: string
+  sortOrder: number
+  isActive: boolean
+}
+
+export interface HeroText {
+  brandLine: string
+  headline: string
+  subtitle: string
+  ctaPrimaryLabel: string
+  ctaPrimaryUrl: string
+  ctaSecondaryLabel: string
+  ctaSecondaryUrl: string
+}
+
+export interface AboutGatherContent {
+  title: string
+  subtitle: string
+  body: string
+  ctaText: string
+  ctaUrl: string
+  leftImage: string
+  rightImage: string
+}
+
+export interface WhyGatherCard {
+  id: string
+  title: string
+  description: string
+  sortOrder: number
+}
+
+export interface HomepageContent {
+  heroSlides: HeroSlide[]
+  heroText: HeroText
+  aboutGather: AboutGatherContent
+  whyGatherCards: WhyGatherCard[]
+  updatedAt: string
+}
+
 // ─── Cart ─────────────────────────────────────────────────────────────────────
 
 export interface ProductCartItem {

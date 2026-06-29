@@ -1,14 +1,16 @@
-import type { Product, Category, Page, Bundle } from '@/types'
+import type { Product, Category, Page, Bundle, HomepageContent } from '@/types'
 import productsData from '@/data/products.json'
 import categoriesData from '@/data/categories.json'
 import pagesData from '@/data/pages.json'
 import bundlesData from '@/data/bundles.json'
+import homepageData from '@/data/homepage.json'
 import { getActiveProductPrice, isBundlePurchasable } from './scheduled-discounts'
 
 const STATIC_PRODUCTS = productsData as Product[]
 const STATIC_CATEGORIES = categoriesData as Category[]
 const STATIC_PAGES = pagesData as Page[]
 const STATIC_BUNDLES = bundlesData as Bundle[]
+const STATIC_HOMEPAGE = homepageData as HomepageContent
 
 function categorySortOrder(category: Category): number {
   return category.sortOrder ?? category.order ?? 0
@@ -115,4 +117,10 @@ export function formatPrice(amount: number, currency = 'EGP'): string {
 
 export function getDisplayPrice(product: Product): number {
   return getActiveProductPrice(product)
+}
+
+// ─── Homepage Content ─────────────────────────────────────────────────────────
+
+export function getHomepageContent(): HomepageContent {
+  return STATIC_HOMEPAGE
 }

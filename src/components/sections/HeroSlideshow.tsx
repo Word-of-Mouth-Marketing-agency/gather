@@ -3,40 +3,30 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 
 import gsap from 'gsap'
+import type { HeroSlide, HeroText } from '@/types'
 
-const SLIDES = [
-  {
-    src: '/assets/gather/banner1.webp',
-    mobileSrc: '/assets/gather/mobile-banner1.webp',
-    alt: 'Premium gifts for every occasion',
-  },
-  {
-    src: '/assets/gather/banner2.webp',
-    mobileSrc: '/assets/gather/mobile-banner2.webp',
-    alt: 'Same-day delivery across Cairo',
-  },
-  {
-    src: '/assets/gather/banner3.webp',
-    mobileSrc: '/assets/gather/mobile-banner3.webp',
-    alt: 'Celebrate with Gather',
-  },
-]
-
-const SLIDE_INTERVAL = 6000
 const TRANSITION_MS = 800
+const SLIDE_INTERVAL = 6000
 
-export default function HeroSlideshow() {
+interface Props {
+  slides: HeroSlide[]
+  heroText: HeroText
+}
+
+export default function HeroSlideshow({ slides, heroText }: Props) {
+  const activeSlides = slides.filter((s) => s.isActive).sort((a, b) => a.sortOrder - b.sortOrder)
   const [active, setActive] = useState(0)
   const copyRef = useRef<HTMLDivElement>(null)
 
   const next = useCallback(() => {
-    setActive((prev) => (prev + 1) % SLIDES.length)
-  }, [])
+    setActive((prev) => (prev + 1) % (activeSlides.length || 1))
+  }, [activeSlides.length])
 
   useEffect(() => {
+    if (activeSlides.length <= 1) return
     const id = setInterval(next, SLIDE_INTERVAL)
     return () => clearInterval(id)
-  }, [next])
+  }, [next, activeSlides.length])
 
   useEffect(() => {
     const root = copyRef.current
@@ -60,11 +50,13 @@ export default function HeroSlideshow() {
     return () => context.revert()
   }, [])
 
+  if (activeSlides.length === 0) return null
+
   return (
     <section className="relative w-full overflow-hidden bg-gray-100 aspect-[863/1822] sm:aspect-video sm:min-h-[clamp(320px,52vw,560px)]">
-      {SLIDES.map((slide, i) => (
+      {activeSlides.map((slide, i) => (
         <div
-          key={slide.src}
+          key={slide.id}
           className="absolute inset-0"
           style={{
             opacity: i === active ? 1 : 0,
@@ -96,7 +88,7 @@ export default function HeroSlideshow() {
                 textShadow: 'clamp(2px, 0.28vw, 3px) clamp(2px, 0.36vw, 4px) 0 rgba(0,0,0,0.72)',
               }}
             >
-              Gather
+              {heroText.brandLine}
             </p>
             <h1
               data-hero-copy
@@ -107,7 +99,7 @@ export default function HeroSlideshow() {
                 textShadow: 'clamp(1px, 0.22vw, 2px) clamp(2px, 0.3vw, 3px) 0 rgba(0,0,0,0.72)',
               }}
             >
-              Bring Us Together
+              {heroText.headline}
             </h1>
             <p
               data-hero-copy
@@ -118,14 +110,14 @@ export default function HeroSlideshow() {
                 textShadow: '1px 2px 0 rgba(0,0,0,0.7)',
               }}
             >
-              Everything your gathering needs.
+              {heroText.subtitle}
             </p>
             <div
               data-hero-copy
               className="mt-[clamp(1rem,2.2vw,1.75rem)] flex flex-col items-center gap-[clamp(0.6rem,1.2vw,1rem)] min-[420px]:flex-row min-[420px]:justify-center sm:items-stretch sm:justify-start"
             >
               <a
-                href="#featured-gifts"
+                href={heroText.ctaPrimaryUrl}
                 className="inline-flex items-center justify-center rounded-full bg-[#FE7501] font-black text-white shadow-[2px_3px_0_rgba(0,0,0,0.72)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#DB7100]"
                 style={{
                   minHeight: 'clamp(2.4rem, 3.7vw, 2.8rem)',
@@ -134,10 +126,10 @@ export default function HeroSlideshow() {
                   fontSize: 'clamp(0.82rem, 1.08vw, 0.96rem)',
                 }}
               >
-                Shop Now
+                {heroText.ctaPrimaryLabel}
               </a>
               <a
-                href="#shop-by-occasion"
+                href={heroText.ctaSecondaryUrl}
                 className="inline-flex items-center justify-center rounded-full border-2 border-[#FE7501] bg-white font-black text-[#171717] shadow-[2px_3px_0_rgba(0,0,0,0.62)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#fff4e8]"
                 style={{
                   minHeight: 'clamp(2.4rem, 3.7vw, 2.8rem)',
@@ -146,7 +138,7 @@ export default function HeroSlideshow() {
                   fontSize: 'clamp(0.82rem, 1.08vw, 0.96rem)',
                 }}
               >
-                Shop by Occasion
+                {heroText.ctaSecondaryLabel}
               </a>
             </div>
           </div>
