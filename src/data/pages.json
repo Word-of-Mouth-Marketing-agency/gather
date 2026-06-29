@@ -152,5 +152,21 @@
     "metaDescription": "Get in touch with Gather for orders, inquiries, or support.",
     "updatedAt": "2026-06-04T00:00:00Z",
     "sections": []
+  },
+  {
+    "id": "page-privacy-policy",
+    "slug": "privacy-policy",
+    "title": "Privacy Policy",
+    "metaDescription": "Gather privacy policy — how we collect, use, and protect your personal information.",
+    "updatedAt": "2026-06-29T00:00:00Z",
+    "sections": []
+  },
+  {
+    "id": "page-refund-returns",
+    "slug": "refund-returns",
+    "title": "Refund and Returns Policy",
+    "metaDescription": "Gather refund and returns policy — order cancellation, returns, damaged items, and refunds.",
+    "updatedAt": "2026-06-29T00:00:00Z",
+    "sections": []
   }
 ]

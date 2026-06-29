@@ -8,6 +8,8 @@ const pageEditorRoutes: Record<string, string> = {
   home: '/admin/pages/homepage',
   about: '/admin/pages/about',
   contact: '/admin/pages/contact',
+  'privacy-policy': '/admin/pages/privacy-policy',
+  'refund-returns': '/admin/pages/refund-returns',
 }
 
 export default function AdminPagesPage() {

@@ -1,4 +1,4 @@
-import type { Product, Category, Page, Bundle, HomepageContent, AboutPageContent, ContactPageContent } from '@/types'
+import type { Product, Category, Page, Bundle, HomepageContent, AboutPageContent, ContactPageContent, PolicyPageContent } from '@/types'
 import productsData from '@/data/products.json'
 import categoriesData from '@/data/categories.json'
 import pagesData from '@/data/pages.json'
@@ -6,6 +6,8 @@ import bundlesData from '@/data/bundles.json'
 import homepageData from '@/data/homepage.json'
 import aboutData from '@/data/about.json'
 import contactData from '@/data/contact.json'
+import privacyPolicyData from '@/data/privacy-policy.json'
+import refundReturnsData from '@/data/refund-returns.json'
 import { getActiveProductPrice, isBundlePurchasable } from './scheduled-discounts'
 
 const STATIC_PRODUCTS = productsData as Product[]
@@ -15,6 +17,8 @@ const STATIC_BUNDLES = bundlesData as Bundle[]
 const STATIC_HOMEPAGE = homepageData as HomepageContent
 const STATIC_ABOUT = aboutData as AboutPageContent
 const STATIC_CONTACT = contactData as ContactPageContent
+const STATIC_PRIVACY_POLICY = privacyPolicyData as PolicyPageContent
+const STATIC_REFUND_RETURNS = refundReturnsData as PolicyPageContent
 
 function categorySortOrder(category: Category): number {
   return category.sortOrder ?? category.order ?? 0
@@ -139,4 +143,16 @@ export function getAboutPageContent(): AboutPageContent {
 
 export function getContactPageContent(): ContactPageContent {
   return STATIC_CONTACT
+}
+
+// ─── Privacy Policy Page Content ──────────────────────────────────────────────
+
+export function getPrivacyPolicyContent(): PolicyPageContent {
+  return STATIC_PRIVACY_POLICY
+}
+
+// ─── Refund & Returns Page Content ────────────────────────────────────────────
+
+export function getRefundReturnsContent(): PolicyPageContent {
+  return STATIC_REFUND_RETURNS
 }

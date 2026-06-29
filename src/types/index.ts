@@ -280,6 +280,14 @@ export interface ContactPageContent {
   updatedAt: string
 }
 
+// ─── Policy Page Content ──────────────────────────────────────────────────────
+
+export interface PolicyPageContent {
+  pageTitle: string
+  content: string
+  updatedAt: string
+}
+
 // ─── Cart ─────────────────────────────────────────────────────────────────────
 
 export interface ProductCartItem {
