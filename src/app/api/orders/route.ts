@@ -36,6 +36,9 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const { id, status } = await request.json()
+    if (!id || !status) {
+      return NextResponse.json({ error: 'Order ID and status required' }, { status: 400 })
+    }
     const updated = updateOrderStatus(id, status)
     if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     return NextResponse.json(updated)

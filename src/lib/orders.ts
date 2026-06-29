@@ -30,11 +30,27 @@ export interface Order {
   acceptedPrivacyPolicy: boolean
   acceptedRefundPolicy: boolean
   acceptedPoliciesAt: string
-  status: 'pending' | 'confirmed' | 'delivered' | 'cancelled'
+  status: OrderStatus
   createdAt: string
+  updatedAt?: string
 }
 
 const ORDERS_FILE = 'orders.json'
+
+export const ORDER_STATUSES = [
+  'pending',
+  'confirmed',
+  'preparing',
+  'out_for_delivery',
+  'delivered',
+  'cancelled',
+] as const
+
+export type OrderStatus = typeof ORDER_STATUSES[number]
+
+export function isOrderStatus(status: string): status is OrderStatus {
+  return ORDER_STATUSES.includes(status as OrderStatus)
+}
 
 export function getAllOrders(): Order[] {
   try {
@@ -50,12 +66,14 @@ export function getOrderById(id: string): Order | undefined {
 
 export function createOrder(data: Omit<Order, 'id' | 'orderNumber' | 'status' | 'createdAt'>): Order {
   const orders = getAllOrders()
+  const now = new Date().toISOString()
   const order: Order = {
     ...data,
     id: generateId('ord'),
     orderNumber: `GATHER-${Date.now().toString(36).toUpperCase()}`,
     status: 'pending',
-    createdAt: new Date().toISOString(),
+    createdAt: now,
+    updatedAt: now,
   }
   orders.push(order)
   writeJson(ORDERS_FILE, orders)
@@ -63,10 +81,21 @@ export function createOrder(data: Omit<Order, 'id' | 'orderNumber' | 'status' | 
 }
 
 export function updateOrderStatus(id: string, status: Order['status']): Order | undefined {
+  if (!isOrderStatus(status)) return undefined
   const orders = getAllOrders()
   const idx = orders.findIndex((o) => o.id === id)
   if (idx < 0) return undefined
   orders[idx].status = status
+  orders[idx].updatedAt = new Date().toISOString()
   writeJson(ORDERS_FILE, orders)
   return orders[idx]
+}
+
+export function deleteOrder(id: string): boolean {
+  const orders = getAllOrders()
+  const idx = orders.findIndex((o) => o.id === id)
+  if (idx < 0) return false
+  orders.splice(idx, 1)
+  writeJson(ORDERS_FILE, orders)
+  return true
 }
