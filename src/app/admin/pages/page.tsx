@@ -6,6 +6,8 @@ import type { Page } from '@/types'
 
 const pageEditorRoutes: Record<string, string> = {
   home: '/admin/pages/homepage',
+  about: '/admin/pages/about',
+  contact: '/admin/pages/contact',
 }
 
 export default function AdminPagesPage() {

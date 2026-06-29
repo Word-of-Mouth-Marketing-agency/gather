@@ -1,0 +1,21 @@
+{
+  "pageTitle": "About Gather",
+  "section1": {
+    "title": "Our Story",
+    "body": "GATHER is an e-commerce platform created to be part of your happiest moments. Our idea is simple: make celebrating easier by bringing together everything you need for gatherings, parties, and special occasions in one convenient place.\n\nWhether you are planning a birthday, engagement, family gathering, friends' get-together, or even a work event, GATHER helps you find the essentials quickly and easily. From decorations and balloons to snacks, desserts, chocolates, drinks, and other celebration must-haves, we aim to make the preparation process smooth, enjoyable, and stress-free.",
+    "image": "/assets/gather/occasions/family-gathering.webp"
+  },
+  "section2": {
+    "title": "What we OFFER",
+    "body": "We offer a growing range of products for celebrations, gatherings, and events, including:",
+    "image": "/assets/gather/cute-rabbit.webp"
+  },
+  "section2ListItems": [
+    "Party decorations and celebration supplies",
+    "Balloons and occasion accessories",
+    "Snacks, desserts, and chocolates",
+    "Drinks and hosting essentials",
+    "Curated items for different types of social occasions"
+  ],
+  "updatedAt": "2026-06-29T00:00:00Z"
+}

@@ -2,14 +2,28 @@
 
 import { useState } from 'react'
 
-export default function ContactForm() {
+interface Props {
+  formTitle: string
+  recipientEmail: string
+}
+
+export default function ContactForm({ formTitle, recipientEmail }: Props) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    try {
+      await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message, recipientEmail }),
+      })
+    } catch {
+      // silently continue — show success regardless for now (no real email backend yet)
+    }
     setSubmitted(true)
   }
 
@@ -30,7 +44,7 @@ export default function ContactForm() {
   return (
     <div className="bg-[#E8DED2] rounded-[22px] p-8 sm:p-10">
       <h3 className="text-2xl sm:text-3xl font-black text-[#171717] text-center mb-7">
-        Get In Touch
+        {formTitle}
       </h3>
 
       <form onSubmit={handleSubmit} className="space-y-5">

@@ -245,6 +245,41 @@ export interface HomepageContent {
   updatedAt: string
 }
 
+// ─── About Page Content ───────────────────────────────────────────────────────
+
+export interface AboutSection {
+  title: string
+  body: string
+  image: string
+}
+
+export interface AboutPageContent {
+  pageTitle: string
+  section1: AboutSection
+  section2: AboutSection
+  section2ListItems: string[]
+  updatedAt: string
+}
+
+// ─── Contact Page Content ─────────────────────────────────────────────────────
+
+export interface ContactSocialLinks {
+  facebook: string
+  instagram: string
+  tiktok: string
+  youtube: string
+}
+
+export interface ContactPageContent {
+  pageTitle: string
+  infoTitle: string
+  infoBody: string
+  formTitle: string
+  recipientEmail: string
+  socialLinks: ContactSocialLinks
+  updatedAt: string
+}
+
 // ─── Cart ─────────────────────────────────────────────────────────────────────
 
 export interface ProductCartItem {

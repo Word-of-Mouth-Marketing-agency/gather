@@ -1,9 +1,11 @@
-import type { Product, Category, Page, Bundle, HomepageContent } from '@/types'
+import type { Product, Category, Page, Bundle, HomepageContent, AboutPageContent, ContactPageContent } from '@/types'
 import productsData from '@/data/products.json'
 import categoriesData from '@/data/categories.json'
 import pagesData from '@/data/pages.json'
 import bundlesData from '@/data/bundles.json'
 import homepageData from '@/data/homepage.json'
+import aboutData from '@/data/about.json'
+import contactData from '@/data/contact.json'
 import { getActiveProductPrice, isBundlePurchasable } from './scheduled-discounts'
 
 const STATIC_PRODUCTS = productsData as Product[]
@@ -11,6 +13,8 @@ const STATIC_CATEGORIES = categoriesData as Category[]
 const STATIC_PAGES = pagesData as Page[]
 const STATIC_BUNDLES = bundlesData as Bundle[]
 const STATIC_HOMEPAGE = homepageData as HomepageContent
+const STATIC_ABOUT = aboutData as AboutPageContent
+const STATIC_CONTACT = contactData as ContactPageContent
 
 function categorySortOrder(category: Category): number {
   return category.sortOrder ?? category.order ?? 0
@@ -123,4 +127,16 @@ export function getDisplayPrice(product: Product): number {
 
 export function getHomepageContent(): HomepageContent {
   return STATIC_HOMEPAGE
+}
+
+// ─── About Page Content ───────────────────────────────────────────────────────
+
+export function getAboutPageContent(): AboutPageContent {
+  return STATIC_ABOUT
+}
+
+// ─── Contact Page Content ─────────────────────────────────────────────────────
+
+export function getContactPageContent(): ContactPageContent {
+  return STATIC_CONTACT
 }
