@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import type { Product, Review } from '@/types'
 import ProductRatingSummary from './ProductRatingSummary'
 import { useCustomerSession } from '@/lib/customer-auth'
+import StarRating from '@/components/StarRating'
+import { InteractiveStarRating } from '@/components/StarRating'
 
 interface Props {
   product: Product
@@ -114,24 +116,7 @@ export default function ProductDescriptionReviews({ product }: Props) {
               <form onSubmit={handleSubmit} className="space-y-4 p-4 rounded-2xl bg-white border border-[#ead8c4]">
                 <div>
                   <label className="text-xs font-bold text-gray-500 mb-2 block">Rating</label>
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setRating(star)}
-                        className="p-0.5"
-                      >
-                        <svg
-                          className={`w-6 h-6 ${star <= rating ? 'text-yellow-400' : 'text-gray-200'}`}
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-                        </svg>
-                      </button>
-                    ))}
-                  </div>
+                  <InteractiveStarRating rating={rating} onChange={setRating} size="lg" />
                 </div>
 
                 <div>
@@ -234,22 +219,5 @@ export default function ProductDescriptionReviews({ product }: Props) {
         )}
       </div>
     </section>
-  )
-}
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <span className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <svg
-          key={star}
-          className={`w-4 h-4 ${star <= rating ? 'text-yellow-400' : 'text-gray-200'}`}
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-        </svg>
-      ))}
-    </span>
   )
 }

@@ -14,8 +14,28 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Gather — Premium Gifts Delivered Same-Day in Cairo',
     description: 'Shop premium gifts for every occasion. Same-day delivery across Cairo.',
+    url: 'https://gather-eg.com',
+    siteName: 'Gather',
     locale: 'en_US',
     type: 'website',
+    images: [
+      {
+        url: '/assets/gather/gather-logo.webp',
+        width: 512,
+        height: 512,
+        alt: 'Gather',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Gather — Premium Gifts Delivered Same-Day in Cairo',
+    description: 'Shop premium gifts for every occasion. Same-day delivery across Cairo.',
+    images: ['/assets/gather/gather-logo.webp'],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 }
 
