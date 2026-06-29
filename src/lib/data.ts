@@ -1,4 +1,4 @@
-import type { Product, Category, Page, Bundle, HomepageContent, AboutPageContent, ContactPageContent, PolicyPageContent } from '@/types'
+import type { Product, Category, Page, Bundle, HomepageContent, AboutPageContent, ContactPageContent, PolicyPageContent, Review } from '@/types'
 import productsData from '@/data/products.json'
 import categoriesData from '@/data/categories.json'
 import pagesData from '@/data/pages.json'
@@ -8,6 +8,7 @@ import aboutData from '@/data/about.json'
 import contactData from '@/data/contact.json'
 import privacyPolicyData from '@/data/privacy-policy.json'
 import refundReturnsData from '@/data/refund-returns.json'
+import reviewsData from '@/data/reviews.json'
 import { getActiveProductPrice, isBundlePurchasable } from './scheduled-discounts'
 
 const STATIC_PRODUCTS = productsData as Product[]
@@ -19,6 +20,7 @@ const STATIC_ABOUT = aboutData as AboutPageContent
 const STATIC_CONTACT = contactData as ContactPageContent
 const STATIC_PRIVACY_POLICY = privacyPolicyData as PolicyPageContent
 const STATIC_REFUND_RETURNS = refundReturnsData as PolicyPageContent
+const STATIC_REVIEWS = reviewsData as Review[]
 
 function categorySortOrder(category: Category): number {
   return category.sortOrder ?? category.order ?? 0
@@ -155,4 +157,28 @@ export function getPrivacyPolicyContent(): PolicyPageContent {
 
 export function getRefundReturnsContent(): PolicyPageContent {
   return STATIC_REFUND_RETURNS
+}
+
+// ─── Reviews ──────────────────────────────────────────────────────────────────
+
+export function getAllReviews(): Review[] {
+  return STATIC_REVIEWS
+}
+
+export function getApprovedVisibleReviews(productId: string): Review[] {
+  return STATIC_REVIEWS.filter(
+    (r) => r.productId === productId && r.status === 'approved' && r.isVisible
+  )
+}
+
+export function getProductReviewSummary(productId: string): {
+  averageRating: number | null
+  reviewCount: number
+} {
+  const reviews = getApprovedVisibleReviews(productId)
+  if (reviews.length === 0) {
+    return { averageRating: null, reviewCount: 0 }
+  }
+  const sum = reviews.reduce((acc, r) => acc + r.rating, 0)
+  return { averageRating: sum / reviews.length, reviewCount: reviews.length }
 }

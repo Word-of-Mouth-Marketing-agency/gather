@@ -33,6 +33,26 @@ export interface ProductReview {
   createdAt?: string
 }
 
+// ─── Review ────────────────────────────────────────────────────────────────────
+
+export type ReviewStatus = 'pending' | 'approved' | 'rejected'
+
+export interface Review {
+  id: string
+  productId: string
+  customerId?: string
+  customerName: string
+  customerEmail: string
+  rating: number
+  title?: string
+  comment: string
+  status: ReviewStatus
+  isVisible: boolean
+  createdAt: string
+  updatedAt: string
+  reviewedAt?: string
+}
+
 // ─── Category ─────────────────────────────────────────────────────────────────
 
 export interface Category {
