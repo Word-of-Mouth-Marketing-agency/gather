@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getAllOrders, createOrder, updateOrderStatus } from '@/lib/orders'
+import { getShippingFeeForCity } from '@/lib/shipping-fees'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -14,7 +15,18 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const data = await request.json()
-    const order = createOrder(data)
+    const shippingFee = getShippingFeeForCity(data.delivery?.city ?? '')
+    const subtotal = Number(data.subtotal) || 0
+    const order = createOrder({
+      ...data,
+      subtotal,
+      shippingFee,
+      total: subtotal + shippingFee,
+      delivery: {
+        ...data.delivery,
+        shippingFee,
+      },
+    })
     return NextResponse.json(order, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Invalid data' }, { status: 400 })

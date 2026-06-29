@@ -247,14 +247,20 @@ export type DeliverySlot =
   | '20:00-22:00'
   | 'outside-hours'
 
-export type AllowedCity = 'Dokki' | 'Mohandessin' | 'Manial' | 'Zamalek' | 'Haram'
+export interface ShippingFee {
+  id: string
+  city: string
+  fee: number
+  isActive: boolean
+  sortOrder: number
+}
 
 export interface CheckoutFormData {
   firstName: string
   lastName: string
   email: string
   phone: string
-  city: AllowedCity | ''
+  city: string
   address: string
   deliveryDate: string
   deliverySlot: DeliverySlot | ''
@@ -351,7 +357,7 @@ export interface OdooSyncResult {
 export interface Address {
   id: string
   label: string
-  city: AllowedCity | string
+  city: string
   street: string
   apartment?: string
   phone: string

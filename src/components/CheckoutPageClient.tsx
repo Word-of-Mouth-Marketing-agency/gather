@@ -4,13 +4,11 @@ import { useState, useEffect, startTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import type { CheckoutFormData, BundleCartItem } from '@/types'
+import type { CheckoutFormData, BundleCartItem, ShippingFee } from '@/types'
 import PageTitleSection from '@/components/PageTitleSection'
 import { getCart, getCartTotal, getCartProducts, getCartBundles, clearCart } from '@/lib/cart'
 import { formatPrice } from '@/lib/data'
 import { useCustomerSession } from '@/lib/customer-auth'
-
-const DELIVERY_CITIES = ['Dokki', 'Mohandessin', 'Manial', 'Zamalek', 'Haram'] as const
 
 const DELIVERY_SLOTS = [
   { value: '10:00-12:00', label: '10:00 AM – 12:00 PM' },
@@ -21,6 +19,15 @@ const DELIVERY_SLOTS = [
   { value: '20:00-22:00', label: '8:00 PM – 10:00 PM' },
   { value: 'outside-hours', label: 'Outside working hours (special request)' },
 ] as const
+
+const DEFAULT_SHIPPING_FEES: ShippingFee[] = [
+  { id: 'ship-dokki', city: 'Dokki', fee: 50, isActive: true, sortOrder: 1 },
+  { id: 'ship-mohandessin', city: 'Mohandessin', fee: 50, isActive: true, sortOrder: 2 },
+  { id: 'ship-manial', city: 'Manial', fee: 50, isActive: true, sortOrder: 3 },
+  { id: 'ship-zamalek', city: 'Zamalek', fee: 50, isActive: true, sortOrder: 4 },
+  { id: 'ship-haram', city: 'Haram', fee: 50, isActive: true, sortOrder: 5 },
+  { id: 'ship-other', city: 'Other', fee: 50, isActive: true, sortOrder: 6 },
+]
 
 function tomorrowString() {
   const d = new Date()
@@ -89,7 +96,19 @@ export default function CheckoutPageClient() {
   const [products, setProducts] = useState<ProductEntry[]>([])
   const [bundles, setBundles] = useState<BundleCartItem[]>([])
   const [total, setTotal] = useState(0)
+  const [shippingFees, setShippingFees] = useState<ShippingFee[]>(DEFAULT_SHIPPING_FEES)
   const session = useCustomerSession()
+
+  const activeShippingFees = shippingFees
+    .filter((item) => item.isActive !== false)
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+  const selectedShippingFee = form.city
+    ? activeShippingFees.find((item) => item.city.toLowerCase() === form.city.toLowerCase())
+      ?? activeShippingFees.find((item) => item.city.toLowerCase() === 'other')
+      ?? DEFAULT_SHIPPING_FEES[DEFAULT_SHIPPING_FEES.length - 1]
+    : null
+  const shippingFee = selectedShippingFee?.fee ?? 0
+  const orderTotal = total + shippingFee
 
   useEffect(() => {
     const data = loadData()
@@ -118,6 +137,15 @@ export default function CheckoutPageClient() {
       setMounted(true)
     })
   }, [session])
+
+  useEffect(() => {
+    fetch('/api/shipping-fees?active=true')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) setShippingFees(data)
+      })
+      .catch(() => {})
+  }, [])
 
   function setFn(field: keyof CheckoutFormData, value: string) {
     const nextValue = field === 'deliveryDate' && value && value < tomorrowString() ? tomorrowString() : value
@@ -177,7 +205,8 @@ export default function CheckoutPageClient() {
         body: JSON.stringify({
           items,
           subtotal: total,
-          total,
+          shippingFee,
+          total: orderTotal,
           currency: 'EGP',
           customer: {
             firstName: form.firstName,
@@ -190,6 +219,7 @@ export default function CheckoutPageClient() {
             address: form.address,
             date: form.deliveryDate,
             slot: form.deliverySlot,
+            shippingFee,
           },
           paymentMethod: form.paymentMethod,
           notes: form.orderNotes,
@@ -282,8 +312,8 @@ export default function CheckoutPageClient() {
                   className={inputCls(!!errors.city)}
                 >
                   <option value="">Select your city / area</option>
-                  {DELIVERY_CITIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
+                  {activeShippingFees.map((item) => (
+                    <option key={item.id} value={item.city}>{item.city}</option>
                   ))}
                 </select>
                 <p className="mt-2 text-xs text-[#6b4b00] bg-[#fff7df] border border-[#f1d38a] border-l-4 border-l-[#d99a00] rounded-lg px-3 py-2">
@@ -428,8 +458,20 @@ export default function CheckoutPageClient() {
               )}
 
               <div className="pt-4 border-t border-[rgba(255,122,26,0.15)] flex justify-between items-center">
+                <span className="text-sm font-bold text-[#7a6247]">Subtotal</span>
+                <span className="text-base font-black text-[#171717]">{formatPrice(total, 'EGP')}</span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-bold text-[#7a6247]">Shipping</span>
+                <span className="text-sm font-black text-[#171717]">
+                  {form.city ? formatPrice(shippingFee, 'EGP') : 'Select city'}
+                </span>
+              </div>
+
+              <div className="pt-3 border-t border-[rgba(255,122,26,0.15)] flex justify-between items-center">
                 <span className="text-sm font-bold text-[#7a6247]">Total</span>
-                <span className="text-2xl font-black text-[#ff7a1a]">{formatPrice(total, 'EGP')}</span>
+                <span className="text-2xl font-black text-[#ff7a1a]">{formatPrice(orderTotal, 'EGP')}</span>
               </div>
 
               <div className="space-y-3 pt-2">

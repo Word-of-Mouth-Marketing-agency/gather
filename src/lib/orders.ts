@@ -9,6 +9,7 @@ export interface Order {
   orderNumber: string
   items: OrderItem[]
   subtotal: number
+  shippingFee?: number
   total: number
   currency: string
   customer: {
@@ -22,6 +23,7 @@ export interface Order {
     address: string
     date: string
     slot: string
+    shippingFee?: number
   }
   paymentMethod: string
   notes: string

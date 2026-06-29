@@ -59,6 +59,15 @@ const navItems = [
     ),
   },
   {
+    label: 'Shipping Fees',
+    href: '/admin/shipping-fees',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 17h8M5 17H3V6h11v11H9m8 0h4v-5l-3-4h-4v9m-9 0a2 2 0 104 0m8 0a2 2 0 104 0" />
+      </svg>
+    ),
+  },
+  {
     label: 'Pages',
     href: '/admin/pages',
     icon: (

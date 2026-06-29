@@ -1,0 +1,44 @@
+[
+  {
+    "id": "ship-dokki",
+    "city": "Dokki",
+    "fee": 50,
+    "isActive": true,
+    "sortOrder": 1
+  },
+  {
+    "id": "ship-mohandessin",
+    "city": "Mohandessin",
+    "fee": 50,
+    "isActive": true,
+    "sortOrder": 2
+  },
+  {
+    "id": "ship-manial",
+    "city": "Manial",
+    "fee": 50,
+    "isActive": true,
+    "sortOrder": 3
+  },
+  {
+    "id": "ship-zamalek",
+    "city": "Zamalek",
+    "fee": 50,
+    "isActive": true,
+    "sortOrder": 4
+  },
+  {
+    "id": "ship-haram",
+    "city": "Haram",
+    "fee": 50,
+    "isActive": true,
+    "sortOrder": 5
+  },
+  {
+    "id": "ship-other",
+    "city": "Other",
+    "fee": 50,
+    "isActive": true,
+    "sortOrder": 6
+  }
+]
