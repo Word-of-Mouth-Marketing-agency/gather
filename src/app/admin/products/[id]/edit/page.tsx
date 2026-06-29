@@ -44,6 +44,8 @@ export default function EditProductPage() {
     description: product.description,
     price: product.price,
     salePrice: product.salePrice,
+    discountStartsAt: product.discountStartsAt || '',
+    discountEndsAt: product.discountEndsAt || '',
     currency: product.currency,
     stock: product.stock,
     rating: product.rating,

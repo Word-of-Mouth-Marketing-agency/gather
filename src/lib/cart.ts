@@ -1,7 +1,8 @@
 'use client'
 
 import type { CartItem, ProductCartItem, BundleCartItem, Bundle } from '@/types'
-import { getProductById } from './data'
+import { getBundleById, getProductById } from './data'
+import { getActiveProductPrice, getProductCompareAtPrice, isBundlePurchasable } from './scheduled-discounts'
 
 const CART_KEY = 'gather_cart'
 
@@ -16,7 +17,18 @@ function migrateItem(raw: unknown): CartItem | null {
 
   if (i.type === 'product') {
     if (!i.id || !i.productId || !i.name || typeof i.quantity !== 'number' || i.quantity < 1) return null
-    return raw as ProductCartItem
+    const item = raw as ProductCartItem
+    const product = getProductById(item.productId)
+    if (!product) return item
+    return {
+      ...item,
+      name: product.name,
+      slug: product.slug,
+      image: product.images[0],
+      price: getActiveProductPrice(product),
+      compareAtPrice: getProductCompareAtPrice(product),
+      currency: product.currency,
+    }
   }
 
   const old = raw as { productId?: string; quantity?: number }
@@ -30,8 +42,8 @@ function migrateItem(raw: unknown): CartItem | null {
     name: product.name,
     slug: product.slug,
     image: product.images[0],
-    price: product.salePrice ?? product.price,
-    compareAtPrice: product.salePrice ? product.price : undefined,
+    price: getActiveProductPrice(product),
+    compareAtPrice: getProductCompareAtPrice(product),
     currency: product.currency,
     quantity: old.quantity,
   }
@@ -73,8 +85,8 @@ export function addToCart(productId: string, quantity = 1): CartItem[] {
       name: product.name,
       slug: product.slug,
       image: product.images[0],
-      price: product.salePrice ?? product.price,
-      compareAtPrice: product.salePrice ? product.price : undefined,
+      price: getActiveProductPrice(product),
+      compareAtPrice: getProductCompareAtPrice(product),
       currency: product.currency,
       quantity,
     }
@@ -86,6 +98,7 @@ export function addToCart(productId: string, quantity = 1): CartItem[] {
 
 export function addBundleToCart(bundle: Bundle): CartItem[] {
   const cart = getCart()
+  if (!isBundlePurchasable(bundle)) return cart
   const existing = cart.find((item) => item.type === 'bundle' && item.bundleId === bundle.id) as BundleCartItem | undefined
   if (existing) {
     existing.quantity += 1
@@ -94,7 +107,7 @@ export function addBundleToCart(bundle: Bundle): CartItem[] {
       .map((pid) => {
         const p = getProductById(pid)
         if (!p) return null
-        return { id: p.id, name: p.name, slug: p.slug, image: p.images[0], price: p.salePrice ?? p.price }
+        return { id: p.id, name: p.name, slug: p.slug, image: p.images[0], price: getActiveProductPrice(p) }
       })
       .filter((x): x is NonNullable<typeof x> => x !== null)
 
@@ -117,6 +130,14 @@ export function addBundleToCart(bundle: Bundle): CartItem[] {
   }
   saveCart(cart)
   return cart
+}
+
+export function getUnavailableCartBundles(items: CartItem[]): BundleCartItem[] {
+  return items.filter((item): item is BundleCartItem => {
+    if (item.type !== 'bundle') return false
+    const bundle = getBundleById(item.bundleId)
+    return !bundle || !isBundlePurchasable(bundle)
+  })
 }
 
 export function removeFromCart(id: string): CartItem[] {
@@ -146,14 +167,14 @@ export function getCartItemCount(items: CartItem[]): number {
   return items.reduce((sum, item) => sum + item.quantity, 0)
 }
 
-export function getCartProducts(items: CartItem[]): Array<{ product: import('@/types').Product; quantity: number }> {
+export function getCartProducts(items: CartItem[]): Array<{ product: import('@/types').Product; quantity: number; cartItem: ProductCartItem }> {
   return items
     .filter((item): item is ProductCartItem => item.type === 'product')
     .map((item) => {
       const product = getProductById(item.productId)
-      return product ? { product, quantity: item.quantity } : null
+      return product ? { product, quantity: item.quantity, cartItem: item } : null
     })
-    .filter((x): x is { product: import('@/types').Product; quantity: number } => x !== null)
+    .filter((x): x is { product: import('@/types').Product; quantity: number; cartItem: ProductCartItem } => x !== null)
 }
 
 export function getCartBundles(items: CartItem[]): BundleCartItem[] {

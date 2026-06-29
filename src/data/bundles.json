@@ -17,6 +17,8 @@
     "currency": "EGP",
     "buttonText": "Buy Offer",
     "isActive": true,
+    "startsAt": "",
+    "endsAt": "",
     "isFeatured": true,
     "sortOrder": 0,
     "createdAt": "2026-01-01T00:00:00Z",
@@ -39,6 +41,8 @@
     "currency": "EGP",
     "buttonText": "Buy Offer",
     "isActive": true,
+    "startsAt": "",
+    "endsAt": "",
     "isFeatured": true,
     "sortOrder": 1,
     "createdAt": "2026-01-01T00:00:00Z"

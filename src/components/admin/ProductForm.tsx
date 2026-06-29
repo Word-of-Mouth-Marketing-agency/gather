@@ -12,6 +12,8 @@ export interface ProductFormData {
   description: string
   price: number
   salePrice: number | null
+  discountStartsAt?: string
+  discountEndsAt?: string
   currency: string
   stock: number
   rating?: number
@@ -30,6 +32,8 @@ const EMPTY: ProductFormData = {
   description: '',
   price: 0,
   salePrice: null,
+  discountStartsAt: '',
+  discountEndsAt: '',
   currency: 'EGP',
   stock: 0,
   rating: undefined,
@@ -51,6 +55,7 @@ export default function ProductForm({ initialData, productId }: Props) {
   const isEdit = !!productId
   const [form, setForm] = useState<ProductFormData>(initialData ?? EMPTY)
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
   const [uploading, setUploading] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [occasions, setOccasions] = useState<Category[]>([])
@@ -72,6 +77,7 @@ export default function ProductForm({ initialData, productId }: Props) {
 
   function setField<K extends keyof ProductFormData>(key: K, value: ProductFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
+    setError('')
   }
 
   function toggleCat(id: string) {
@@ -110,6 +116,10 @@ export default function ProductForm({ initialData, productId }: Props) {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
+    if (form.discountStartsAt && form.discountEndsAt && form.discountEndsAt < form.discountStartsAt) {
+      setError('Discount end date cannot be before the start date.')
+      return
+    }
     setSaving(true)
     try {
       const url = isEdit ? `/api/products/${productId}` : '/api/products'
@@ -126,6 +136,12 @@ export default function ProductForm({ initialData, productId }: Props) {
 
   return (
     <form onSubmit={handleSave} className="max-w-3xl space-y-8">
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl px-5 py-3 text-sm font-semibold text-red-600">
+          {error}
+        </div>
+      )}
+
       {/* Basic Info */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
         <h2 className="text-lg font-black text-gray-900">Basic Information</h2>
@@ -203,6 +219,27 @@ export default function ProductForm({ initialData, productId }: Props) {
               min={0}
               value={form.stock}
               onChange={(e) => setField('stock', Number(e.target.value))}
+              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Discount starts</label>
+            <input
+              type="date"
+              value={form.discountStartsAt ?? ''}
+              onChange={(e) => setField('discountStartsAt', e.target.value)}
+              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Discount ends</label>
+            <input
+              type="date"
+              value={form.discountEndsAt ?? ''}
+              min={form.discountStartsAt || undefined}
+              onChange={(e) => setField('discountEndsAt', e.target.value)}
               className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
             />
           </div>

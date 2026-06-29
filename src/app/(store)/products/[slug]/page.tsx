@@ -13,6 +13,7 @@ import ProductDescriptionReviews from '@/components/product/ProductDescriptionRe
 import AnimatedTitle from '@/components/AnimatedTitle'
 import GsapReveal from '@/components/GsapReveal'
 import type { Category, Product } from '@/types'
+import { isProductDiscountActive } from '@/lib/scheduled-discounts'
 
 export const dynamic = 'force-dynamic'
 
@@ -57,7 +58,7 @@ export default async function ProductPage({ params }: Props) {
           <ProductGallery
             images={product.images}
             productName={product.name}
-            hasDiscount={product.salePrice !== null}
+            hasDiscount={isProductDiscountActive(product)}
           />
           <ProductInfoPanel
             product={product}

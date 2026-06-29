@@ -6,7 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { CheckoutFormData, BundleCartItem, ShippingFee } from '@/types'
 import PageTitleSection from '@/components/PageTitleSection'
-import { getCart, getCartTotal, getCartProducts, getCartBundles, clearCart } from '@/lib/cart'
+import { getCart, getCartProducts, getCartBundles, getUnavailableCartBundles, clearCart } from '@/lib/cart'
 import { formatPrice } from '@/lib/data'
 import { useCustomerSession } from '@/lib/customer-auth'
 
@@ -52,15 +52,16 @@ const empty: CheckoutFormData = {
   paymentMethod: 'cod',
 }
 
-type ProductEntry = { product: import('@/types').Product; quantity: number }
+type ProductEntry = { product: import('@/types').Product; quantity: number; cartItem: import('@/types').ProductCartItem }
 
-function loadData(): { products: ProductEntry[]; bundles: BundleCartItem[]; total: number } {
-  if (typeof window === 'undefined') return { products: [], bundles: [], total: 0 }
+function loadData(): { products: ProductEntry[]; bundles: BundleCartItem[]; unavailableBundles: BundleCartItem[]; total: number } {
+  if (typeof window === 'undefined') return { products: [], bundles: [], unavailableBundles: [], total: 0 }
   const cart = getCart()
   const products = getCartProducts(cart)
   const bundles = getCartBundles(cart)
-  const total = getCartTotal(cart)
-  return { products, bundles, total }
+  const unavailableBundles = getUnavailableCartBundles(cart)
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  return { products, bundles, unavailableBundles, total }
 }
 
 function CheckoutLoadingState() {
@@ -95,6 +96,7 @@ export default function CheckoutPageClient() {
   const [submitting, setSubmitting] = useState(false)
   const [products, setProducts] = useState<ProductEntry[]>([])
   const [bundles, setBundles] = useState<BundleCartItem[]>([])
+  const [unavailableBundles, setUnavailableBundles] = useState<BundleCartItem[]>([])
   const [total, setTotal] = useState(0)
   const [shippingFees, setShippingFees] = useState<ShippingFee[]>(DEFAULT_SHIPPING_FEES)
   const session = useCustomerSession()
@@ -115,6 +117,7 @@ export default function CheckoutPageClient() {
     startTransition(() => {
       setProducts(data.products)
       setBundles(data.bundles)
+      setUnavailableBundles(data.unavailableBundles)
       setTotal(data.total)
       if (session) {
         setForm((f) => ({
@@ -165,6 +168,7 @@ export default function CheckoutPageClient() {
     if (!form.deliveryDate) e.deliveryDate = 'Required'
     else if (!isValidDeliveryDate(form.deliveryDate)) e.deliveryDate = 'Please choose tomorrow or a later date'
     if (!form.deliverySlot) e.deliverySlot = 'Required'
+    if (unavailableBundles.length > 0) e.orderNotes = 'Remove unavailable bundle offers from your cart before checkout'
     setErrors(e)
     if (!acceptedPrivacyPolicy || !acceptedRefundPolicy) {
       setPolicyError('You must agree to the Privacy Policy and Refund & Returns Policy to place your order.')
@@ -181,11 +185,11 @@ export default function CheckoutPageClient() {
 
     try {
       const items = [
-        ...products.map(({ product, quantity }) => ({
+        ...products.map(({ product, quantity, cartItem }) => ({
           type: 'product' as const,
           productId: product.id,
           name: product.name,
-          price: product.salePrice ?? product.price,
+          price: cartItem.price,
           quantity,
         })),
         ...bundles.map((bundle) => ({
@@ -413,12 +417,12 @@ export default function CheckoutPageClient() {
               <h2 className="text-lg font-black text-[#171717]">Your Order</h2>
 
               <div className="space-y-3">
-                {products.map(({ product, quantity }) => (
+                {products.map(({ product, quantity, cartItem }) => (
                   <div key={product.id} className="flex gap-3 text-sm">
                     <span className="flex-1 text-gray-700 font-medium line-clamp-2">{product.name}</span>
                     <span className="shrink-0 text-gray-500">×{quantity}</span>
                     <span className="shrink-0 font-bold text-[#171717]">
-                      {formatPrice((product.salePrice ?? product.price) * quantity, product.currency)}
+                      {formatPrice(cartItem.price * quantity, product.currency)}
                     </span>
                   </div>
                 ))}
@@ -461,6 +465,12 @@ export default function CheckoutPageClient() {
                 <span className="text-sm font-bold text-[#7a6247]">Subtotal</span>
                 <span className="text-base font-black text-[#171717]">{formatPrice(total, 'EGP')}</span>
               </div>
+
+              {unavailableBundles.length > 0 && (
+                <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-600">
+                  Remove unavailable bundle offers before placing your order.
+                </p>
+              )}
 
               <div className="flex justify-between items-center">
                 <span className="text-sm font-bold text-[#7a6247]">Shipping</span>

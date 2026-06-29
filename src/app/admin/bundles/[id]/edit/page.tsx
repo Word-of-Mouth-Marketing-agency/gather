@@ -48,6 +48,8 @@ export default function EditBundlePage() {
     currency: bundle.currency,
     buttonText: bundle.buttonText || 'Buy Offer',
     isActive: bundle.isActive,
+    startsAt: bundle.startsAt || '',
+    endsAt: bundle.endsAt || '',
     isFeatured: bundle.isFeatured,
     sortOrder: bundle.sortOrder,
   }

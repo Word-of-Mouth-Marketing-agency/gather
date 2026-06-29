@@ -9,6 +9,9 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const data = await request.json()
+    if (data.startsAt && data.endsAt && data.endsAt < data.startsAt) {
+      return NextResponse.json({ error: 'Offer end date cannot be before start date' }, { status: 400 })
+    }
     const repo = getBundleRepository()
     const item = repo.create(data)
     return NextResponse.json(item, { status: 201 })

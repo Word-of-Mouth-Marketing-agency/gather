@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import type { Product } from '@/types'
+import { getActiveProductPrice, isProductDiscountActive } from '@/lib/scheduled-discounts'
 
 export interface BundleFormData {
   name: string
@@ -16,6 +17,8 @@ export interface BundleFormData {
   currency: string
   buttonText: string
   isActive: boolean
+  startsAt?: string
+  endsAt?: string
   isFeatured: boolean
   sortOrder: number
 }
@@ -31,6 +34,8 @@ const EMPTY: BundleFormData = {
   currency: 'EGP',
   buttonText: 'Buy Offer',
   isActive: true,
+  startsAt: '',
+  endsAt: '',
   isFeatured: false,
   sortOrder: 0,
 }
@@ -63,7 +68,7 @@ export default function BundleForm({ initialData, bundleId }: Props) {
   const selectedProducts = products.filter((p) => form.productIds.includes(p.id))
 
   const autoTotalPrice = selectedProducts.reduce(
-    (sum, p) => sum + (p.salePrice ?? p.price),
+    (sum, p) => sum + getActiveProductPrice(p),
     0
   )
 
@@ -105,6 +110,7 @@ export default function BundleForm({ initialData, bundleId }: Props) {
     if (!form.slug.trim()) { setError('Slug is required.'); return }
     if (form.productIds.length === 0) { setError('At least one product must be selected.'); return }
     if (form.offerPrice <= 0) { setError('Offer price must be positive.'); return }
+    if (form.startsAt && form.endsAt && form.endsAt < form.startsAt) { setError('Offer end date cannot be before the start date.'); return }
 
     setSaving(true)
     try {
@@ -265,8 +271,8 @@ export default function BundleForm({ initialData, bundleId }: Props) {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-900 truncate">{product.name}</p>
                   <p className="text-xs text-gray-400">
-                    {product.salePrice ?? product.price} EGP
-                    {product.salePrice && <span className="line-through ml-1">{product.price} EGP</span>}
+                    {getActiveProductPrice(product)} EGP
+                    {isProductDiscountActive(product) && <span className="line-through ml-1">{product.price} EGP</span>}
                   </p>
                 </div>
                 <button
@@ -376,6 +382,35 @@ export default function BundleForm({ initialData, bundleId }: Props) {
             off — Save {(form.regularPrice || autoTotalPrice) - form.offerPrice} EGP
           </div>
         )}
+      </div>
+
+      {/* Schedule */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+        <h2 className="text-lg font-black text-gray-900">Offer Schedule</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Starts at</label>
+            <input
+              type="date"
+              value={form.startsAt ?? ''}
+              onChange={(e) => setField('startsAt', e.target.value)}
+              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Ends at</label>
+            <input
+              type="date"
+              value={form.endsAt ?? ''}
+              min={form.startsAt || undefined}
+              onChange={(e) => setField('endsAt', e.target.value)}
+              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+            />
+          </div>
+        </div>
+        <p className="text-xs text-gray-400">
+          Leave both dates empty to keep the offer always active while enabled.
+        </p>
       </div>
 
       {/* CTA / Settings */}

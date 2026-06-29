@@ -5,10 +5,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { BundleCartItem, Product } from '@/types'
 import PageTitleSection from '@/components/PageTitleSection'
-import { addToCart, getCart, getCartProducts, getCartBundles, updateQuantity, removeFromCart } from '@/lib/cart'
+import { addToCart, getCart, getCartProducts, getCartBundles, getUnavailableCartBundles, updateQuantity, removeFromCart } from '@/lib/cart'
 import { formatPrice, getAllProducts, getDisplayPrice } from '@/lib/data'
 
-type CartEntry = { product: import('@/types').Product; quantity: number }
+type CartEntry = { product: import('@/types').Product; quantity: number; cartItem: import('@/types').ProductCartItem }
 
 function loadEntries(): { products: CartEntry[]; bundles: BundleCartItem[] } {
   const cart = getCart()
@@ -178,12 +178,14 @@ export default function CartPageClient() {
   }
 
   const allCartItems = [
-    ...products.map((e) => ({ id: e.product.id, type: 'product' as const, productId: e.product.id, name: e.product.name, slug: e.product.slug, image: e.product.images[0], price: e.product.salePrice ?? e.product.price, currency: e.product.currency, quantity: e.quantity, compareAtPrice: undefined })),
+    ...products.map((e) => ({ id: e.product.id, type: 'product' as const, productId: e.product.id, name: e.product.name, slug: e.product.slug, image: e.product.images[0], price: e.cartItem.price, currency: e.product.currency, quantity: e.quantity, compareAtPrice: e.cartItem.compareAtPrice })),
     ...bundles,
   ]
   const total = allCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const itemCount = products.length + bundles.length
   const suggestions = getCartSuggestions(products, bundles)
+  const unavailableBundles = getUnavailableCartBundles(bundles)
+  const hasUnavailableBundles = unavailableBundles.length > 0
 
   function handleQty(id: string, qty: number) {
     updateQuantity(id, qty)
@@ -205,7 +207,7 @@ export default function CartPageClient() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
-          {products.map(({ product, quantity }) => (
+          {products.map(({ product, quantity, cartItem }) => (
             <div key={product.id} className="flex gap-4 p-4 rounded-2xl bg-white border border-[#f1e2d3] hover:shadow-md transition-shadow">
               <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-[#f8f8f8] shrink-0">
                 {product.images[0] ? (
@@ -218,7 +220,7 @@ export default function CartPageClient() {
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-sm text-[#171717] line-clamp-2">{product.name}</h3>
                 <p className="mt-1 text-[#ff7a1a] font-black text-sm">
-                  {formatPrice(product.salePrice ?? product.price, product.currency)}
+                  {formatPrice(cartItem.price, product.currency)}
                 </p>
 
                 <div className="flex items-center gap-3 mt-3">
@@ -249,7 +251,7 @@ export default function CartPageClient() {
 
               <div className="shrink-0 text-right">
                 <p className="font-black text-sm text-[#171717]">
-                  {formatPrice((product.salePrice ?? product.price) * quantity, product.currency)}
+                  {formatPrice(cartItem.price * quantity, product.currency)}
                 </p>
               </div>
             </div>
@@ -350,11 +352,11 @@ export default function CartPageClient() {
             <h2 className="text-lg font-black text-[#171717] mb-4">Order Summary</h2>
 
             <div className="space-y-2 text-sm">
-              {products.map(({ product, quantity }) => (
+              {products.map(({ product, quantity, cartItem }) => (
                 <div key={product.id} className="flex justify-between gap-2 text-gray-500">
                   <span className="truncate">{product.name} × {quantity}</span>
                   <span className="shrink-0 font-medium text-gray-700">
-                    {formatPrice((product.salePrice ?? product.price) * quantity, product.currency)}
+                    {formatPrice(cartItem.price * quantity, product.currency)}
                   </span>
                 </div>
               ))}
@@ -375,7 +377,19 @@ export default function CartPageClient() {
 
             <p className="mt-2 text-xs text-gray-400">Delivery fee calculated at checkout.</p>
 
-            <Link href="/checkout" className="block w-full text-center mt-5 gather-btn-primary py-3.5 text-base shadow-lg">
+            {hasUnavailableBundles && (
+              <p className="mt-4 rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-600">
+                Remove unavailable bundle offers before checkout.
+              </p>
+            )}
+
+            <Link
+              href={hasUnavailableBundles ? '#' : '/checkout'}
+              aria-disabled={hasUnavailableBundles}
+              className={`block w-full text-center mt-5 py-3.5 text-base shadow-lg ${
+                hasUnavailableBundles ? 'rounded-full bg-gray-100 text-gray-400 pointer-events-none' : 'gather-btn-primary'
+              }`}
+            >
               Proceed to Checkout
             </Link>
 

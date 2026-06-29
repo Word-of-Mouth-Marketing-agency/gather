@@ -12,6 +12,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const data = await request.json()
+  if (data.startsAt && data.endsAt && data.endsAt < data.startsAt) {
+    return NextResponse.json({ error: 'Offer end date cannot be before start date' }, { status: 400 })
+  }
   const repo = getBundleRepository()
   const updated = repo.update(id, data)
   if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })

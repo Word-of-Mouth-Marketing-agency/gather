@@ -8,6 +8,8 @@ export interface Product {
   shortDescription: string
   price: number
   salePrice: number | null
+  discountStartsAt?: string
+  discountEndsAt?: string
   currency: string
   images: string[]
   categoryIds: string[]
@@ -311,6 +313,8 @@ export interface Bundle {
   currency: string
   buttonText: string
   isActive: boolean
+  startsAt?: string
+  endsAt?: string
   isFeatured: boolean
   sortOrder: number
   createdAt?: string

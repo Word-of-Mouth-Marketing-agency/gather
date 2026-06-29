@@ -4,6 +4,7 @@ import { useState, useEffect, startTransition } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Product } from '@/types'
+import { getActiveProductPrice, isProductDiscountActive } from '@/lib/scheduled-discounts'
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -83,7 +84,10 @@ export default function AdminProductsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filtered.map((product) => (
+              {filtered.map((product) => {
+                const activeDiscount = isProductDiscountActive(product)
+                const activePrice = getActiveProductPrice(product)
+                return (
                 <tr key={product.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
@@ -103,9 +107,9 @@ export default function AdminProductsPage() {
                     </div>
                   </td>
                   <td className="px-5 py-3 hidden md:table-cell">
-                    <span className="font-bold text-[#ff7a1a]">{product.price} {product.currency}</span>
-                    {product.salePrice && (
-                      <span className="ml-2 text-xs text-gray-400 line-through">{product.salePrice} {product.currency}</span>
+                    <span className="font-bold text-[#ff7a1a]">{activePrice} {product.currency}</span>
+                    {activeDiscount && (
+                      <span className="ml-2 text-xs text-gray-400 line-through">{product.price} {product.currency}</span>
                     )}
                   </td>
                   <td className="px-5 py-3 hidden lg:table-cell">
@@ -139,7 +143,8 @@ export default function AdminProductsPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
 

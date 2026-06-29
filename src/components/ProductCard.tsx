@@ -5,6 +5,7 @@ import { useState, useSyncExternalStore } from 'react'
 import type { Product } from '@/types'
 import { formatPrice, getDisplayPrice } from '@/lib/data'
 import { addToCart } from '@/lib/cart'
+import { isProductDiscountActive } from '@/lib/scheduled-discounts'
 import { isInWishlist, toggleWishlist } from '@/lib/wishlist'
 
 interface Props {
@@ -21,7 +22,7 @@ export default function ProductCard({ product }: Props) {
   )
 
   const displayPrice = getDisplayPrice(product)
-  const hasDiscount = product.salePrice !== null
+  const hasDiscount = isProductDiscountActive(product)
 
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault()

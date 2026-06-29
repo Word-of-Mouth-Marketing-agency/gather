@@ -5,6 +5,7 @@ import Link from 'next/link'
 import type { Category, Product } from '@/types'
 import { addToCart } from '@/lib/cart'
 import { formatPrice, getDisplayPrice } from '@/lib/data'
+import { isProductDiscountActive } from '@/lib/scheduled-discounts'
 import { isInWishlist, toggleWishlist } from '@/lib/wishlist'
 import ProductRatingSummary from './ProductRatingSummary'
 
@@ -25,7 +26,7 @@ export default function ProductInfoPanel({ product, categories, occasions }: Pro
   )
 
   const displayPrice = getDisplayPrice(product)
-  const hasDiscount = product.salePrice !== null
+  const hasDiscount = isProductDiscountActive(product)
   const inStock = product.stock > 0
   const stockLabel = product.stockStatus ?? (
     product.stock === 0

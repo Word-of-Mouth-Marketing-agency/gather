@@ -3,6 +3,7 @@ import productsData from '@/data/products.json'
 import categoriesData from '@/data/categories.json'
 import pagesData from '@/data/pages.json'
 import bundlesData from '@/data/bundles.json'
+import { getActiveProductPrice, isBundlePurchasable } from './scheduled-discounts'
 
 const STATIC_PRODUCTS = productsData as Product[]
 const STATIC_CATEGORIES = categoriesData as Category[]
@@ -92,6 +93,10 @@ export function getAllBundles(): Bundle[] {
   return STATIC_BUNDLES
 }
 
+export function getActiveBundles(): Bundle[] {
+  return getAllBundles().filter((bundle) => isBundlePurchasable(bundle))
+}
+
 export function getBundleById(id: string): Bundle | undefined {
   return getAllBundles().find((b) => b.id === id)
 }
@@ -109,5 +114,5 @@ export function formatPrice(amount: number, currency = 'EGP'): string {
 }
 
 export function getDisplayPrice(product: Product): number {
-  return product.salePrice ?? product.price
+  return getActiveProductPrice(product)
 }

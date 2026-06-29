@@ -2,14 +2,13 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import type { OffersGridSectionProps } from '@/types'
-import { getAllBundles } from '@/lib/data'
+import { getActiveBundles } from '@/lib/data'
 import BundleCard from '@/components/BundleCard'
 import AnimatedTitle from '@/components/AnimatedTitle'
 import GsapReveal from '@/components/GsapReveal'
 
 export default function OffersBundlesSection({ title, subtitle }: OffersGridSectionProps) {
-  const allBundles = getAllBundles()
-  const bundles = allBundles.filter((b) => b.isActive !== false).sort((a, b) => a.sortOrder - b.sortOrder)
+  const bundles = getActiveBundles().sort((a, b) => a.sortOrder - b.sortOrder)
   const [current, setCurrent] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const trackRef = useRef<HTMLDivElement>(null)

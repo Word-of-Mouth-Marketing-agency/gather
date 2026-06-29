@@ -5,6 +5,7 @@ import Link from 'next/link'
 import type { Bundle } from '@/types'
 import { getBundleProducts, formatPrice } from '@/lib/data'
 import { addBundleToCart } from '@/lib/cart'
+import { isBundlePurchasable } from '@/lib/scheduled-discounts'
 
 interface Props {
   bundle: Bundle
@@ -13,8 +14,10 @@ interface Props {
 export default function BundleCard({ bundle }: Props) {
   const [added, setAdded] = useState(false)
   const products = getBundleProducts(bundle)
+  const canBuy = isBundlePurchasable(bundle)
 
   async function handleBuy() {
+    if (!canBuy) return
     addBundleToCart(bundle)
     window.dispatchEvent(new Event('gather:cart-updated'))
     setAdded(true)
@@ -79,13 +82,16 @@ export default function BundleCard({ bundle }: Props) {
 
           <button
             onClick={handleBuy}
+            disabled={!canBuy}
             className={`w-full rounded-full font-bold text-sm py-3 px-6 transition-all duration-200 shadow-md ${
               added
                 ? 'bg-green-500 text-white'
+                : !canBuy
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 : 'bg-[#ff7a1a] text-white hover:-translate-y-0.5 hover:opacity-90 active:translate-y-0'
             }`}
           >
-            {added ? '✓ Added to Cart' : bundle.buttonText || 'Buy Offer'}
+            {added ? '✓ Added to Cart' : canBuy ? bundle.buttonText || 'Buy Offer' : 'Offer unavailable'}
           </button>
         </div>
       </div>
