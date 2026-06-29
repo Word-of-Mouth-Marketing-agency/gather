@@ -6,6 +6,7 @@ interface Props {
 }
 
 export default function CategoryCard({ category }: Props) {
+  const image = category.image || '/assets/gather/categories/decorations.png'
   const href =
     category.type === 'occasion'
       ? `/shop-by-occasion/${category.slug}`
@@ -15,7 +16,7 @@ export default function CategoryCard({ category }: Props) {
     <Link href={href} className="group flex flex-col items-center gap-3">
       <div className="w-full max-w-[130px] sm:max-w-[150px] lg:max-w-[180px] aspect-square rounded-2xl flex items-center justify-center p-3 overflow-hidden">
         <img
-          src={category.image}
+          src={image}
           alt={category.name}
           className={`w-full h-full transition-all duration-300 ease-in-out group-hover:rotate-[8deg] group-hover:scale-[0.8] ${
             category.slug === 'mothers-day'

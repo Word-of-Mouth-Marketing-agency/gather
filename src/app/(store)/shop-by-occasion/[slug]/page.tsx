@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getCategoryBySlug, getCategoriesByType, getProductsByOccasion } from '@/lib/data'
+import { getProductsByOccasion } from '@/lib/data'
+import { getActiveTaxonomiesByType, getTaxonomyBySlug } from '@/lib/taxonomy-data'
 
 export const dynamic = 'force-dynamic'
 import ProductCard from '@/components/ProductCard'
@@ -12,13 +13,13 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const occasions = getCategoriesByType('occasion')
+  const occasions = getActiveTaxonomiesByType('occasion')
   return occasions.map((o) => ({ slug: o.slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const occasion = getCategoryBySlug(slug)
+  const occasion = getTaxonomyBySlug(slug)
   if (!occasion) return {}
   return {
     title: occasion.name,
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function OccasionDetailPage({ params }: Props) {
   const { slug } = await params
-  const occasion = getCategoryBySlug(slug)
+  const occasion = getTaxonomyBySlug(slug)
 
   if (!occasion || occasion.type !== 'occasion' || occasion.isActive === false) notFound()
 

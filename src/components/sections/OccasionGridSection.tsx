@@ -1,6 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState, startTransition } from 'react'
+import type { Category } from '@/types'
 import type { OccasionSectionProps } from '@/types'
 import { getCategoriesByType } from '@/lib/data'
 import AnimatedTitle from '@/components/AnimatedTitle'
@@ -10,7 +12,21 @@ export default function OccasionGridSection({
   title,
   subtitle,
 }: OccasionSectionProps) {
-  const occasions = getCategoriesByType('occasion')
+  const [occasions, setOccasions] = useState<Category[]>(() => getCategoriesByType('occasion'))
+
+  useEffect(() => {
+    fetch('/api/categories')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!Array.isArray(data)) return
+        const activeOccasions = (data as Category[])
+          .filter((item) => item.type === 'occasion')
+          .filter((item) => item.isActive !== false)
+          .sort((a, b) => (a.sortOrder ?? a.order ?? 0) - (b.sortOrder ?? b.order ?? 0))
+        startTransition(() => setOccasions(activeOccasions))
+      })
+      .catch(() => {})
+  }, [])
 
   if (occasions.length === 0) return null
 
@@ -39,24 +55,27 @@ export default function OccasionGridSection({
           className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8"
           itemSelector="[data-reveal-item]"
         >
-          {occasions.map((occasion) => (
-            <Link
-              key={occasion.id}
-              data-reveal-item
-              href={`/shop-by-occasion?tag=${occasion.slug}`}
-              className="group relative aspect-[3/2] rounded-2xl overflow-hidden bg-gray-200"
-            >
-              <img
-                src={occasion.image}
-                alt={occasion.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-black/40" />
-              <span className="absolute inset-0 flex items-center justify-center text-white text-lg sm:text-xl font-bold text-center leading-tight px-3">
-                {occasion.name}
-              </span>
-            </Link>
-          ))}
+          {occasions.map((occasion) => {
+            const image = occasion.image || '/assets/gather/occasions/birthday.jpg'
+            return (
+              <Link
+                key={occasion.id}
+                data-reveal-item
+                href={`/shop-by-occasion?tag=${occasion.slug}`}
+                className="group relative aspect-[3/2] rounded-2xl overflow-hidden bg-gray-200"
+              >
+                <img
+                  src={image}
+                  alt={occasion.name}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/40" />
+                <span className="absolute inset-0 flex items-center justify-center text-white text-lg sm:text-xl font-bold text-center leading-tight px-3">
+                  {occasion.name}
+                </span>
+              </Link>
+            )
+          })}
         </GsapReveal>
       </div>
     </section>

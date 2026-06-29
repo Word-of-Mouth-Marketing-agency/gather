@@ -1,11 +1,11 @@
 import type { CategoryGridSectionProps } from '@/types'
-import { getCategoriesByType } from '@/lib/data'
+import { getActiveTaxonomiesByType } from '@/lib/taxonomy-data'
 import CategoryCard from '@/components/CategoryCard'
 import AnimatedTitle from '@/components/AnimatedTitle'
 import GsapReveal from '@/components/GsapReveal'
 
 export default function CategoryGridSection({ title, subtitle, type, limit }: CategoryGridSectionProps) {
-  const categories = getCategoriesByType(type, limit)
+  const categories = getActiveTaxonomiesByType(type, limit)
 
   if (categories.length === 0) return null
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, startTransition } from 'react'
+import { useState, useEffect, useRef, startTransition } from 'react'
 import type { Category } from '@/types'
 
 type CategoryForm = Omit<Category, 'id'>
@@ -28,7 +28,9 @@ export default function AdminCategoriesPage() {
   const [activeTab, setActiveTab] = useState<'category' | 'occasion'>('category')
   const [modal, setModal] = useState<ModalState>({ open: false, editing: null, form: EMPTY_FORM })
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   async function load() {
     try {
@@ -104,6 +106,22 @@ export default function AdminCategoriesPage() {
     setSaving(false)
   }
 
+  async function handleImageUpload(file: File | undefined) {
+    if (!file) return
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/media/upload', { method: 'POST', body: formData })
+      if (res.ok) {
+        const asset = await res.json()
+        setFormField('image', asset.url)
+      }
+    } catch { /* ignore */ }
+    setUploading(false)
+    if (fileRef.current) fileRef.current.value = ''
+  }
+
   async function handleDelete(id: string) {
     if (deleting === id) {
       try {
@@ -163,8 +181,12 @@ export default function AdminCategoriesPage() {
                 <tr key={cat.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-[#fff4e8] flex items-center justify-center text-lg shrink-0">
-                        🏷️
+                      <div className="w-10 h-10 rounded-lg bg-[#fff4e8] flex items-center justify-center text-lg shrink-0 overflow-hidden">
+                        {cat.image ? (
+                          <img src={cat.image} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="text-[10px] font-bold text-[#ff7a1a]">Tag</span>
+                        )}
                       </div>
                       <div>
                         <p className="font-semibold text-gray-900">{cat.name}</p>
@@ -273,11 +295,48 @@ export default function AdminCategoriesPage() {
               </label>
               <div>
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Image URL</label>
+                {modal.form.image && (
+                  <div className="mt-2 mb-3 flex items-center gap-3 rounded-xl bg-gray-50 border border-gray-100 p-3">
+                    <div className="h-16 w-16 overflow-hidden rounded-xl bg-white border border-gray-100">
+                      <img src={modal.form.image} alt="" className="h-full w-full object-cover" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-gray-700">Current image</p>
+                      <p className="truncate text-xs text-gray-400">{modal.form.image}</p>
+                    </div>
+                  </div>
+                )}
                 <input
                   value={modal.form.image}
                   onChange={(e) => setFormField('image', e.target.value)}
                   className="w-full mt-1 px-3 py-2 rounded-xl border border-gray-200 text-sm font-mono focus:outline-none focus:border-[#ff7a1a]"
                 />
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    disabled={uploading}
+                    className="rounded-xl border border-gray-200 px-3 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    {uploading ? 'Uploading...' : 'Upload image'}
+                  </button>
+                  {modal.form.image && (
+                    <button
+                      type="button"
+                      onClick={() => setFormField('image', '')}
+                      className="rounded-xl px-3 py-2 text-xs font-bold text-red-400 hover:bg-red-50"
+                    >
+                      Remove
+                    </button>
+                  )}
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e.target.files?.[0])}
+                    className="hidden"
+                  />
+                </div>
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Parent ID</label>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { getAllProducts, getCategoriesByType, getProductsByCategory } from '@/lib/data'
+import { getAllProducts, getProductsByCategory } from '@/lib/data'
+import { getActiveTaxonomiesByType } from '@/lib/taxonomy-data'
 
 export const dynamic = 'force-dynamic'
 import PageTitleSection from '@/components/PageTitleSection'
@@ -18,7 +19,7 @@ interface Props {
 
 export default async function ShopByCategoryPage({ searchParams }: Props) {
   const { category: categorySlug } = await searchParams
-  const categories = getCategoriesByType('category')
+  const categories = getActiveTaxonomiesByType('category')
   const activeCategory = categorySlug
     ? categories.find((category) => category.slug === categorySlug)
     : undefined

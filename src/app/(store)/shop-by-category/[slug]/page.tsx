@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getCategoryBySlug, getCategoriesByType, getProductsByCategory } from '@/lib/data'
+import { getProductsByCategory } from '@/lib/data'
+import { getActiveTaxonomiesByType, getTaxonomyBySlug } from '@/lib/taxonomy-data'
 import ProductCard from '@/components/ProductCard'
 import PageTitleSection from '@/components/PageTitleSection'
 import GsapReveal from '@/components/GsapReveal'
@@ -12,13 +13,13 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const categories = getCategoriesByType('category')
+  const categories = getActiveTaxonomiesByType('category')
   return categories.map((c) => ({ slug: c.slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const category = getCategoryBySlug(slug)
+  const category = getTaxonomyBySlug(slug)
   if (!category) return {}
   return {
     title: category.name,
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CategoryDetailPage({ params }: Props) {
   const { slug } = await params
-  const category = getCategoryBySlug(slug)
+  const category = getTaxonomyBySlug(slug)
 
   if (!category || category.type !== 'category' || category.isActive === false) notFound()
 
