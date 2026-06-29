@@ -1,17 +1,18 @@
 interface Props {
-  rating?: number
+  rating?: number | null
   reviewCount?: number
   compact?: boolean
 }
 
 export default function ProductRatingSummary({ rating, reviewCount, compact = false }: Props) {
-  const value = rating ?? 4.8
+  if (rating == null || rating === 0) return null
+
   const count = reviewCount ?? 0
-  const rounded = Math.round(value)
+  const rounded = Math.round(rating)
 
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm">
-      <div className="flex items-center text-[#FE7501]" aria-label={`${value.toFixed(1)} out of 5 stars`}>
+      <div className="flex items-center text-[#FE7501]" aria-label={`${rating.toFixed(1)} out of 5 stars`}>
         {Array.from({ length: 5 }).map((_, index) => (
           <svg
             key={index}
@@ -23,9 +24,9 @@ export default function ProductRatingSummary({ rating, reviewCount, compact = fa
           </svg>
         ))}
       </div>
-      <span className="font-bold text-[#171717]">{value.toFixed(1)}</span>
+      <span className="font-bold text-[#171717]">{rating.toFixed(1)}</span>
       <span className="text-[#7a6247]">
-        {count > 0 ? `${count} ${compact ? 'reviews' : 'customer reviews'}` : 'No reviews yet'}
+        {count > 0 ? `${count} ${compact ? 'reviews' : 'customer reviews'}` : ''}
       </span>
     </div>
   )

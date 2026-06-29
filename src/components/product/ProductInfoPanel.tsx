@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useSyncExternalStore } from 'react'
+import { useState, useEffect, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import type { Category, Product } from '@/types'
 import { addToCart } from '@/lib/cart'
@@ -19,11 +19,37 @@ export default function ProductInfoPanel({ product, categories, occasions }: Pro
   const [qty, setQty] = useState(1)
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
+  const [reviewAvg, setReviewAvg] = useState<number | null | undefined>(undefined)
+  const [reviewCount, setReviewCount] = useState<number | undefined>(undefined)
   const wishlisted = useSyncExternalStore(
     subscribeToWishlist,
     () => isInWishlist(product.id),
     () => false
   )
+
+  useEffect(() => {
+    let cancelled = false
+    fetch(`/api/reviews?productId=${product.id}&status=approved&isVisible=true`)
+      .then((r) => r.json())
+      .then((reviews: Array<{ rating: number }>) => {
+        if (cancelled) return
+        if (reviews.length === 0) {
+          setReviewAvg(null)
+          setReviewCount(0)
+        } else {
+          const sum = reviews.reduce((acc, r) => acc + r.rating, 0)
+          setReviewAvg(sum / reviews.length)
+          setReviewCount(reviews.length)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setReviewAvg(null)
+          setReviewCount(0)
+        }
+      })
+    return () => { cancelled = true }
+  }, [product.id])
 
   const displayPrice = getDisplayPrice(product)
   const hasDiscount = isProductDiscountActive(product)
@@ -59,7 +85,7 @@ export default function ProductInfoPanel({ product, categories, occasions }: Pro
           {product.name}
         </h1>
 
-        <ProductRatingSummary rating={product.rating} reviewCount={product.reviewCount} />
+        <ProductRatingSummary rating={reviewAvg} reviewCount={reviewCount} />
 
         <div className="border-y border-[#f1e2d3] py-5">
           <div className="flex flex-wrap items-baseline gap-3">

@@ -87,8 +87,8 @@ export default function ProductDescriptionReviews({ product }: Props) {
         <h2 className="text-2xl sm:text-3xl font-bold text-[#171717]">Reviews / Ratings</h2>
         <div className="mt-4">
           <ProductRatingSummary
-            rating={averageRating ?? product.rating}
-            reviewCount={reviews.length > 0 ? reviews.length : product.reviewCount}
+            rating={averageRating}
+            reviewCount={reviews.length}
             compact
           />
         </div>
