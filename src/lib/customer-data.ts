@@ -15,6 +15,35 @@ function saveCustomers(data: Customer[]): void {
   writeJson(CUSTOMERS_FILE, data)
 }
 
+function isCustomerActive(customer: Customer): boolean {
+  return customer.isActive !== false && customer.status !== 'disabled'
+}
+
+export type AdminCustomer = Omit<Customer, 'password'>
+
+function toAdminCustomer(customer: Customer): AdminCustomer {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { password, ...safeCustomer } = customer
+  return {
+    ...safeCustomer,
+    isActive: isCustomerActive(customer),
+    status: isCustomerActive(customer) ? 'active' : 'disabled',
+  }
+}
+
+export function getAllCustomers(): Customer[] {
+  return getCustomers()
+}
+
+export function getAdminCustomers(): AdminCustomer[] {
+  return getCustomers().map(toAdminCustomer)
+}
+
+export function getAdminCustomerById(id: string): AdminCustomer | undefined {
+  const customer = findCustomerById(id)
+  return customer ? toAdminCustomer(customer) : undefined
+}
+
 export function findCustomerByEmail(email: string): Customer | undefined {
   return getCustomers().find((c) => c.email.toLowerCase() === email.toLowerCase())
 }
@@ -40,6 +69,8 @@ export function createCustomer(data: {
     phone: data.phone,
     password: data.password,
     addresses: [],
+    isActive: true,
+    status: 'active',
     acceptedDataPolicy: data.acceptedDataPolicy,
     acceptedTermsAndConditions: data.acceptedTermsAndConditions,
     acceptedCustomerPoliciesAt: data.acceptedCustomerPoliciesAt,
@@ -50,13 +81,36 @@ export function createCustomer(data: {
   return customer
 }
 
-export function updateCustomer(id: string, data: Partial<Pick<Customer, 'name' | 'email' | 'phone'>>): Customer | null {
+export function updateCustomer(id: string, data: Partial<Pick<Customer, 'name' | 'email' | 'phone' | 'isActive' | 'status'>>): Customer | null {
   const customers = getCustomers()
   const idx = customers.findIndex((c) => c.id === id)
   if (idx < 0) return null
-  customers[idx] = { ...customers[idx], ...data }
+  const updates: Partial<Pick<Customer, 'name' | 'email' | 'phone'>> = {}
+  if (data.name !== undefined) updates.name = data.name
+  if (data.email !== undefined) updates.email = data.email.toLowerCase()
+  if (data.phone !== undefined) updates.phone = data.phone
+  const nextStatus = data.status ?? (data.isActive === false ? 'disabled' : data.isActive === true ? 'active' : customers[idx].status)
+  customers[idx] = {
+    ...customers[idx],
+    ...updates,
+    isActive: nextStatus === 'disabled' ? false : true,
+    status: nextStatus === 'disabled' ? 'disabled' : 'active',
+  }
   saveCustomers(customers)
   return customers[idx]
+}
+
+export function deleteCustomer(id: string): boolean {
+  const customers = getCustomers()
+  const idx = customers.findIndex((c) => c.id === id)
+  if (idx < 0) return false
+  customers.splice(idx, 1)
+  saveCustomers(customers)
+  return true
+}
+
+export function customerIsActive(customer: Customer): boolean {
+  return isCustomerActive(customer)
 }
 
 export function getCustomerAddresses(id: string): Address[] {

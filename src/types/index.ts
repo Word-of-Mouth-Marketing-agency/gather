@@ -375,6 +375,8 @@ export interface Customer {
   phone: string
   password: string
   addresses: Address[]
+  isActive?: boolean
+  status?: 'active' | 'disabled'
   acceptedDataPolicy?: boolean
   acceptedTermsAndConditions?: boolean
   acceptedCustomerPoliciesAt?: string

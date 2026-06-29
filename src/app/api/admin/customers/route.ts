@@ -1,0 +1,29 @@
+import { NextResponse } from 'next/server'
+import { getAdminCustomers, updateCustomer } from '@/lib/customer-data'
+
+export async function GET() {
+  return NextResponse.json(getAdminCustomers())
+}
+
+export async function POST(request: Request) {
+  try {
+    const { id, name, email, phone, isActive, status } = await request.json()
+    if (!id) return NextResponse.json({ error: 'Customer ID required' }, { status: 400 })
+
+    const updated = updateCustomer(id, { name, email, phone, isActive, status })
+    if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+    return NextResponse.json({
+      id: updated.id,
+      name: updated.name,
+      email: updated.email,
+      phone: updated.phone,
+      addresses: updated.addresses,
+      isActive: updated.isActive !== false && updated.status !== 'disabled',
+      status: updated.isActive !== false && updated.status !== 'disabled' ? 'active' : 'disabled',
+      createdAt: updated.createdAt,
+    })
+  } catch {
+    return NextResponse.json({ error: 'Invalid data' }, { status: 400 })
+  }
+}

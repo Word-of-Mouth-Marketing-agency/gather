@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { findCustomerByEmail } from '@/lib/customer-data'
+import { customerIsActive, findCustomerByEmail } from '@/lib/customer-data'
 
 export async function POST(request: Request) {
   try {
@@ -12,6 +12,10 @@ export async function POST(request: Request) {
     const customer = findCustomerByEmail(email)
     if (!customer || customer.password !== password) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
+    }
+
+    if (!customerIsActive(customer)) {
+      return NextResponse.json({ error: 'This account has been disabled' }, { status: 403 })
     }
 
     return NextResponse.json({

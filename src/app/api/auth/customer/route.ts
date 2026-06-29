@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { findCustomerById, updateCustomer } from '@/lib/customer-data'
+import { customerIsActive, findCustomerById, updateCustomer } from '@/lib/customer-data'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -10,6 +10,9 @@ export async function GET(request: Request) {
   const customer = findCustomerById(id)
   if (!customer) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+  if (!customerIsActive(customer)) {
+    return NextResponse.json({ error: 'Account disabled' }, { status: 403 })
   }
   return NextResponse.json({
     id: customer.id,
@@ -28,7 +31,18 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Customer ID required' }, { status: 400 })
     }
     const data = await request.json()
-    const updated = updateCustomer(id, data)
+    const customer = findCustomerById(id)
+    if (!customer) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+    if (!customerIsActive(customer)) {
+      return NextResponse.json({ error: 'Account disabled' }, { status: 403 })
+    }
+    const updated = updateCustomer(id, {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+    })
     if (!updated) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }

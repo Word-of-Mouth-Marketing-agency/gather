@@ -1,0 +1,43 @@
+import { NextResponse } from 'next/server'
+import { deleteCustomer, getAdminCustomerById, updateCustomer } from '@/lib/customer-data'
+
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const customer = getAdminCustomerById(id)
+  if (!customer) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  return NextResponse.json(customer)
+}
+
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params
+    const data = await request.json()
+    const updated = updateCustomer(id, {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      isActive: data.isActive,
+      status: data.status,
+    })
+    if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    return NextResponse.json({
+      id: updated.id,
+      name: updated.name,
+      email: updated.email,
+      phone: updated.phone,
+      addresses: updated.addresses,
+      isActive: updated.isActive !== false && updated.status !== 'disabled',
+      status: updated.isActive !== false && updated.status !== 'disabled' ? 'active' : 'disabled',
+      createdAt: updated.createdAt,
+    })
+  } catch {
+    return NextResponse.json({ error: 'Invalid data' }, { status: 400 })
+  }
+}
+
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const deleted = deleteCustomer(id)
+  if (!deleted) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  return NextResponse.json({ success: true })
+}

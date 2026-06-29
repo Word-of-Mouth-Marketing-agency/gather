@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import CartIcon from '@/components/ui/CartIcon'
-import { useCustomerSession } from '@/lib/customer-auth'
+import { clearCustomerSession, useCustomerSession } from '@/lib/customer-auth'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -65,6 +65,17 @@ export default function Navbar() {
   useEffect(() => {
     if (searchOpen) searchRef.current?.focus()
   }, [searchOpen])
+
+  useEffect(() => {
+    if (!session) return
+    let cancelled = false
+    fetch(`/api/auth/customer?id=${encodeURIComponent(session.id)}`)
+      .then((res) => {
+        if (!cancelled && res.status === 403) clearCustomerSession()
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [session])
 
   useEffect(() => {
     if (!mobileOpen) return
