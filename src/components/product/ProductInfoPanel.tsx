@@ -114,10 +114,6 @@ export default function ProductInfoPanel({ product, categories, occasions }: Pro
           <span className={inStock ? 'text-green-700' : 'text-red-600'}>{stockLabel}</span>
         </div>
 
-        <div className="rounded-2xl bg-[#fff7df] border border-[#f1d38a] border-l-4 border-l-[#d99a00] px-4 py-3 text-sm font-semibold text-[#6b4b00]">
-          Fast delivery available across Cairo.
-        </div>
-
         <div className="space-y-3 pt-2">
           <label className="block text-sm font-black text-[#171717]">Quantity</label>
           <div className="flex flex-col sm:flex-row gap-3">
