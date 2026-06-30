@@ -110,7 +110,7 @@ export default function AdminBundlesPage() {
                             </div>
                           ))}
                         </div>
-                        <span className="text-xs text-gray-400 ml-1">{new Set(bundle.productIds).size} products</span>
+                        <span className="text-xs text-gray-400 ml-1">{bundleProducts.length} products</span>
                       </div>
                     </td>
                     <td className="px-5 py-3 hidden lg:table-cell">

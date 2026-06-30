@@ -103,7 +103,7 @@ export function addBundleToCart(bundle: Bundle): CartItem[] {
   if (existing) {
     existing.quantity += 1
   } else {
-    const productsSnapshot: BundleCartItem['productsSnapshot'] = bundle.productIds
+    const productsSnapshot: BundleCartItem['productsSnapshot'] = [...new Set(bundle.productIds)]
       .map((pid) => {
         const p = getProductById(pid)
         if (!p) return null
@@ -123,7 +123,7 @@ export function addBundleToCart(bundle: Bundle): CartItem[] {
       regularPrice: bundle.regularPrice,
       currency: bundle.currency || 'EGP',
       quantity: 1,
-      productIds: bundle.productIds,
+      productIds: [...new Set(bundle.productIds)],
       productsSnapshot,
     }
     cart.push(item)
