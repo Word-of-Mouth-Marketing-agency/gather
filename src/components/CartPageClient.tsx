@@ -7,6 +7,7 @@ import type { BundleCartItem, Product } from '@/types'
 import PageTitleSection from '@/components/PageTitleSection'
 import { addToCart, getCart, getCartProducts, getCartBundles, getUnavailableCartBundles, updateQuantity, removeFromCart } from '@/lib/cart'
 import { formatPrice, getAllProducts, getDisplayPrice } from '@/lib/data'
+import { getCartCoPurchaseSuggestions, type CoPurchaseOrder } from '@/lib/cart-suggestions'
 
 type CartEntry = { product: import('@/types').Product; quantity: number; cartItem: import('@/types').ProductCartItem }
 
@@ -34,44 +35,6 @@ function EmptyCartState() {
       </Link>
     </main>
   )
-}
-
-function getCartSuggestions(products: CartEntry[], bundles: BundleCartItem[], limit = 4): Product[] {
-  const allProducts = getAllProducts()
-  const cartProductIds = new Set([
-    ...products.map(({ product }) => product.id),
-    ...bundles.flatMap((bundle) => bundle.productIds),
-  ])
-  const sourceProducts = allProducts.filter((product) => cartProductIds.has(product.id))
-
-  if (sourceProducts.length === 0) {
-    return allProducts
-      .filter((product) => product.featured && !cartProductIds.has(product.id))
-      .slice(0, limit)
-  }
-
-  const categoryIds = new Set(sourceProducts.flatMap((product) => product.categoryIds))
-  const occasionIds = new Set(sourceProducts.flatMap((product) => product.occasionIds))
-  const availableProducts = allProducts.filter((product) => !cartProductIds.has(product.id))
-
-  const sameCategory = availableProducts.filter((product) =>
-    product.categoryIds.some((id) => categoryIds.has(id))
-  )
-  const sameOccasion = availableProducts.filter((product) =>
-    product.occasionIds.some((id) => occasionIds.has(id))
-  )
-  const featured = availableProducts.filter((product) => product.featured)
-
-  return uniqueProducts([...sameCategory, ...sameOccasion, ...featured, ...availableProducts]).slice(0, limit)
-}
-
-function uniqueProducts(products: Product[]): Product[] {
-  const seen = new Set<string>()
-  return products.filter((product) => {
-    if (seen.has(product.id)) return false
-    seen.add(product.id)
-    return true
-  })
 }
 
 function CartUpsellCard({ product }: { product: Product }) {
@@ -139,7 +102,11 @@ function CartUpsellCard({ product }: { product: Product }) {
   )
 }
 
-export default function CartPageClient() {
+type Props = {
+  coPurchaseOrders: CoPurchaseOrder[]
+}
+
+export default function CartPageClient({ coPurchaseOrders }: Props) {
   const [mounted, setMounted] = useState(false)
   const [products, setProducts] = useState<CartEntry[]>([])
   const [bundles, setBundles] = useState<BundleCartItem[]>([])
@@ -183,7 +150,14 @@ export default function CartPageClient() {
   ]
   const total = allCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const itemCount = products.length + bundles.length
-  const suggestions = getCartSuggestions(products, bundles)
+  const suggestions = getCartCoPurchaseSuggestions({
+    cartProductIds: [
+      ...products.map(({ product }) => product.id),
+      ...bundles.flatMap((bundle) => bundle.productIds),
+    ],
+    products: getAllProducts(),
+    orders: coPurchaseOrders,
+  })
   const unavailableBundles = getUnavailableCartBundles(bundles)
   const hasUnavailableBundles = unavailableBundles.length > 0
 
