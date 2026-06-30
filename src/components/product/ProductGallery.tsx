@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 
 interface Props {
   images: string[]
@@ -30,12 +29,10 @@ export default function ProductGallery({ images, productName, hasDiscount = fals
               aria-label={`View ${productName} image ${index + 1}`}
             >
               {image ? (
-                <Image
+                <img
                   src={image}
                   alt=""
-                  fill
-                  className="object-contain p-2"
-                  sizes="80px"
+                  className="absolute inset-0 object-contain p-2 w-full h-full"
                 />
               ) : (
                 <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-[#7a6247]">
@@ -49,13 +46,10 @@ export default function ProductGallery({ images, productName, hasDiscount = fals
 
       <div className="order-1 lg:order-2 relative min-h-[340px] sm:min-h-[460px] lg:min-h-[560px] flex-1 rounded-[28px] bg-[#fffaf3] border border-[#ead8c4] overflow-hidden">
         {activeImage ? (
-          <Image
+          <img
             src={activeImage}
             alt={productName}
-            fill
-            priority
-            className="object-contain p-8 sm:p-10"
-            sizes="(max-width: 1024px) 100vw, 58vw"
+            className="absolute inset-0 object-contain p-8 sm:p-10 w-full h-full"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-sm font-bold text-[#7a6247]">

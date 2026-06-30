@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import type { Category, Product } from '@/types'
 
 const FBT_LIMIT = 3
@@ -378,7 +377,7 @@ export default function ProductForm({ initialData, productId }: Props) {
           <div className="flex flex-wrap gap-3">
             {featuredImage ? (
               <div className="relative w-28 h-28 rounded-xl overflow-hidden bg-gray-100 group">
-                <Image src={featuredImage} alt="Featured product image" fill className="object-cover" sizes="112px" />
+                <img src={featuredImage} alt="Featured product image" className="object-cover w-full h-full" />
                 <button
                   type="button"
                   onClick={removeFeaturedImage}
@@ -424,7 +423,7 @@ export default function ProductForm({ initialData, productId }: Props) {
           <div className="flex flex-wrap gap-3">
             {galleryImages.map((url, i) => (
               <div key={`${url}-${i}`} className="relative w-24 h-24 rounded-xl overflow-hidden bg-gray-100 group">
-                <Image src={url} alt={`Product gallery ${i + 1}`} fill className="object-cover" sizes="96px" />
+                <img src={url} alt={`Product gallery ${i + 1}`} className="object-cover w-full h-full" />
                 <button
                   type="button"
                   onClick={() => removeGalleryImage(i)}
