@@ -135,7 +135,7 @@ export default async function Footer() {
             <ul className="space-y-2.5 text-sm font-semibold text-[#7a6247]">
               <li>+20123456789</li>
               <li>info@gather-eg.com</li>
-              <li>Cairo, Egypt</li>
+              <li>{locale === 'ar' ? 'القاهرة، مصر' : 'Cairo, Egypt'}</li>
             </ul>
           </div>
         </div>

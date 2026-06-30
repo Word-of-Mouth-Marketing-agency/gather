@@ -56,6 +56,7 @@ const socialLinks = [
 
 export default function Navbar() {
   const pathname = usePathname()
+  const normalizedPath = pathname.startsWith('/ar') ? pathname.replace(/^\/ar/, '') || '/' : pathname
   const [mobileOpen, setMobileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -140,7 +141,7 @@ export default function Navbar() {
                 key={link.href}
                 href={href(link.href)}
                 className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-150 ${
-                  pathname === link.href
+                  normalizedPath === link.href
                     ? 'bg-[#fff4e8] text-[#ff7a1a]'
                     : 'text-[#333] hover:bg-[#fff4e8] hover:text-[#ff7a1a]'
                 }`}
@@ -277,7 +278,7 @@ export default function Navbar() {
                   href={href(link.href)}
                   onClick={closeMobile}
                   className={`px-4 py-3 rounded-2xl text-sm font-bold transition-colors ${
-                    pathname === link.href
+                    normalizedPath === link.href
                       ? 'bg-[#fff4e8] text-[#ff7a1a]'
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}

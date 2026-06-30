@@ -14,7 +14,8 @@ interface Props {
 }
 
 export default function ProductCard({ product }: Props) {
-  const { t } = useLocale()
+  const { locale, t } = useLocale()
+  const name = locale === 'ar' ? product.nameAr ?? product.name : product.name
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
   const wishlisted = useSyncExternalStore(
@@ -49,12 +50,12 @@ export default function ProductCard({ product }: Props) {
       <Link
         href={`/products/${product.slug}`}
         className="absolute left-0 right-0 top-0 h-[165px] z-10 flex items-center justify-center"
-        aria-label={product.name}
+        aria-label={name}
       >
         {product.images[0] ? (
           <img
             src={product.images[0]}
-            alt={product.name}
+            alt={name}
             className="w-full h-full object-contain object-center transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
@@ -71,7 +72,7 @@ export default function ProductCard({ product }: Props) {
 
         <h3 className="text-lg sm:text-xl font-medium text-[#171717] leading-tight line-clamp-2">
           <Link href={`/products/${product.slug}`} className="hover:text-[#DB7100]">
-            {product.name}
+            {name}
           </Link>
         </h3>
 

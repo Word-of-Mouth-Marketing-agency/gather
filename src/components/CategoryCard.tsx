@@ -1,11 +1,14 @@
 import Link from 'next/link'
 import type { Category } from '@/types'
+import { useLocale } from '@/components/LocaleProvider'
 
 interface Props {
   category: Category
 }
 
 export default function CategoryCard({ category }: Props) {
+  const { locale } = useLocale()
+  const name = locale === 'ar' ? category.nameAr ?? category.name : category.name
   const image = category.image || '/assets/gather/categories/decorations.png'
   const href =
     category.type === 'occasion'
@@ -17,7 +20,7 @@ export default function CategoryCard({ category }: Props) {
       <div className="w-full max-w-[130px] sm:max-w-[150px] lg:max-w-[180px] aspect-square rounded-2xl flex items-center justify-center p-3 overflow-hidden">
         <img
           src={image}
-          alt={category.name}
+          alt={name}
           className={`w-full h-full transition-all duration-300 ease-in-out group-hover:rotate-[8deg] group-hover:scale-[0.8] ${
             category.slug === 'mothers-day'
               ? 'object-contain object-top'
@@ -26,7 +29,7 @@ export default function CategoryCard({ category }: Props) {
         />
       </div>
       <span className="text-sm sm:text-base font-semibold text-[#333] text-center leading-tight">
-        {category.name}
+        {name}
       </span>
     </Link>
   )

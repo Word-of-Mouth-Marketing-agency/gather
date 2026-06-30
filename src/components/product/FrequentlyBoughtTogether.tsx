@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function FrequentlyBoughtTogether({ currentProduct, suggestions }: Props) {
-  const { t } = useLocale()
+  const { locale, t } = useLocale()
   const products = [currentProduct, ...suggestions].slice(0, 4)
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
@@ -60,7 +60,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, suggestions }
                     {product.images[0] ? (
                       <Image
                         src={product.images[0]}
-                        alt={product.name}
+                        alt={locale === 'ar' ? product.nameAr ?? product.name : product.name}
                         fill
                         className="object-contain p-3"
                         sizes="170px"
@@ -72,7 +72,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, suggestions }
                     )}
                   </div>
                   <h3 className="mt-3 line-clamp-2 text-sm font-bold leading-snug text-[#171717]">
-                    {product.name}
+                    {locale === 'ar' ? product.nameAr ?? product.name : product.name}
                   </h3>
                   <p className="mt-1 text-sm font-black text-[#FE7501]">
                     {formatPrice(getDisplayPrice(product), product.currency)}

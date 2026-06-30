@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function FrequentlyBoughtTogether({ products }: Props) {
-  const { t } = useLocale()
+  const { locale, t } = useLocale()
   const [selected, setSelected] = useState<Set<string>>(
     new Set(products.map((p) => p.id))
   )
@@ -81,7 +81,7 @@ export default function FrequentlyBoughtTogether({ products }: Props) {
                   {product.images[0] ? (
                     <Image
                       src={product.images[0]}
-                      alt={product.name}
+                      alt={locale === 'ar' ? product.nameAr ?? product.name : product.name}
                       width={72}
                       height={72}
                       className="object-contain p-2"
@@ -94,7 +94,7 @@ export default function FrequentlyBoughtTogether({ products }: Props) {
                 {/* Info */}
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-[#222] line-clamp-2 leading-snug">
-                    {product.name}
+                    {locale === 'ar' ? product.nameAr ?? product.name : product.name}
                   </p>
                   <p className="mt-1 text-[#ff7a1a] font-black text-sm">
                     {formatPrice(getDisplayPrice(product), product.currency)}
