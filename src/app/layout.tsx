@@ -1,21 +1,14 @@
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
-import { Tajawal, Noto_Naskh_Arabic } from 'next/font/google'
+import { Cairo } from 'next/font/google'
 import './globals.css'
 
 const siteUrl = process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://gather-eg.com'
 
-const tajawal = Tajawal({
+const cairo = Cairo({
   subsets: ['arabic'],
-  weight: ['400', '500', '700', '800'],
-  variable: '--font-tajawal',
-  display: 'swap',
-})
-
-const notoNaskh = Noto_Naskh_Arabic({
-  subsets: ['arabic'],
-  weight: ['600', '700'],
-  variable: '--font-brand-ar',
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-arabic',
   display: 'swap',
 })
 
@@ -32,19 +25,19 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(siteUrl),
     title: {
       default: isArabic
-        ? 'جاذر — هدايا فاخرة مع توصيل في القاهرة'
+        ? 'چزر — هدايا فاخرة مع توصيل في القاهرة'
         : 'Gather — Premium Gifts Delivered in Cairo',
-      template: isArabic ? '%s | جاذر' : '%s | Gather',
+      template: isArabic ? '%s | چزر' : '%s | Gather',
     },
     description: isArabic
-      ? 'جاذر — منصة الهدايا الفاخرة في القاهرة. تسوق علب هدايا، ورود، شوكولاتة، والمزيد لكل المناسبات.'
+      ? 'چزر — منصة الهدايا الفاخرة في القاهرة. تسوق علب هدايا، ورود، شوكولاتة، والمزيد لكل المناسبات.'
       : "Gather — Cairo's premium gifting platform. Shop gift boxes, flowers, chocolates, and more for every occasion. Fast delivery available across Cairo.",
     icons: {
       icon: '/assets/gather/favicon.png',
     },
     openGraph: {
       title: isArabic
-        ? 'جاذر — هدايا فاخرة مع توصيل في القاهرة'
+        ? 'چزر — هدايا فاخرة مع توصيل في القاهرة'
         : 'Gather — Premium Gifts Delivered in Cairo',
       description: isArabic
         ? 'تسوق هدايا فاخرة لكل مناسبة. توصيل سريع في القاهرة.'
@@ -65,7 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: 'summary_large_image',
       title: isArabic
-        ? 'جاذر — هدايا فاخرة مع توصيل في القاهرة'
+        ? 'چزر — هدايا فاخرة مع توصيل في القاهرة'
         : 'Gather — Premium Gifts Delivered in Cairo',
       description: isArabic
         ? 'تسوق هدايا فاخرة لكل مناسبة. توصيل سريع في القاهرة.'
@@ -87,7 +80,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   } catch { /* default to en */ }
 
   return (
-    <html lang={isArabic ? 'ar' : 'en'} dir={isArabic ? 'rtl' : 'ltr'} className={`h-full antialiased ${isArabic ? `${tajawal.variable} ${notoNaskh.variable}` : ''}`}>
+    <html lang={isArabic ? 'ar' : 'en'} dir={isArabic ? 'rtl' : 'ltr'} className={`h-full antialiased ${isArabic ? cairo.variable : ''}`}>
       <body className="min-h-full" suppressHydrationWarning>
         {children}
       </body>

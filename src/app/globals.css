@@ -69,11 +69,10 @@
   }
 
   [dir="rtl"] body {
-    font-family: var(--font-tajawal), "Recoleta", Tahoma, Arial, sans-serif;
+    font-family: var(--font-arabic), "Recoleta", Tahoma, Arial, sans-serif;
   }
 
   [dir="rtl"] .gather-brand-ar {
-    font-family: var(--font-brand-ar), var(--font-tajawal), "Noto Naskh Arabic", "Noto Sans Arabic", Tahoma, sans-serif;
     letter-spacing: 0;
   }
 
