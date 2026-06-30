@@ -24,8 +24,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const category = getTaxonomyBySlug(slug)
   if (!category) return {}
+  const name = category.nameAr ?? category.name
   return {
-    title: category.name,
+    title: name,
     description: category.description,
   }
 }
@@ -34,6 +35,7 @@ export default async function CategoryDetailPage({ params }: Props) {
   const { slug } = await params
   const locale = await getServerLocale()
   const category = getTaxonomyBySlug(slug)
+  const categoryName = locale === 'ar' ? category?.nameAr ?? category?.name ?? '' : category?.name ?? ''
 
   if (!category || category.type !== 'category' || category.isActive === false) notFound()
 
@@ -41,7 +43,7 @@ export default async function CategoryDetailPage({ params }: Props) {
 
   return (
     <>
-      <PageTitleSection title={category.name} />
+      <PageTitleSection title={categoryName} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
       {products.length === 0 ? (

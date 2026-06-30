@@ -24,8 +24,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const occasion = getTaxonomyBySlug(slug)
   if (!occasion) return {}
+  const name = occasion.nameAr ?? occasion.name
   return {
-    title: occasion.name,
+    title: name,
     description: occasion.description,
   }
 }
@@ -34,6 +35,7 @@ export default async function OccasionDetailPage({ params }: Props) {
   const { slug } = await params
   const locale = await getServerLocale()
   const occasion = getTaxonomyBySlug(slug)
+  const occasionName = locale === 'ar' ? occasion?.nameAr ?? occasion?.name ?? '' : occasion?.name ?? ''
 
   if (!occasion || occasion.type !== 'occasion' || occasion.isActive === false) notFound()
 
@@ -41,7 +43,7 @@ export default async function OccasionDetailPage({ params }: Props) {
 
   return (
     <>
-      <PageTitleSection title={occasion.name} />
+      <PageTitleSection title={occasionName} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
       {products.length === 0 ? (
