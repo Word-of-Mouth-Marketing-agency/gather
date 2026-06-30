@@ -82,7 +82,7 @@ export default function HeroSlideshow({ slides, heroText, isRTL = false }: Props
           <div ref={copyRef} className={`mx-auto max-w-[min(680px,92vw)] text-center text-white ${isRTL ? 'sm:mr-[clamp(0.75rem,5vw,4rem)] sm:ml-0 sm:text-right xl:mr-0' : 'sm:ml-[clamp(0.75rem,5vw,4rem)] sm:mr-0 sm:text-left xl:ml-0'}`}>
             <p
               data-hero-copy
-              className={`font-black text-white ${isRTL ? 'leading-[1.2]' : 'leading-none'}`}
+              className={`font-black text-white ${isRTL ? 'gather-brand-ar leading-[1.2]' : 'leading-none'}`}
               style={{
                 fontSize: 'clamp(2.55rem, 6.4vw, 5.2rem)',
                 ...(isRTL ? {} : { WebkitTextStroke: 'clamp(0.7px, 0.1vw, 1px) #FE7501' }),

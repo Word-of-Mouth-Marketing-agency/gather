@@ -20,6 +20,7 @@ export default function AnimatedTitle({
 }: Props) {
   const ref = useRef<HTMLElement>(null)
   const tokens = useMemo(() => text.split(/(\s+)/), [text])
+  const hasArabicBrand = text.includes('\u0686')
 
   useGsapReveal(ref, {
     targets: '[data-title-word-inner]',
@@ -29,7 +30,7 @@ export default function AnimatedTitle({
   })
 
   return (
-    <Tag ref={ref} className={className}>
+    <Tag ref={ref} className={`${className ?? ''} ${hasArabicBrand ? 'gather-brand-ar' : ''}`}>
       {tokens.map((token, index) => {
         if (/^\s+$/.test(token)) return token
         const isAccent = accentWord ? token.toLowerCase() === accentWord.toLowerCase() : false

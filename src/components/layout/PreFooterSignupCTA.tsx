@@ -29,10 +29,7 @@ export default function PreFooterSignupCTA() {
         </div>
 
         <GsapReveal className="max-w-2xl mx-auto text-center" y={18}>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
-            <span className="text-[#171717]">{t('prefooter.join')} </span>
-            <span className="text-[#FE7501]">{t('prefooter.family')}</span>
-          </h2>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight gather-brand-ar">{t('prefooter.join')} <span className="text-[#FE7501]">{t('prefooter.family')}</span></h2>
           <p className="mt-3 text-sm sm:text-base font-bold leading-relaxed text-[#7a6247]">
             {t('prefooter.cta')}
           </p>
