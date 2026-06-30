@@ -7,10 +7,12 @@ import PageTitleSection from '@/components/PageTitleSection'
 import { useState, useEffect } from 'react'
 import type { Order } from '@/lib/orders'
 import SignInPrompt from '@/components/SignInPrompt'
+import { useLocale } from '@/components/LocaleProvider'
 
 export default function MyAccountPage() {
   const session = useCustomerSession()
   const router = useRouter()
+  const { href, t } = useLocale()
   const [recentOrders, setRecentOrders] = useState<Order[]>([])
 
   useEffect(() => {
@@ -33,31 +35,31 @@ export default function MyAccountPage() {
 
   return (
     <>
-      <PageTitleSection title="My Account" />
+      <PageTitleSection title={t('account.title')} />
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-center gap-4 mb-8">
           <div className="w-14 h-14 rounded-full bg-[#ff7a1a] text-white flex items-center justify-center text-xl font-bold">
             {initials}
           </div>
           <div>
-            <h2 className="text-xl font-black text-[#171717]">Welcome, {session.name.split(' ')[0]}!</h2>
+            <h2 className="text-xl font-black text-[#171717]">{t('account.welcome', { name: session.name.split(' ')[0] })}</h2>
             <p className="text-sm text-[#7a6247]">{session.email}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          <DashboardCard href="/my-account/orders" icon="📦" label="Orders" desc="View your order history" />
-          <DashboardCard href="/my-account/profile" icon="👤" label="Profile" desc="Edit your details" />
-          <DashboardCard href="/my-account/addresses" icon="📍" label="Addresses" desc="Manage delivery addresses" />
-          <DashboardCard href="/wishlist" icon="♥" label="Wishlist" desc="Your saved items" />
+          <DashboardCard href={href('/my-account/orders')} icon="📦" label={t('account.orders')} desc={t('account.ordersDesc')} />
+          <DashboardCard href={href('/my-account/profile')} icon="👤" label={t('account.profile')} desc={t('account.profileDesc')} />
+          <DashboardCard href={href('/my-account/addresses')} icon="📍" label={t('account.addresses')} desc={t('account.addressesDesc')} />
+          <DashboardCard href={href('/wishlist')} icon="♥" label={t('account.wishlist')} desc={t('account.wishlistDesc')} />
         </div>
 
         {recentOrders.length > 0 && (
           <section className="gather-section p-6 rounded-3xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-black text-[#171717]">Recent Orders</h3>
-              <Link href="/my-account/orders" className="text-sm text-[#ff7a1a] font-semibold hover:underline">
-                View all
+              <h3 className="text-lg font-black text-[#171717]">{t('account.recentOrders')}</h3>
+              <Link href={href('/my-account/orders')} className="text-sm text-[#ff7a1a] font-semibold hover:underline">
+                {t('account.viewAll')}
               </Link>
             </div>
             <div className="divide-y divide-gray-100">
@@ -86,7 +88,7 @@ export default function MyAccountPage() {
             onClick={handleLogout}
             className="gather-btn-secondary text-sm"
           >
-            Sign Out
+            {t('account.signOut')}
           </button>
         </div>
       </main>

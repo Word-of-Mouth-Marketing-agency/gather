@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { getPageBySlug, getHomepageContent } from '@/lib/data'
 import SectionRenderer from '@/components/SectionRenderer'
 import HeroSlideshow from '@/components/sections/HeroSlideshow'
+import { getServerLocale } from '@/lib/locale-server'
+import { t } from '@/lib/translations'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,17 +11,23 @@ export const metadata: Metadata = {
   title: 'Gather — Premium Gifts Delivered in Cairo',
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const locale = await getServerLocale()
+  const isAr = locale === 'ar'
   const page = getPageBySlug('home')
   const homepage = getHomepageContent()
 
   if (!page) {
     return (
       <main className="flex items-center justify-center min-h-[60vh]">
-        <p className="text-gray-400">Page not found</p>
+        <p className="text-gray-400">{t('error.pageNotFound', locale)}</p>
       </main>
     )
   }
+
+  const heroText = isAr ? homepage.ar?.heroText ?? homepage.heroText : homepage.heroText
+  const aboutGather = isAr ? homepage.ar?.aboutGather ?? homepage.aboutGather : homepage.aboutGather
+  const whyGatherCards = isAr ? homepage.ar?.whyGatherCards ?? homepage.whyGatherCards : homepage.whyGatherCards
 
   const sections = page.sections
     .filter((s) => s.type !== 'hero')
@@ -29,13 +37,13 @@ export default function HomePage() {
           ...s,
           props: {
             ...s.props,
-            title: homepage.aboutGather.title,
-            subtitle: homepage.aboutGather.subtitle,
-            body: homepage.aboutGather.body,
-            ctaText: homepage.aboutGather.ctaText,
-            ctaUrl: homepage.aboutGather.ctaUrl,
-            leftImage: homepage.aboutGather.leftImage,
-            rightImage: homepage.aboutGather.rightImage,
+            title: aboutGather.title,
+            subtitle: aboutGather.subtitle,
+            body: aboutGather.body,
+            ctaText: aboutGather.ctaText,
+            ctaUrl: aboutGather.ctaUrl,
+            leftImage: aboutGather.leftImage,
+            rightImage: aboutGather.rightImage,
           },
         }
       }
@@ -44,7 +52,7 @@ export default function HomePage() {
           ...s,
           props: {
             ...s.props,
-            cards: homepage.whyGatherCards,
+            cards: whyGatherCards,
           },
         }
       }
@@ -53,7 +61,7 @@ export default function HomePage() {
 
   return (
     <main className="overflow-x-clip">
-      <HeroSlideshow slides={homepage.heroSlides} heroText={homepage.heroText} />
+      <HeroSlideshow slides={homepage.heroSlides} heroText={heroText} />
       <SectionRenderer sections={sections} />
     </main>
   )

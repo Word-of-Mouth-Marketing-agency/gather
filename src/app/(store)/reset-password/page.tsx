@@ -4,8 +4,10 @@ import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import PageTitleSection from '@/components/PageTitleSection'
+import { useLocale } from '@/components/LocaleProvider'
 
 function ResetPasswordForm() {
+  const { locale, href, t } = useLocale()
   const searchParams = useSearchParams()
   const token = searchParams.get('token') || ''
 
@@ -20,7 +22,7 @@ function ResetPasswordForm() {
     setError('')
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('signup.passwordMismatch'))
       return
     }
 
@@ -41,7 +43,7 @@ function ResetPasswordForm() {
 
       setDone(true)
     } catch {
-      setError('An error occurred. Please try again.')
+      setError(t('error.generic'))
     } finally {
       setLoading(false)
     }
@@ -50,19 +52,19 @@ function ResetPasswordForm() {
   if (done) {
     return (
       <>
-        <PageTitleSection title="Password Reset" />
+        <PageTitleSection title={t('resetPassword.title')} />
         <main className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="gather-section p-8 rounded-3xl text-center">
             <div className="text-4xl mb-4">✅</div>
-            <h2 className="text-lg font-black text-[#171717]">Password updated</h2>
+            <h2 className="text-lg font-black text-[#171717]">{t('resetPassword.submit')}</h2>
             <p className="mt-2 text-sm text-[#7a6247]">
-              Your password has been reset. You can now sign in with your new password.
+              {t('resetPassword.success')}
             </p>
             <Link
-              href="/login"
+              href={href('/login')}
               className="mt-6 inline-block py-3 px-8 rounded-full bg-[#ff7a1a] text-white font-black text-sm shadow-lg hover:bg-[#fe6c00] transition-colors"
             >
-              Sign In
+              {t('login.submit')}
             </Link>
           </div>
         </main>
@@ -73,16 +75,18 @@ function ResetPasswordForm() {
   if (!token) {
     return (
       <>
-        <PageTitleSection title="Invalid Link" />
+        <PageTitleSection title={t('resetPassword.title')} />
         <main className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="gather-section p-8 rounded-3xl text-center">
             <div className="text-4xl mb-4">⚠️</div>
-            <h2 className="text-lg font-black text-[#171717]">Invalid reset link</h2>
+            <h2 className="text-lg font-black text-[#171717]">{locale === 'ar' ? 'رابط غير صالح' : 'Invalid reset link'}</h2>
             <p className="mt-2 text-sm text-[#7a6247]">
-              This password reset link is invalid or has expired.
+              {locale === 'ar'
+                ? 'رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية.'
+                : 'This password reset link is invalid or has expired.'}
             </p>
-            <Link href="/forgot-password" className="mt-6 inline-block text-sm text-[#ff7a1a] font-semibold hover:underline">
-              Request a new reset link
+            <Link href={href('/forgot-password')} className="mt-6 inline-block text-sm text-[#ff7a1a] font-semibold hover:underline">
+              {locale === 'ar' ? 'طلب رابط إعادة تعيين جديد' : 'Request a new reset link'}
             </Link>
           </div>
         </main>
@@ -92,11 +96,11 @@ function ResetPasswordForm() {
 
   return (
     <>
-      <PageTitleSection title="Reset Password" />
+      <PageTitleSection title={t('resetPassword.title')} />
       <main className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="gather-section p-8 rounded-3xl">
           <p className="text-sm text-[#7a6247] mb-6 text-center">
-            Enter your new password below.
+            {locale === 'ar' ? 'أدخل كلمة المرور الجديدة أدناه.' : 'Enter your new password below.'}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -107,7 +111,7 @@ function ResetPasswordForm() {
             )}
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">New Password</label>
+              <label className="block text-sm font-semibold text-gray-700">{t('resetPassword.newPassword')}</label>
               <input
                 type="password"
                 value={password}
@@ -120,7 +124,7 @@ function ResetPasswordForm() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">Confirm Password</label>
+              <label className="block text-sm font-semibold text-gray-700">{t('resetPassword.confirmPassword')}</label>
               <input
                 type="password"
                 value={confirmPassword}
@@ -137,7 +141,7 @@ function ResetPasswordForm() {
               disabled={loading}
               className="w-full py-4 rounded-full bg-[#ff7a1a] text-white font-black text-base shadow-lg hover:bg-[#fe6c00] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
             >
-              {loading ? 'Resetting...' : 'Reset Password'}
+              {loading ? t('resetPassword.submitting') : t('resetPassword.submit')}
             </button>
           </form>
         </div>

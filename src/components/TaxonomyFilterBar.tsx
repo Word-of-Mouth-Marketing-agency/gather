@@ -6,14 +6,15 @@ interface Props {
   queryKey: string
   items: Category[]
   activeSlug?: string
+  locale?: 'en' | 'ar'
 }
 
-export default function TaxonomyFilterBar({ baseHref, queryKey, items, activeSlug }: Props) {
+export default function TaxonomyFilterBar({ baseHref, queryKey, items, activeSlug, locale }: Props) {
   return (
     <nav aria-label="Taxonomy filters" className="mb-8">
       <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
         <TaxonomyFilterPill href={baseHref} active={!activeSlug}>
-          All
+          {locale === 'ar' ? 'الكل' : 'All'}
         </TaxonomyFilterPill>
         {items.map((item) => (
           <TaxonomyFilterPill
@@ -21,7 +22,7 @@ export default function TaxonomyFilterBar({ baseHref, queryKey, items, activeSlu
             href={`${baseHref}?${queryKey}=${item.slug}`}
             active={activeSlug === item.slug}
           >
-            {item.name}
+            {locale === 'ar' ? item.nameAr ?? item.name : item.name}
           </TaxonomyFilterPill>
         ))}
       </div>

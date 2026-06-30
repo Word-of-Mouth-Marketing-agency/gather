@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import gsap from 'gsap'
+import { useLocale } from '@/components/LocaleProvider'
 
 const ENTER_DURATION = 0.6
 const HOLD_DURATION = 0.35
@@ -11,6 +12,7 @@ const REDUCED_DURATION = 0.12
 
 export default function RabbitPageTransition() {
   const router = useRouter()
+  const { t } = useLocale()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const routeKey = useMemo(
@@ -215,7 +217,7 @@ export default function RabbitPageTransition() {
           className="w-44 sm:w-56 lg:w-80 h-auto object-contain"
         />
         <p className="text-base sm:text-lg font-bold text-[#171717]">
-          loading your happy moments...
+          {t('transition.loading')}
         </p>
       </div>
     </div>

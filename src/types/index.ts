@@ -4,8 +4,11 @@ export interface Product {
   id: string
   slug: string
   name: string
+  nameAr?: string
   description: string
+  descriptionAr?: string
   shortDescription: string
+  shortDescriptionAr?: string
   price: number
   salePrice: number | null
   discountStartsAt?: string
@@ -63,6 +66,7 @@ export interface Category {
   id: string
   slug: string
   name: string
+  nameAr?: string
   description: string
   image: string
   type: 'category' | 'occasion'
@@ -268,6 +272,11 @@ export interface HomepageContent {
   aboutGather: AboutGatherContent
   whyGatherCards: WhyGatherCard[]
   updatedAt: string
+  ar?: {
+    heroText?: HeroText
+    aboutGather?: AboutGatherContent
+    whyGatherCards?: WhyGatherCard[]
+  }
 }
 
 // ─── About Page Content ───────────────────────────────────────────────────────
@@ -284,6 +293,12 @@ export interface AboutPageContent {
   section2: AboutSection
   section2ListItems: string[]
   updatedAt: string
+  ar?: {
+    pageTitle?: string
+    section1?: AboutSection
+    section2?: AboutSection
+    section2ListItems?: string[]
+  }
 }
 
 // ─── Contact Page Content ─────────────────────────────────────────────────────
@@ -304,6 +319,12 @@ export interface ContactPageContent {
   whatsappNumber?: string
   socialLinks: ContactSocialLinks
   updatedAt: string
+  ar?: {
+    pageTitle?: string
+    infoTitle?: string
+    infoBody?: string
+    formTitle?: string
+  }
 }
 
 // ─── Policy Page Content ──────────────────────────────────────────────────────
@@ -420,8 +441,11 @@ export interface Bundle {
   id: string
   slug: string
   name: string
+  nameAr?: string
   badge?: string
+  badgeAr?: string
   description?: string
+  descriptionAr?: string
   productIds: string[]
   regularPrice?: number
   offerPrice: number

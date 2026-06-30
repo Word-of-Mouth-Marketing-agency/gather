@@ -63,5 +63,45 @@
       "sortOrder": 3
     }
   ],
-  "updatedAt": "2026-06-29T00:00:00Z"
+  "updatedAt": "2026-06-29T00:00:00Z",
+  "ar": {
+    "heroText": {
+      "brandLine": "جاذر",
+      "headline": "تجمعنا اللحظات الحلوة",
+      "subtitle": "كل ما تحتاجه مناسبتك.",
+      "ctaPrimaryLabel": "تسوق الآن",
+      "ctaPrimaryUrl": "#featured-gifts",
+      "ctaSecondaryLabel": "تسوق حسب المناسبة",
+      "ctaSecondaryUrl": "#shop-by-occasion"
+    },
+    "aboutGather": {
+      "title": "عن جاذر",
+      "subtitle": "نصمم البهجة لكل مناسبة، ونوصلها لباب بيتك. اجعل كل لحظة تستحق.",
+      "body": "من كيك أعياد الميلاد إلى البالونات، والوجبات الخفيفة إلى الديكورات — اطلب كل ما تحتاجه لأي مناسبة، ووصله لباب بيتك.",
+      "ctaText": "اعرف عنا",
+      "ctaUrl": "/about",
+      "leftImage": "/assets/gather/about/balloon.gif",
+      "rightImage": "/assets/gather/about/cake.gif"
+    },
+    "whyGatherCards": [
+      {
+        "id": "why-1",
+        "title": "جودة ممتازة",
+        "description": "كل منتج يتم اختياره بعناية من أفضل الموردين.",
+        "sortOrder": 1
+      },
+      {
+        "id": "why-2",
+        "title": "توصيل سريع",
+        "description": "نوصّل مستلزمات مناسبتك لباب بيتك بأسرع وقت ممكن.",
+        "sortOrder": 2
+      },
+      {
+        "id": "why-3",
+        "title": "سهل وآمن",
+        "description": "دفع سلس مع خيارات متعددة. أمانك هو أولويتنا.",
+        "sortOrder": 3
+      }
+    ]
+  }
 }

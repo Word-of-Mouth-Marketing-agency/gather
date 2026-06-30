@@ -5,10 +5,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCustomerSession } from '@/lib/customer-auth'
 import GsapReveal from '@/components/GsapReveal'
+import { useLocale } from '@/components/LocaleProvider'
 
 export default function PreFooterSignupCTA() {
   const pathname = usePathname()
   const session = useCustomerSession()
+  const { href, t } = useLocale()
   const mounted = useSyncExternalStore(subscribeToMount, () => true, () => false)
 
   if (!mounted || pathname.startsWith('/products/') || pathname.startsWith('/my-account') || pathname === '/login' || pathname === '/signup' || pathname === '/checkout') return null
@@ -28,22 +30,22 @@ export default function PreFooterSignupCTA() {
 
         <GsapReveal className="max-w-2xl mx-auto text-center" y={18}>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
-            <span className="text-[#171717]">Join the </span>
-            <span className="text-[#FE7501]">Gather Family</span>
+            <span className="text-[#171717]">{t('prefooter.join')} </span>
+            <span className="text-[#FE7501]">{t('prefooter.family')}</span>
           </h2>
           <p className="mt-3 text-sm sm:text-base font-bold leading-relaxed text-[#7a6247]">
-            Don&apos;t miss to sign up to join Gather Family to enjoy attractive offers and benefits.
+            {t('prefooter.cta')}
           </p>
 
           <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3">
             <Link
-              href={session ? '/my-account' : '/signup'}
+              href={href(session ? '/my-account' : '/signup')}
               className="gather-btn-primary px-7 py-3 text-sm shadow-lg"
             >
-              Sign Up
+              {t('prefooter.signUp')}
             </Link>
-            <Link href="/my-account" className="gather-btn-secondary px-7 py-3 text-sm">
-              My Account
+            <Link href={href('/my-account')} className="gather-btn-secondary px-7 py-3 text-sm">
+              {t('footer.myAccount')}
             </Link>
           </div>
         </GsapReveal>

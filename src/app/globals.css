@@ -68,6 +68,10 @@
     background: #ffffff;
   }
 
+  [dir="rtl"] body {
+    font-family: "Recoleta", "Noto Naskh Arabic", "Noto Sans Arabic", Tahoma, Arial, sans-serif;
+  }
+
   ::selection {
     background: #ff7a1a;
     color: #ffffff;

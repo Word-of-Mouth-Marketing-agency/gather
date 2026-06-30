@@ -9,6 +9,7 @@ import PageTitleSection from '@/components/PageTitleSection'
 import { getCart, getCartProducts, getCartBundles, getUnavailableCartBundles, clearCart } from '@/lib/cart'
 import { formatPrice } from '@/lib/data'
 import { useCustomerSession } from '@/lib/customer-auth'
+import { useLocale } from '@/components/LocaleProvider'
 
 const DELIVERY_SLOTS = [
   { value: '10:00-12:00', label: '10:00 AM – 12:00 PM' },
@@ -72,14 +73,25 @@ function CheckoutLoadingState() {
   )
 }
 
+const AR_DELIVERY_SLOTS: Record<string, string> = {
+  '10:00-12:00': '١٠:٠٠ ص - ١٢:٠٠ م',
+  '12:00-14:00': '١٢:٠٠ م - ٢:٠٠ م',
+  '14:00-16:00': '٢:٠٠ م - ٤:٠٠ م',
+  '16:00-18:00': '٤:٠٠ م - ٦:٠٠ م',
+  '18:00-20:00': '٦:٠٠ م - ٨:٠٠ م',
+  '20:00-22:00': '٨:٠٠ م - ١٠:٠٠ م',
+  'outside-hours': 'خارج أوقات العمل (طلب خاص)',
+}
+
 function EmptyCheckoutState() {
+  const { href, t } = useLocale()
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
       <div className="text-6xl mb-4">🛒</div>
-      <h1 className="text-2xl font-black text-[#171717]">Your cart is empty</h1>
+      <h1 className="text-2xl font-black text-[#171717]">{t('cart.empty')}</h1>
       <p className="mt-2 text-gray-400 text-sm">Add some items before checking out.</p>
-      <Link href="/shop-by-category" className="inline-flex mt-6 gather-btn-primary">
-        Browse Products
+      <Link href={href('/shop-by-category')} className="inline-flex mt-6 gather-btn-primary">
+        {t('cart.continueShopping')}
       </Link>
     </main>
   )
@@ -87,6 +99,7 @@ function EmptyCheckoutState() {
 
 export default function CheckoutPageClient() {
   const router = useRouter()
+  const { locale, href, t } = useLocale()
   const [mounted, setMounted] = useState(false)
   const [form, setForm] = useState<CheckoutFormData>(empty)
   const [errors, setErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({})
@@ -173,19 +186,21 @@ export default function CheckoutPageClient() {
 
   function validate(): boolean {
     const e: typeof errors = {}
-    if (!form.firstName.trim()) e.firstName = 'Required'
-    if (!form.lastName.trim()) e.lastName = 'Required'
-    if (!form.email.trim()) e.email = 'Required'
-    if (!form.phone.trim()) e.phone = 'Required'
-    if (!form.city) e.city = 'Please select a delivery city'
-    if (!form.address.trim()) e.address = 'Required'
-    if (!form.deliveryDate) e.deliveryDate = 'Required'
-    else if (!isValidDeliveryDate(form.deliveryDate)) e.deliveryDate = 'Please choose tomorrow or a later date'
-    if (!form.deliverySlot) e.deliverySlot = 'Required'
-    if (unavailableBundles.length > 0) e.orderNotes = 'Remove unavailable bundle offers from your cart before checkout'
+    if (!form.firstName.trim()) e.firstName = locale === 'ar' ? 'مطلوب' : 'Required'
+    if (!form.lastName.trim()) e.lastName = locale === 'ar' ? 'مطلوب' : 'Required'
+    if (!form.email.trim()) e.email = locale === 'ar' ? 'مطلوب' : 'Required'
+    if (!form.phone.trim()) e.phone = locale === 'ar' ? 'مطلوب' : 'Required'
+    if (!form.city) e.city = locale === 'ar' ? 'يرجى اختيار مدينة التوصيل' : 'Please select a delivery city'
+    if (!form.address.trim()) e.address = locale === 'ar' ? 'مطلوب' : 'Required'
+    if (!form.deliveryDate) e.deliveryDate = locale === 'ar' ? 'مطلوب' : 'Required'
+    else if (!isValidDeliveryDate(form.deliveryDate)) e.deliveryDate = locale === 'ar' ? 'يرجى اختيار الغد أو تاريخ لاحق' : 'Please choose tomorrow or a later date'
+    if (!form.deliverySlot) e.deliverySlot = locale === 'ar' ? 'مطلوب' : 'Required'
+    if (unavailableBundles.length > 0) e.orderNotes = locale === 'ar' ? 'قم بإزالة عروض الباقة غير المتاحة من سلتك قبل إتمام الطلب' : 'Remove unavailable bundle offers from your cart before checkout'
     setErrors(e)
     if (!acceptedPrivacyPolicy || !acceptedRefundPolicy) {
-      setPolicyError('You must agree to the Privacy Policy and Refund & Returns Policy to place your order.')
+      setPolicyError(locale === 'ar'
+        ? 'يجب الموافقة على سياسة الخصوصية وسياسة الاسترداد والإرجاع لتقديم طلبك.'
+        : 'You must agree to the Privacy Policy and Refund & Returns Policy to place your order.')
       return false
     }
     setPolicyError('')
@@ -256,7 +271,7 @@ export default function CheckoutPageClient() {
   if (!mounted) {
     return (
       <>
-        <PageTitleSection title="Checkout" />
+        <PageTitleSection title={t('checkout.title')} />
         <CheckoutLoadingState />
       </>
     )
@@ -265,7 +280,7 @@ export default function CheckoutPageClient() {
   if (products.length === 0 && bundles.length === 0) {
     return (
       <>
-        <PageTitleSection title="Checkout" />
+        <PageTitleSection title={t('checkout.title')} />
         <EmptyCheckoutState />
       </>
     )
@@ -273,7 +288,7 @@ export default function CheckoutPageClient() {
 
   return (
     <>
-      <PageTitleSection title="Checkout" />
+      <PageTitleSection title={t('checkout.title')} />
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
       <form onSubmit={handleSubmit} noValidate>
@@ -283,7 +298,7 @@ export default function CheckoutPageClient() {
               <h2 className="text-lg font-black text-[#171717]">Billing Details</h2>
 
               <div className="grid grid-cols-2 gap-4">
-                <Field label="First name" error={errors.firstName}>
+                <Field label={t('checkout.firstName')} error={errors.firstName}>
                   <input
                     type="text"
                     value={form.firstName}
@@ -292,7 +307,7 @@ export default function CheckoutPageClient() {
                     placeholder="Ahmed"
                   />
                 </Field>
-                <Field label="Last name" error={errors.lastName}>
+                <Field label={t('checkout.lastName')} error={errors.lastName}>
                   <input
                     type="text"
                     value={form.lastName}
@@ -303,7 +318,7 @@ export default function CheckoutPageClient() {
                 </Field>
               </div>
 
-              <Field label="Email address" error={errors.email}>
+              <Field label={t('checkout.email')} error={errors.email}>
                 <input
                   type="email"
                   value={form.email}
@@ -313,7 +328,7 @@ export default function CheckoutPageClient() {
                 />
               </Field>
 
-              <Field label="Phone number" error={errors.phone}>
+              <Field label={t('checkout.phone')} error={errors.phone}>
                 <input
                   type="tel"
                   value={form.phone}
@@ -323,23 +338,23 @@ export default function CheckoutPageClient() {
                 />
               </Field>
 
-              <Field label="City / Area" error={errors.city}>
+              <Field label={t('checkout.city')} error={errors.city}>
                 <select
                   value={form.city}
                   onChange={(e) => setFn('city', e.target.value)}
                   className={inputCls(!!errors.city)}
                 >
-                  <option value="">Select your city / area</option>
+                  <option value="">{locale === 'ar' ? 'اختر مدينتك / منطقتك' : 'Select your city / area'}</option>
                   {activeShippingFees.map((item) => (
                     <option key={item.id} value={item.city}>{item.city}</option>
                   ))}
                 </select>
                 <p className="mt-2 text-xs text-[#6b4b00] bg-[#fff7df] border border-[#f1d38a] border-l-4 border-l-[#d99a00] rounded-lg px-3 py-2">
-                  More locations will be available soon.
+                  {locale === 'ar' ? 'المزيد من المواقع ستتوفر قريبًا.' : 'More locations will be available soon.'}
                 </p>
               </Field>
 
-              <Field label="Street address" error={errors.address}>
+              <Field label={t('checkout.address')} error={errors.address}>
                 <input
                   type="text"
                   value={form.address}
@@ -351,13 +366,13 @@ export default function CheckoutPageClient() {
             </section>
 
             <section className="rounded-[14px] p-5 bg-[#fffaf2] border border-[#f2d7a2] space-y-4">
-              <h2 className="text-lg font-black text-[#171717]">Delivery Details</h2>
+              <h2 className="text-lg font-black text-[#171717]">{t('checkout.deliveryDetails')}</h2>
               <p className="text-sm text-[#6b4b00]">
-                Choose your preferred delivery date and time slot so we can prepare your order.
+                {locale === 'ar' ? 'اختر تاريخ ووقت التوصيل المفضل لدينا لتجهيز طلبك.' : 'Choose your preferred delivery date and time slot so we can prepare your order.'}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Delivery Date" error={errors.deliveryDate}>
+                <Field label={t('checkout.deliveryDate')} error={errors.deliveryDate}>
                   <input
                     type="date"
                     value={form.deliveryDate}
@@ -367,16 +382,18 @@ export default function CheckoutPageClient() {
                   />
                 </Field>
 
-                <Field label="Preferred Delivery Time" error={errors.deliverySlot}>
+                <Field label={t('checkout.deliverySlot')} error={errors.deliverySlot}>
                   <select
                     value={form.deliverySlot}
                     onChange={(e) => setFn('deliverySlot', e.target.value)}
                     className={inputCls(!!errors.deliverySlot)}
                     disabled={!isValidDeliveryDate(form.deliveryDate)}
                   >
-                    <option value="">Select preferred delivery time</option>
+                    <option value="">{t('checkout.selectSlot')}</option>
                     {DELIVERY_SLOTS.map((s) => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
+                      <option key={s.value} value={s.value}>
+                        {locale === 'ar' ? AR_DELIVERY_SLOTS[s.value] ?? s.label : s.label}
+                      </option>
                     ))}
                   </select>
                 </Field>
@@ -385,7 +402,7 @@ export default function CheckoutPageClient() {
 
             <section className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700">
-                Order Notes <span className="font-normal text-gray-400">(optional)</span>
+                {t('checkout.orderNotes')}
               </label>
               <textarea
                 value={form.orderNotes}
@@ -397,10 +414,10 @@ export default function CheckoutPageClient() {
             </section>
 
             <section className="gather-section p-6 rounded-3xl space-y-3">
-              <h2 className="text-lg font-black text-[#171717]">Payment</h2>
+              <h2 className="text-lg font-black text-[#171717]">{t('checkout.paymentMethod')}</h2>
               {[
-                { value: 'cod', label: 'Cash on Delivery', icon: '💵' },
-                { value: 'card', label: 'Credit / Debit Card (coming soon)', icon: '💳', disabled: true },
+                { value: 'cod', label: t('checkout.cashOnDelivery'), icon: '💵' },
+                { value: 'card', label: locale === 'ar' ? 'بطاقة ائتمان / خصم (قريبًا)' : 'Credit / Debit Card (coming soon)', icon: '💳', disabled: true },
               ].map((method) => (
                 <label
                   key={method.value}
@@ -428,7 +445,7 @@ export default function CheckoutPageClient() {
 
           <div className="lg:col-span-2">
             <div className="gather-section p-6 rounded-3xl sticky top-24 space-y-4">
-              <h2 className="text-lg font-black text-[#171717]">Your Order</h2>
+              <h2 className="text-lg font-black text-[#171717]">{t('checkout.orderSummary')}</h2>
 
               <div className="space-y-3">
                 {products.map(({ product, quantity, cartItem }) => (
@@ -476,25 +493,27 @@ export default function CheckoutPageClient() {
               )}
 
               <div className="pt-4 border-t border-[rgba(255,122,26,0.15)] flex justify-between items-center">
-                <span className="text-sm font-bold text-[#7a6247]">Subtotal</span>
+                <span className="text-sm font-bold text-[#7a6247]">{t('cart.subtotal')}</span>
                 <span className="text-base font-black text-[#171717]">{formatPrice(total, 'EGP')}</span>
               </div>
 
               {unavailableBundles.length > 0 && (
                 <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-600">
-                  Remove unavailable bundle offers before placing your order.
+                  {locale === 'ar'
+                    ? 'قم بإزالة عروض الباقة غير المتاحة قبل تقديم طلبك.'
+                    : 'Remove unavailable bundle offers before placing your order.'}
                 </p>
               )}
 
               <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-[#7a6247]">Shipping</span>
+                <span className="text-sm font-bold text-[#7a6247]">{t('cart.shipping')}</span>
                 <span className="text-sm font-black text-[#171717]">
-                  {form.city ? formatPrice(shippingFee, 'EGP') : 'Select city'}
+                  {form.city ? formatPrice(shippingFee, 'EGP') : locale === 'ar' ? 'اختر المدينة' : 'Select city'}
                 </span>
               </div>
 
               <div className="pt-3 border-t border-[rgba(255,122,26,0.15)] flex justify-between items-center">
-                <span className="text-sm font-bold text-[#7a6247]">Total</span>
+                <span className="text-sm font-bold text-[#7a6247]">{t('cart.total')}</span>
                 <span className="text-2xl font-black text-[#ff7a1a]">{formatPrice(orderTotal, 'EGP')}</span>
               </div>
 
@@ -507,9 +526,9 @@ export default function CheckoutPageClient() {
                     className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-[#FE7501] focus:ring-[#FE7501]/40"
                   />
                   <span className="text-xs sm:text-sm text-[#7a6247] leading-relaxed">
-                    I have read and agree to the{' '}
-                    <Link href="/privacy-policy" className="text-[#ff7a1a] font-semibold hover:underline" target="_blank">
-                      Privacy Policy
+                    {locale === 'ar' ? 'لقد قرأت وأوافق على' : 'I have read and agree to the'}{' '}
+                    <Link href={href('/privacy-policy')} className="text-[#ff7a1a] font-semibold hover:underline" target="_blank">
+                      {locale === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}
                     </Link>
                     .
                   </span>
@@ -522,9 +541,9 @@ export default function CheckoutPageClient() {
                     className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-[#FE7501] focus:ring-[#FE7501]/40"
                   />
                   <span className="text-xs sm:text-sm text-[#7a6247] leading-relaxed">
-                    I have read and agree to the{' '}
-                    <Link href="/refund_returns" className="text-[#ff7a1a] font-semibold hover:underline" target="_blank">
-                      Refund and Returns Policy
+                    {locale === 'ar' ? 'لقد قرأت وأوافق على' : 'I have read and agree to the'}{' '}
+                    <Link href={href('/refund_returns')} className="text-[#ff7a1a] font-semibold hover:underline" target="_blank">
+                      {locale === 'ar' ? 'سياسة الاسترداد والإرجاع' : 'Refund and Returns Policy'}
                     </Link>
                     .
                   </span>
@@ -539,7 +558,7 @@ export default function CheckoutPageClient() {
                 disabled={submitting}
                 className="w-full py-4 rounded-full bg-[#ff7a1a] text-white font-black text-base shadow-lg hover:bg-[#fe6c00] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
               >
-                {submitting ? 'Placing Order...' : 'Place Order'}
+                {submitting ? t('checkout.placing') : t('checkout.placeOrder')}
               </button>
             </div>
           </div>

@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { getAllProducts, getProductsByOccasion } from '@/lib/data'
 import { getActiveTaxonomiesByType } from '@/lib/taxonomy-data'
 import { sortProductsForTaxonomy } from '@/lib/filter-product-sorting'
+import { getServerLocale } from '@/lib/locale-server'
+import { t } from '@/lib/translations'
 
 export const dynamic = 'force-dynamic'
 import PageTitleSection from '@/components/PageTitleSection'
@@ -19,6 +21,7 @@ interface Props {
 }
 
 export default async function ShopByOccasionPage({ searchParams }: Props) {
+  const locale = await getServerLocale()
   const { tag } = await searchParams
   const occasions = getActiveTaxonomiesByType('occasion')
   const activeOccasion = tag
@@ -37,10 +40,11 @@ export default async function ShopByOccasionPage({ searchParams }: Props) {
           queryKey="tag"
           items={occasions}
           activeSlug={activeOccasion?.slug}
+          locale={locale}
         />
 
         {products.length === 0 ? (
-          <div className="text-center py-20 text-gray-400">No products for this occasion yet.</div>
+          <div className="text-center py-20 text-gray-400">{t('empty.noProductsOccasion', locale)}</div>
         ) : (
           <GsapReveal
             className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5"

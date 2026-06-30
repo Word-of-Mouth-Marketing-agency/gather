@@ -183,3 +183,40 @@ export function getProductReviewSummary(productId: string): {
   const sum = reviews.reduce((acc, r) => acc + r.rating, 0)
   return { averageRating: sum / reviews.length, reviewCount: reviews.length }
 }
+
+// ─── Locale-aware helpers ─────────────────────────────────────────────────────
+
+export function locName(product: Product, locale: 'en' | 'ar' = 'en'): string {
+  if (locale === 'ar' && product.nameAr) return product.nameAr
+  return product.name
+}
+
+export function locDesc(product: Product, locale: 'en' | 'ar' = 'en'): string {
+  if (locale === 'ar' && product.descriptionAr) return product.descriptionAr
+  return product.description
+}
+
+export function locShortDesc(product: Product, locale: 'en' | 'ar' = 'en'): string {
+  if (locale === 'ar' && product.shortDescriptionAr) return product.shortDescriptionAr
+  return product.shortDescription
+}
+
+export function locCatName(cat: Category, locale: 'en' | 'ar' = 'en'): string {
+  if (locale === 'ar' && cat.nameAr) return cat.nameAr
+  return cat.name
+}
+
+export function locBundleName(bundle: Bundle, locale: 'en' | 'ar' = 'en'): string {
+  if (locale === 'ar' && bundle.nameAr) return bundle.nameAr
+  return bundle.name
+}
+
+export function locBundleDesc(bundle: Bundle, locale: 'en' | 'ar' = 'en'): string {
+  if (locale === 'ar' && bundle.descriptionAr) return bundle.descriptionAr
+  return bundle.description ?? ''
+}
+
+export function locBundleBadge(bundle: Bundle, locale: 'en' | 'ar' = 'en'): string | undefined {
+  if (locale === 'ar' && bundle.badgeAr) return bundle.badgeAr
+  return bundle.badge
+}

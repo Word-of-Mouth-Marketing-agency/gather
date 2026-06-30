@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import PageTitleSection from '@/components/PageTitleSection'
+import { useLocale } from '@/components/LocaleProvider'
 
 export default function ForgotPasswordPage() {
+  const { locale, href, t } = useLocale()
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
@@ -26,7 +28,7 @@ export default function ForgotPasswordPage() {
       setSent(true)
       if (data.devToken) setDevToken(data.devToken)
     } catch {
-      setError('An error occurred. Please try again.')
+      setError(t('error.generic'))
     } finally {
       setLoading(false)
     }
@@ -35,28 +37,30 @@ export default function ForgotPasswordPage() {
   if (sent) {
     return (
       <>
-        <PageTitleSection title="Check Your Email" />
+        <PageTitleSection title={t('forgotPassword.title')} />
         <main className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="gather-section p-8 rounded-3xl text-center">
             <div className="text-4xl mb-4">📧</div>
-            <h2 className="text-lg font-black text-[#171717]">Reset link sent</h2>
+            <h2 className="text-lg font-black text-[#171717]">{t('forgotPassword.submit')}</h2>
             <p className="mt-2 text-sm text-[#7a6247]">
-              If an account exists for {email}, you will receive a password reset link shortly.
+              {locale === 'ar'
+                ? `إذا كان هناك حساب مرتبط بـ ${email}، سيصلك رابط إعادة تعيين كلمة المرور قريبًا.`
+                : `If an account exists for ${email}, you will receive a password reset link shortly.`}
             </p>
             {devToken && (
               <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-left">
                 <p className="text-xs font-semibold text-amber-800 mb-1">Dev: Reset Token</p>
                 <p className="text-xs text-amber-700 break-all font-mono">{devToken}</p>
                 <Link
-                  href={`/reset-password?token=${devToken}`}
+                  href={href(`/reset-password?token=${devToken}`)}
                   className="mt-2 inline-block text-xs text-amber-700 font-semibold underline hover:text-amber-900"
                 >
                   Open reset page
                 </Link>
               </div>
             )}
-            <Link href="/login" className="mt-6 inline-block text-sm text-[#ff7a1a] font-semibold hover:underline">
-              Back to Sign In
+            <Link href={href('/login')} className="mt-6 inline-block text-sm text-[#ff7a1a] font-semibold hover:underline">
+              {t('common.back') + ' ' + t('login.title')}
             </Link>
           </div>
         </main>
@@ -66,11 +70,11 @@ export default function ForgotPasswordPage() {
 
   return (
     <>
-      <PageTitleSection title="Forgot Password" />
+      <PageTitleSection title={t('forgotPassword.title')} />
       <main className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="gather-section p-8 rounded-3xl">
           <p className="text-sm text-[#7a6247] mb-6 text-center">
-            Enter your email address and we&apos;ll send you a link to reset your password.
+            {t('forgotPassword.subtitle')}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -81,7 +85,7 @@ export default function ForgotPasswordPage() {
             )}
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">Email</label>
+              <label className="block text-sm font-semibold text-gray-700">{t('forgotPassword.email')}</label>
               <input
                 type="email"
                 value={email}
@@ -92,20 +96,20 @@ export default function ForgotPasswordPage() {
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-4 rounded-full bg-[#ff7a1a] text-white font-black text-base shadow-lg hover:bg-[#fe6c00] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
-            >
-              {loading ? 'Sending...' : 'Send Reset Link'}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 rounded-full bg-[#ff7a1a] text-white font-black text-base shadow-lg hover:bg-[#fe6c00] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
+              >
+                {loading ? t('forgotPassword.submitting') : t('forgotPassword.submit')}
+              </button>
+            </form>
 
-          <p className="mt-6 text-center text-sm text-[#7a6247]">
-            <Link href="/login" className="text-[#ff7a1a] font-semibold hover:underline">
-              Back to Sign In
-            </Link>
-          </p>
+            <p className="mt-6 text-center text-sm text-[#7a6247]">
+              <Link href={href('/login')} className="text-[#ff7a1a] font-semibold hover:underline">
+                {t('common.back') + ' ' + t('login.title')}
+              </Link>
+            </p>
         </div>
       </main>
     </>

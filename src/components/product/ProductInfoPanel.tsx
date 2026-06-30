@@ -7,15 +7,19 @@ import { addToCart } from '@/lib/cart'
 import { formatPrice, getDisplayPrice } from '@/lib/data'
 import { isProductDiscountActive } from '@/lib/scheduled-discounts'
 import { isInWishlist, toggleWishlist } from '@/lib/wishlist'
+import { useLocale } from '@/components/LocaleProvider'
 import ProductRatingSummary from './ProductRatingSummary'
 
 interface Props {
   product: Product
   categories: Category[]
   occasions: Category[]
+  locale?: 'en' | 'ar'
 }
 
-export default function ProductInfoPanel({ product, categories, occasions }: Props) {
+export default function ProductInfoPanel({ product, categories, occasions, locale: localeProp }: Props) {
+  const { locale, t } = useLocale()
+  const resolvedLocale = localeProp ?? locale
   const [qty, setQty] = useState(1)
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
@@ -56,10 +60,10 @@ export default function ProductInfoPanel({ product, categories, occasions }: Pro
   const inStock = product.stock > 0
   const stockLabel = product.stockStatus ?? (
     product.stock === 0
-      ? 'Out of stock'
+      ? t('product.outOfStock')
       : product.stock <= 5
-      ? `Only ${product.stock} left in stock`
-      : 'In stock'
+      ? t('product.onlyLeft', { count: product.stock })
+      : t('product.inStock')
   )
 
   async function handleAddToCart() {
@@ -82,7 +86,7 @@ export default function ProductInfoPanel({ product, categories, occasions }: Pro
     <aside className="rounded-[28px] border border-[#ead8c4] bg-white p-5 sm:p-7 shadow-[0_18px_44px_rgba(122,98,71,0.10)]">
       <div className="space-y-4">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-[#171717]">
-          {product.name}
+          {resolvedLocale === 'ar' && product.nameAr ? product.nameAr : product.name}
         </h1>
 
         <ProductRatingSummary rating={reviewAvg} reviewCount={reviewCount} />
@@ -99,13 +103,13 @@ export default function ProductInfoPanel({ product, categories, occasions }: Pro
             )}
           </div>
           {hasDiscount && (
-            <p className="mt-1 text-sm font-bold text-[#7a6247]">Limited-time Gather offer</p>
+            <p className="mt-1 text-sm font-bold text-[#7a6247]">{t('product.limitedOffer')}</p>
           )}
         </div>
 
         {product.shortDescription && (
           <p className="text-base font-semibold leading-relaxed text-[#7a6247]">
-            {product.shortDescription}
+            {resolvedLocale === 'ar' && product.shortDescriptionAr ? product.shortDescriptionAr : product.shortDescription}
           </p>
         )}
 
@@ -115,7 +119,7 @@ export default function ProductInfoPanel({ product, categories, occasions }: Pro
         </div>
 
         <div className="space-y-3 pt-2">
-          <label className="block text-sm font-black text-[#171717]">Quantity</label>
+          <label className="block text-sm font-black text-[#171717]">{t('product.quantity')}</label>
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex h-[52px] w-full sm:w-36 items-center justify-between rounded-full border border-[#d8c5b2] bg-[#fffaf3] overflow-hidden">
               <button
@@ -147,7 +151,7 @@ export default function ProductInfoPanel({ product, categories, occasions }: Pro
                   : 'bg-[#FE7501] text-white shadow-lg hover:bg-[#fe6c00] hover:-translate-y-0.5'
               }`}
             >
-              {added ? 'Added to Cart' : adding ? 'Adding...' : inStock ? 'Add to Cart' : 'Out of Stock'}
+              {added ? t('product.added') : adding ? t('product.adding') : inStock ? t('product.addToCart') : t('product.outOfStock')}
             </button>
           </div>
 
@@ -159,17 +163,17 @@ export default function ProductInfoPanel({ product, categories, occasions }: Pro
                 : 'border-[#d8c5b2] bg-white text-[#7a6247] hover:border-[#FE7501] hover:text-[#FE7501]'
             }`}
           >
-            {wishlisted ? 'Saved to Wishlist' : 'Add to Wishlist'}
+            {wishlisted ? t('product.savedToWishlist') : t('product.addToWishlist')}
           </button>
         </div>
 
         {(categories.length > 0 || occasions.length > 0) && (
           <dl className="grid gap-3 border-t border-[#f1e2d3] pt-5 text-sm">
             {categories.length > 0 && (
-              <MetaRow label="Category" items={categories} hrefPrefix="/shop-by-category?category=" />
+              <MetaRow label={t('product.category')} items={categories} hrefPrefix="/shop-by-category?category=" locale={resolvedLocale} />
             )}
             {occasions.length > 0 && (
-              <MetaRow label="Occasion" items={occasions} hrefPrefix="/shop-by-occasion?tag=" />
+              <MetaRow label={t('product.occasion')} items={occasions} hrefPrefix="/shop-by-occasion?tag=" locale={resolvedLocale} />
             )}
           </dl>
         )}
@@ -178,7 +182,7 @@ export default function ProductInfoPanel({ product, categories, occasions }: Pro
   )
 }
 
-function MetaRow({ label, items, hrefPrefix }: { label: string; items: Category[]; hrefPrefix: string }) {
+function MetaRow({ label, items, hrefPrefix, locale }: { label: string; items: Category[]; hrefPrefix: string; locale: 'en' | 'ar' }) {
   return (
     <div className="grid grid-cols-[88px_1fr] gap-3">
       <dt className="font-black text-[#171717]">{label}</dt>
@@ -189,7 +193,7 @@ function MetaRow({ label, items, hrefPrefix }: { label: string; items: Category[
             href={`${hrefPrefix}${item.slug}`}
             className="rounded-full bg-[#fff4e8] px-3 py-1 text-xs font-bold text-[#7a6247] hover:text-[#FE7501]"
           >
-            {item.name}
+            {locale === 'ar' ? item.nameAr ?? item.name : item.name}
           </Link>
         ))}
       </dd>

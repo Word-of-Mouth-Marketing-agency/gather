@@ -1,17 +1,20 @@
 import Link from 'next/link'
+import { t } from '@/lib/translations'
+import { getServerLocale } from '@/lib/locale-server'
+import { localeHref } from '@/lib/locale'
 
 const quickLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
-  { href: '/my-account', label: 'My account' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/', label: 'Home', tKey: 'footer.home' as const },
+  { href: '/about', label: 'About', tKey: 'nav.about' as const },
+  { href: '/my-account', label: 'My account', tKey: 'footer.myAccount' as const },
+  { href: '/contact', label: 'Contact', tKey: 'nav.contact' as const },
 ]
 
 const usefulLinks = [
-  { href: '/shop-by-occasion', label: 'Shop by occasion' },
-  { href: '/shop-by-category', label: 'Shop by category' },
-  { href: '/privacy-policy', label: 'Privacy Policy' },
-  { href: '/refund_returns', label: 'Refund and Returns Policy' },
+  { href: '/shop-by-occasion', label: 'Shop by occasion', tKey: 'footer.shopByOccasion' as const },
+  { href: '/shop-by-category', label: 'Shop by category', tKey: 'footer.shopByCategory' as const },
+  { href: '/privacy-policy', label: 'Privacy Policy', tKey: 'footer.privacyPolicy' as const },
+  { href: '/refund_returns', label: 'Refund and Returns Policy', tKey: 'footer.refundReturns' as const },
 ]
 
 const socialLinks = [
@@ -53,7 +56,9 @@ const socialLinks = [
   },
 ]
 
-export default function Footer() {
+export default async function Footer() {
+  const locale = await getServerLocale()
+
   return (
     <footer className="bg-[#F4F5F6] border-t border-[rgba(255,122,26,0.22)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 lg:pt-20 pb-7 lg:pb-8">
@@ -66,7 +71,7 @@ export default function Footer() {
               className="h-20 w-auto"
             />
             <p className="mt-4 text-sm font-semibold text-[#7a6247] leading-relaxed">
-              Everything your gathering needs.
+              {t('footer.tagline', locale)}
             </p>
             <div className="flex items-center gap-2 mt-5">
               {socialLinks.map((s) => (
@@ -87,16 +92,16 @@ export default function Footer() {
           {/* Quick links */}
           <div>
             <h3 className="text-base font-bold text-[#171717] mb-4">
-              Quick links
+              {t('footer.quickLinks', locale)}
             </h3>
             <ul className="space-y-2.5">
               {quickLinks.map((link) => (
                 <li key={link.href}>
                   <Link
-                    href={link.href}
+                    href={localeHref(link.href, locale)}
                     className="text-sm font-semibold text-[#7a6247] hover:text-[#ff7a1a] transition-colors"
                   >
-                    {link.label}
+                    {t(link.tKey, locale)}
                   </Link>
                 </li>
               ))}
@@ -106,16 +111,16 @@ export default function Footer() {
           {/* Useful links */}
           <div>
             <h3 className="text-base font-bold text-[#171717] mb-4">
-              Useful links
+              {t('footer.usefulLinks', locale)}
             </h3>
             <ul className="space-y-2.5">
               {usefulLinks.map((link) => (
                 <li key={link.href}>
                   <Link
-                    href={link.href}
+                    href={localeHref(link.href, locale)}
                     className="text-sm font-semibold text-[#7a6247] hover:text-[#ff7a1a] transition-colors"
                   >
-                    {link.label}
+                    {t(link.tKey, locale)}
                   </Link>
                 </li>
               ))}
@@ -125,7 +130,7 @@ export default function Footer() {
           {/* Contact info */}
           <div>
             <h3 className="text-base font-bold text-[#171717] mb-4">
-              Contact info
+              {t('footer.contactInfo', locale)}
             </h3>
             <ul className="space-y-2.5 text-sm font-semibold text-[#7a6247]">
               <li>+20123456789</li>
@@ -138,7 +143,7 @@ export default function Footer() {
 
       <div className="border-t border-black/20 py-5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left text-xs text-[#7a6247]">
-          &copy; 2026 Gather. All rights reserved. | Powered by{' '}
+          {t('footer.copyright', locale)} | {t('footer.poweredBy', locale)}{' '}
           <a
             href="https://wordofmoutheg.com"
             target="_blank"

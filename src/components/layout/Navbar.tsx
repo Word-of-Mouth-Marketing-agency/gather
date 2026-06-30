@@ -5,13 +5,14 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import CartIcon from '@/components/ui/CartIcon'
 import { clearCustomerSession, useCustomerSession } from '@/lib/customer-auth'
+import { useLocale } from '@/components/LocaleProvider'
 
 const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/shop-by-occasion', label: 'Shop by Occasion' },
-  { href: '/shop-by-category', label: 'Shop by Category' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/', label: 'Home', tKey: 'nav.home' as const },
+  { href: '/shop-by-occasion', label: 'Shop by Occasion', tKey: 'nav.shopByOccasion' as const },
+  { href: '/shop-by-category', label: 'Shop by Category', tKey: 'nav.shopByCategory' as const },
+  { href: '/about', label: 'About', tKey: 'nav.about' as const },
+  { href: '/contact', label: 'Contact', tKey: 'nav.contact' as const },
 ]
 
 const socialLinks = [
@@ -61,6 +62,7 @@ export default function Navbar() {
   const searchRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const session = useCustomerSession()
+  const { locale, href, t } = useLocale()
 
   useEffect(() => {
     if (searchOpen) searchRef.current?.focus()
@@ -109,12 +111,21 @@ export default function Navbar() {
 
   const closeMobile = () => setMobileOpen(false)
 
+  function handleLanguageToggle() {
+    const currentPath = window.location.pathname
+    if (locale === 'en') {
+      window.location.href = '/ar' + (currentPath === '/' ? '' : currentPath)
+    } else {
+      window.location.href = currentPath.replace(/^\/ar/, '') || '/'
+    }
+  }
+
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center shrink-0">
+          <Link href={href("/")} className="flex items-center shrink-0">
             <img
               src="/assets/gather/gather-logo.webp"
               alt="Gather"
@@ -127,14 +138,14 @@ export default function Navbar() {
             {navLinks.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={href(link.href)}
                 className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-150 ${
                   pathname === link.href
                     ? 'bg-[#fff4e8] text-[#ff7a1a]'
                     : 'text-[#333] hover:bg-[#fff4e8] hover:text-[#ff7a1a]'
                 }`}
               >
-                {link.label}
+                {t(link.tKey)}
               </Link>
             ))}
           </nav>
@@ -154,7 +165,7 @@ export default function Navbar() {
 
             {/* Account */}
             <Link
-              href={session ? '/my-account' : '/login'}
+              href={href(session ? '/my-account' : '/login')}
               className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Account"
             >
@@ -171,7 +182,7 @@ export default function Navbar() {
 
             {/* Wishlist */}
             <Link
-              href="/wishlist"
+              href={href("/wishlist")}
               className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Wishlist"
             >
@@ -182,6 +193,7 @@ export default function Navbar() {
 
             {/* Language */}
             <button
+              onClick={handleLanguageToggle}
               className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Language"
               title="Language"
@@ -247,14 +259,14 @@ export default function Navbar() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search products..."
+                placeholder={t('nav.searchPlaceholder')}
                 className="min-w-0 flex-1 rounded-2xl border border-[#f1e2d3] bg-[#fffaf3] px-4 py-3 text-sm font-semibold text-[#171717] placeholder:text-[#9b8064] focus:outline-none focus:ring-2 focus:ring-[#ff7a1a]/25"
               />
               <button
                 type="submit"
                 className="rounded-2xl bg-[#ff7a1a] px-4 py-3 text-sm font-black text-white"
               >
-                Go
+                {t('nav.go')}
               </button>
             </form>
 
@@ -262,7 +274,7 @@ export default function Navbar() {
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
-                  href={link.href}
+                  href={href(link.href)}
                   onClick={closeMobile}
                   className={`px-4 py-3 rounded-2xl text-sm font-bold transition-colors ${
                     pathname === link.href
@@ -270,7 +282,7 @@ export default function Navbar() {
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  {link.label}
+                  {t(link.tKey)}
                 </Link>
               ))}
             </nav>
@@ -278,7 +290,7 @@ export default function Navbar() {
             <div className="mt-6 border-t border-gray-100 pt-5">
               <div className="flex items-center justify-between gap-2 rounded-3xl border border-[#f1e2d3] bg-[#fffaf3] p-2">
                 <Link
-                  href="/wishlist"
+                  href={href("/wishlist")}
                   onClick={closeMobile}
                   className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#7a6247] hover:text-[#ff7a1a]"
                   aria-label="Wishlist"
@@ -288,7 +300,7 @@ export default function Navbar() {
                   </svg>
                 </Link>
                 <Link
-                  href={session ? '/my-account' : '/login'}
+                  href={href(session ? '/my-account' : '/login')}
                   onClick={closeMobile}
                   className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#7a6247] hover:text-[#ff7a1a]"
                   aria-label="Account"
@@ -304,7 +316,7 @@ export default function Navbar() {
                   )}
                 </Link>
                 <Link
-                  href="/cart"
+                  href={href("/cart")}
                   onClick={closeMobile}
                   className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#7a6247] hover:text-[#ff7a1a]"
                   aria-label="Cart"
@@ -315,6 +327,7 @@ export default function Navbar() {
                 </Link>
                 <button
                   type="button"
+                  onClick={handleLanguageToggle}
                   className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#7a6247] hover:text-[#ff7a1a]"
                   aria-label="Language"
                 >
@@ -327,7 +340,7 @@ export default function Navbar() {
 
             <div className="mt-auto border-t border-gray-100 pt-5">
               <p className="mb-3 text-xs font-black uppercase tracking-[0.14em] text-[#7a6247]">
-                Follow Gather
+                {t('nav.followGather')}
               </p>
               <div className="flex items-center gap-2">
                 {socialLinks.map((link) => (
@@ -357,21 +370,21 @@ export default function Navbar() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products..."
+              placeholder={t('nav.searchPlaceholder')}
               className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff7a1a]/30 focus:border-[#ff7a1a]"
             />
             <button
               type="submit"
               className="px-5 py-2.5 rounded-xl bg-[#ff7a1a] text-white text-sm font-semibold hover:bg-[#e0660f] transition-colors"
             >
-              Search
+              {t('nav.search')}
             </button>
             <button
               type="button"
               onClick={() => { setSearchOpen(false); setSearchQuery('') }}
               className="px-3 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 transition-colors text-sm"
             >
-              Cancel
+              {t('nav.cancel')}
             </button>
           </form>
         </div>

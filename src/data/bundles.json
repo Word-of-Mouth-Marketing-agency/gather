@@ -3,8 +3,11 @@
     "id": "bundle-birthday-starter",
     "slug": "birthday-starter-pack",
     "name": "Birthday Starter Pack",
+    "nameAr": "باقة عيد الميلاد الأساسية",
     "badge": "Birthday Offer",
+    "badgeAr": "عرض عيد الميلاد",
     "description": "Everything you need for a simple birthday setup.",
+    "descriptionAr": "كل ما تحتاجه لتحضير عيد ميلاد بسيط.",
     "productIds": [
       "prod-1",
       "prod-5",
@@ -29,8 +32,11 @@
     "id": "bundle-movie-night",
     "slug": "movie-night-bundle",
     "name": "Movie Night Bundle",
+    "nameAr": "باقة ليلة الفيلم",
     "badge": "Gathering Offer",
+    "badgeAr": "عرض اللمة",
     "description": "Snacks, cups, and fun extras for a cozy gathering.",
+    "descriptionAr": "وجبات خفيفة وأكواب وإضافات ممتعة للمة مريحة.",
     "productIds": [
       "prod-4",
       "prod-3",

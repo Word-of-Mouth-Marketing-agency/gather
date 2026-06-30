@@ -4,7 +4,11 @@ import {
   getAllProducts,
   getCategoryById,
   getProductBySlug,
+  locName,
+  locShortDesc,
 } from '@/lib/data'
+import { getServerLocale } from '@/lib/locale-server'
+import { t } from '@/lib/translations'
 import ProductCard from '@/components/ProductCard'
 import ProductGallery from '@/components/product/ProductGallery'
 import ProductInfoPanel from '@/components/product/ProductInfoPanel'
@@ -26,17 +30,19 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const locale = await getServerLocale()
   const { slug } = await params
   const product = getProductBySlug(slug)
   if (!product) return {}
   return {
-    title: product.name,
-    description: product.shortDescription,
+    title: locName(product, locale),
+    description: locShortDesc(product, locale),
   }
 }
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params
+  const locale = await getServerLocale()
   const product = getProductBySlug(slug)
 
   if (!product) notFound()
@@ -57,13 +63,14 @@ export default async function ProductPage({ params }: Props) {
         <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.12fr)_minmax(360px,0.88fr)] gap-8 lg:gap-10 items-start">
           <ProductGallery
             images={product.images}
-            productName={product.name}
+            productName={locName(product, locale)}
             hasDiscount={isProductDiscountActive(product)}
           />
           <ProductInfoPanel
             product={product}
             categories={productCategories}
             occasions={productOccasions}
+            locale={locale}
           />
         </section>
 
@@ -84,7 +91,7 @@ export default async function ProductPage({ params }: Props) {
           <section className="mt-12 sm:mt-16">
             <AnimatedTitle
               as="h2"
-              text="Related Products"
+              text={t('product.relatedProducts', locale)}
               className="text-2xl sm:text-3xl font-bold text-[#171717] mb-6"
             />
             <GsapReveal

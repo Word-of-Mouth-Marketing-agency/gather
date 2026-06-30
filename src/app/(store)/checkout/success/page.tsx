@@ -1,11 +1,14 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { getServerLocale } from '@/lib/locale-server'
+import { t } from '@/lib/translations'
 
 export const metadata: Metadata = {
   title: 'Order Confirmed',
 }
 
-export default function CheckoutSuccessPage() {
+export default async function CheckoutSuccessPage() {
+  const locale = await getServerLocale()
   return (
     <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
       <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
@@ -13,12 +16,14 @@ export default function CheckoutSuccessPage() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
         </svg>
       </div>
-      <h1 className="text-3xl sm:text-4xl font-black text-[#171717] mb-3">Order Confirmed!</h1>
+      <h1 className="text-3xl sm:text-4xl font-black text-[#171717] mb-3">{t('checkout.thankYou', locale)}</h1>
       <p className="text-[#7a6247] mb-8">
-        Thank you for your order. We&apos;ll send you a confirmation shortly.
+        {locale === 'ar'
+          ? 'شكرًا لك على طلبك. سنرسل لك تأكيدًا قريبًا.'
+          : 'Thank you for your order. We\'ll send you a confirmation shortly.'}
       </p>
       <Link href="/shop-by-category" className="gather-btn-primary px-8 py-3.5">
-        Continue Shopping
+        {t('cart.continueShopping', locale)}
       </Link>
     </main>
   )

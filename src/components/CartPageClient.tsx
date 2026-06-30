@@ -8,6 +8,7 @@ import PageTitleSection from '@/components/PageTitleSection'
 import { addToCart, getCart, getCartProducts, getCartBundles, getUnavailableCartBundles, updateQuantity, removeFromCart } from '@/lib/cart'
 import { formatPrice, getAllProducts, getDisplayPrice } from '@/lib/data'
 import { getCartCoPurchaseSuggestions, type CoPurchaseOrder } from '@/lib/cart-suggestions'
+import { useLocale } from '@/components/LocaleProvider'
 
 type CartEntry = { product: import('@/types').Product; quantity: number; cartItem: import('@/types').ProductCartItem }
 
@@ -25,19 +26,21 @@ function CartLoadingState() {
 }
 
 function EmptyCartState() {
+  const { href, t } = useLocale()
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
       <div className="text-6xl mb-4">🛍️</div>
-      <h1 className="text-2xl font-black text-[#171717]">Your cart is empty</h1>
-      <p className="mt-2 text-gray-400 text-sm">Start shopping to fill it up.</p>
-      <Link href="/shop-by-category" className="inline-flex mt-6 gather-btn-primary">
-        Browse Products
+      <h1 className="text-2xl font-black text-[#171717]">{t('cart.empty')}</h1>
+      <p className="mt-2 text-gray-400 text-sm">{t('cart.emptyDesc')}</p>
+      <Link href={href('/shop-by-category')} className="inline-flex mt-6 gather-btn-primary">
+        {t('cart.continueShopping')}
       </Link>
     </main>
   )
 }
 
 function CartUpsellCard({ product }: { product: Product }) {
+  const { href } = useLocale()
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
 
@@ -53,7 +56,7 @@ function CartUpsellCard({ product }: { product: Product }) {
   return (
     <article className="flex items-center gap-3 rounded-[18px] border border-[#f1e2d3] bg-white p-3 shadow-[0_8px_22px_rgba(0,0,0,0.04)] transition-shadow hover:shadow-md">
       <Link
-        href={`/products/${product.slug}`}
+        href={href(`/products/${product.slug}`)}
         className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[14px] bg-[#fffaf3]"
         aria-label={product.name}
       >
@@ -74,7 +77,7 @@ function CartUpsellCard({ product }: { product: Product }) {
 
       <div className="min-w-0 flex-1">
         <Link
-          href={`/products/${product.slug}`}
+          href={href(`/products/${product.slug}`)}
           className="line-clamp-2 text-sm font-bold leading-snug text-[#171717] hover:text-[#ff7a1a]"
         >
           {product.name}
@@ -107,6 +110,7 @@ type Props = {
 }
 
 export default function CartPageClient({ coPurchaseOrders }: Props) {
+  const { href, t } = useLocale()
   const [mounted, setMounted] = useState(false)
   const [products, setProducts] = useState<CartEntry[]>([])
   const [bundles, setBundles] = useState<BundleCartItem[]>([])
@@ -129,7 +133,7 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
   if (!mounted) {
     return (
       <>
-        <PageTitleSection title="Cart" />
+        <PageTitleSection title={t('cart.title')} />
         <CartLoadingState />
       </>
     )
@@ -138,7 +142,7 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
   if (products.length === 0 && bundles.length === 0) {
     return (
       <>
-        <PageTitleSection title="Cart" />
+        <PageTitleSection title={t('cart.title')} />
         <EmptyCartState />
       </>
     )
@@ -173,10 +177,10 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
 
   return (
     <>
-      <PageTitleSection title="Cart" />
+      <PageTitleSection title={t('cart.title')} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <h1 className="text-2xl sm:text-3xl font-black text-[#171717] mb-8">
-          Your Cart ({itemCount} {itemCount === 1 ? 'item' : 'items'})
+          {t('cart.title')} ({itemCount} {itemCount === 1 ? 'item' : 'items'})
         </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -218,7 +222,7 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
                     onClick={() => handleRemove(product.id)}
                     className="text-xs text-gray-400 hover:text-red-400 transition-colors font-medium"
                   >
-                    Remove
+                    {t('cart.remove')}
                   </button>
                 </div>
               </div>
@@ -270,7 +274,7 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
                     {bundle.productsSnapshot.map((p) => (
                       <Link
                         key={p.id}
-                        href={`/products/${p.slug}`}
+                        href={href(`/products/${p.slug}`)}
                         className="flex items-center gap-1 bg-gray-50 rounded-full pr-2 pl-1 py-0.5 text-[10px] text-gray-500 hover:bg-gray-100 transition-colors"
                       >
                         <span className="w-4 h-4 rounded-full bg-white flex items-center justify-center overflow-hidden">
@@ -307,7 +311,7 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
                     onClick={() => handleRemove(bundle.id)}
                     className="text-xs text-gray-400 hover:text-red-400 transition-colors font-medium"
                   >
-                    Remove
+                    {t('cart.remove')}
                   </button>
                 </div>
               </div>
@@ -323,7 +327,7 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
 
         <div className="lg:col-span-1">
           <div className="gather-section p-6 rounded-3xl sticky top-24">
-            <h2 className="text-lg font-black text-[#171717] mb-4">Order Summary</h2>
+            <h2 className="text-lg font-black text-[#171717] mb-4">{t('cart.summary')}</h2>
 
             <div className="space-y-2 text-sm">
               {products.map(({ product, quantity, cartItem }) => (
@@ -345,11 +349,11 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
             </div>
 
             <div className="mt-4 pt-4 border-t border-[rgba(255,122,26,0.15)] flex justify-between items-center">
-              <span className="font-bold text-sm text-[#7a6247]">Subtotal</span>
+              <span className="font-bold text-sm text-[#7a6247]">{t('cart.subtotal')}</span>
               <span className="font-black text-xl text-[#ff7a1a]">{formatPrice(total, 'EGP')}</span>
             </div>
 
-            <p className="mt-2 text-xs text-gray-400">Delivery fee calculated at checkout.</p>
+            <p className="mt-2 text-xs text-gray-400">{t('cart.calculatedAtCheckout')}</p>
 
             {hasUnavailableBundles && (
               <p className="mt-4 rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-600">
@@ -358,17 +362,17 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
             )}
 
             <Link
-              href={hasUnavailableBundles ? '#' : '/checkout'}
+              href={hasUnavailableBundles ? '#' : href('/checkout')}
               aria-disabled={hasUnavailableBundles}
               className={`block w-full text-center mt-5 py-3.5 text-base shadow-lg ${
                 hasUnavailableBundles ? 'rounded-full bg-gray-100 text-gray-400 pointer-events-none' : 'gather-btn-primary'
               }`}
             >
-              Proceed to Checkout
+              {t('cart.checkout')}
             </Link>
 
-            <Link href="/shop-by-category" className="block w-full text-center mt-3 text-sm text-[#7a6247] hover:text-[#ff7a1a] font-medium transition-colors">
-              ← Continue Shopping
+            <Link href={href('/shop-by-category')} className="block w-full text-center mt-3 text-sm text-[#7a6247] hover:text-[#ff7a1a] font-medium transition-colors">
+              ← {t('cart.continueShopping')}
             </Link>
           </div>
         </div>

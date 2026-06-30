@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import PageTitleSection from '@/components/PageTitleSection'
 import { setCustomerSession } from '@/lib/customer-auth'
+import { useLocale } from '@/components/LocaleProvider'
 
 export default function SignupPage() {
   const router = useRouter()
+  const { href, t } = useLocale()
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' })
   const [acceptedDataPolicy, setAcceptedDataPolicy] = useState(false)
   const [acceptedTermsAndConditions, setAcceptedTermsAndConditions] = useState(false)
@@ -24,17 +26,17 @@ export default function SignupPage() {
     setError('')
 
     if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('signup.passwordMismatch'))
       return
     }
 
     if (form.password.length < 6) {
-      setError('Password must be at least 6 characters')
+      setError(t('signup.passwordShort'))
       return
     }
 
     if (!acceptedDataPolicy || !acceptedTermsAndConditions) {
-      setError('You must accept the Data Policy and Terms & Conditions to create an account.')
+      setError(t('signup.acceptPolicies'))
       return
     }
 
@@ -59,7 +61,7 @@ export default function SignupPage() {
       const data = await res.json()
 
       if (!res.ok) {
-        setError(data.error || 'Signup failed')
+        setError(data.error || t('signup.failed'))
         return
       }
 
@@ -67,7 +69,7 @@ export default function SignupPage() {
       router.push('/my-account')
       router.refresh()
     } catch {
-      setError('An error occurred. Please try again.')
+      setError(t('error.generic'))
     } finally {
       setLoading(false)
     }
@@ -75,11 +77,11 @@ export default function SignupPage() {
 
   return (
     <>
-      <PageTitleSection title="Create Account" />
+      <PageTitleSection title={t('signup.title')} />
       <main className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="gather-section p-8 rounded-3xl">
           <p className="text-sm text-[#7a6247] mb-6 text-center">
-            Create your Gather account to enjoy faster checkout and order tracking.
+            {t('signup.subtitle')}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -90,7 +92,7 @@ export default function SignupPage() {
             )}
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">Full name</label>
+              <label className="block text-sm font-semibold text-gray-700">{t('signup.fullName')}</label>
               <input
                 type="text"
                 value={form.name}
@@ -102,7 +104,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">Email</label>
+              <label className="block text-sm font-semibold text-gray-700">{t('signup.email')}</label>
               <input
                 type="email"
                 value={form.email}
@@ -114,7 +116,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">Phone number</label>
+              <label className="block text-sm font-semibold text-gray-700">{t('signup.phone')}</label>
               <input
                 type="tel"
                 value={form.phone}
@@ -126,7 +128,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">Password</label>
+              <label className="block text-sm font-semibold text-gray-700">{t('signup.password')}</label>
               <input
                 type="password"
                 value={form.password}
@@ -139,7 +141,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">Confirm password</label>
+              <label className="block text-sm font-semibold text-gray-700">{t('signup.confirmPassword')}</label>
               <input
                 type="password"
                 value={form.confirmPassword}
@@ -160,9 +162,9 @@ export default function SignupPage() {
                   className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-[#FE7501] focus:ring-[#FE7501]/40"
                 />
                 <span className="text-sm text-[#7a6247] leading-relaxed">
-                  I read and consent to the{' '}
-                  <Link href="/data-policy" className="text-[#ff7a1a] font-semibold hover:underline" target="_blank">
-                    Data Policy
+                  {t('signup.dataPolicy')}{' '}
+                  <Link href={href('/data-policy')} className="text-[#ff7a1a] font-semibold hover:underline" target="_blank">
+                    {t('signup.dataPolicyLink')}
                   </Link>
                   .
                 </span>
@@ -175,9 +177,9 @@ export default function SignupPage() {
                   className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-[#FE7501] focus:ring-[#FE7501]/40"
                 />
                 <span className="text-sm text-[#7a6247] leading-relaxed">
-                  I read and consent to the{' '}
-                  <Link href="/terms-and-conditions" className="text-[#ff7a1a] font-semibold hover:underline" target="_blank">
-                    Terms and Conditions
+                  {t('signup.termsAndConditions')}{' '}
+                  <Link href={href('/terms-and-conditions')} className="text-[#ff7a1a] font-semibold hover:underline" target="_blank">
+                    {t('signup.termsLink')}
                   </Link>
                   .
                 </span>
@@ -189,14 +191,14 @@ export default function SignupPage() {
               disabled={loading}
               className="w-full py-4 rounded-full bg-[#ff7a1a] text-white font-black text-base shadow-lg hover:bg-[#fe6c00] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? t('signup.submitting') : t('signup.submit')}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-[#7a6247]">
-            Already have an account?{' '}
-            <Link href="/login" className="text-[#ff7a1a] font-semibold hover:underline">
-              Sign in
+            {t('signup.haveAccount')}{' '}
+            <Link href={href('/login')} className="text-[#ff7a1a] font-semibold hover:underline">
+              {t('signup.signIn')}
             </Link>
           </p>
         </div>

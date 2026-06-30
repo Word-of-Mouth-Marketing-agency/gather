@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { getAllProducts, getProductsByCategory } from '@/lib/data'
 import { getActiveTaxonomiesByType } from '@/lib/taxonomy-data'
 import { sortProductsForTaxonomy } from '@/lib/filter-product-sorting'
+import { getServerLocale } from '@/lib/locale-server'
+import { t } from '@/lib/translations'
 
 export const dynamic = 'force-dynamic'
 import PageTitleSection from '@/components/PageTitleSection'
@@ -19,6 +21,7 @@ interface Props {
 }
 
 export default async function ShopByCategoryPage({ searchParams }: Props) {
+  const locale = await getServerLocale()
   const { category: categorySlug } = await searchParams
   const categories = getActiveTaxonomiesByType('category')
   const activeCategory = categorySlug
@@ -37,10 +40,11 @@ export default async function ShopByCategoryPage({ searchParams }: Props) {
           queryKey="category"
           items={categories}
           activeSlug={activeCategory?.slug}
+          locale={locale}
         />
 
         {products.length === 0 ? (
-          <div className="text-center py-20 text-gray-400">No products in this category yet.</div>
+          <div className="text-center py-20 text-gray-400">{t('empty.noProductsCategory', locale)}</div>
         ) : (
           <GsapReveal
             className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5"
