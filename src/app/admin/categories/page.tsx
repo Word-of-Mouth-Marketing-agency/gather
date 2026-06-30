@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, startTransition } from 'react'
-import type { Category } from '@/types'
+import type { Category, Product } from '@/types'
 
 type CategoryForm = Omit<Category, 'id'>
 
@@ -14,6 +14,7 @@ const EMPTY_FORM: CategoryForm = {
   sortOrder: 0,
   isActive: true,
   image: '',
+  topProductIds: [],
 }
 
 interface ModalState {
@@ -24,6 +25,7 @@ interface ModalState {
 
 export default function AdminCategoriesPage() {
   const [items, setItems] = useState<Category[]>([])
+  const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'category' | 'occasion'>('category')
   const [modal, setModal] = useState<ModalState>({ open: false, editing: null, form: EMPTY_FORM })
@@ -34,8 +36,12 @@ export default function AdminCategoriesPage() {
 
   async function load() {
     try {
-      const res = await fetch('/api/categories')
-      if (res.ok) setItems(await res.json())
+      const [categoriesRes, productsRes] = await Promise.all([
+        fetch('/api/categories'),
+        fetch('/api/products'),
+      ])
+      if (categoriesRes.ok) setItems(await categoriesRes.json())
+      if (productsRes.ok) setProducts(await productsRes.json())
     } catch { /* ignore */ }
     setLoading(false)
   }
@@ -75,6 +81,7 @@ export default function AdminCategoriesPage() {
         sortOrder: item.sortOrder ?? item.order ?? 0,
         isActive: item.isActive !== false,
         image: item.image,
+        topProductIds: (item.topProductIds ?? []).slice(0, 10),
       },
     })
   }
@@ -87,7 +94,40 @@ export default function AdminCategoriesPage() {
     setModal((prev) => ({ ...prev, form: { ...prev.form, [key]: value } }))
   }
 
+  const selectedTopProducts = (modal.form.topProductIds ?? [])
+    .map((id) => products.find((product) => product.id === id))
+    .filter((product): product is Product => Boolean(product))
+
+  const availableTopProducts = products
+    .filter((product) => modal.form.type === 'category'
+      ? product.categoryIds.includes(modal.editing ?? '')
+      : product.occasionIds.includes(modal.editing ?? '')
+    )
+    .sort((a, b) => a.name.localeCompare(b.name))
+
+  function addTopProduct(productId: string) {
+    if (!productId) return
+    const current = modal.form.topProductIds ?? []
+    if (current.includes(productId) || current.length >= 10) return
+    setFormField('topProductIds', [...current, productId])
+  }
+
+  function removeTopProduct(productId: string) {
+    setFormField('topProductIds', (modal.form.topProductIds ?? []).filter((id) => id !== productId))
+  }
+
+  function moveTopProduct(productId: string, direction: -1 | 1) {
+    const current = [...(modal.form.topProductIds ?? [])]
+    const index = current.indexOf(productId)
+    const nextIndex = index + direction
+    if (index < 0 || nextIndex < 0 || nextIndex >= current.length) return
+    const [item] = current.splice(index, 1)
+    current.splice(nextIndex, 0, item)
+    setFormField('topProductIds', current)
+  }
+
   async function handleSave() {
+    if ((modal.form.topProductIds ?? []).length > 10) return
     setSaving(true)
     try {
       const isEdit = modal.editing !== null
@@ -293,6 +333,81 @@ export default function AdminCategoriesPage() {
                   className="h-5 w-5 accent-[#ff7a1a]"
                 />
               </label>
+              <div className="rounded-xl border border-gray-200 px-3 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Top products</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Choose up to 10 products to show first for this {modal.form.type}.
+                    </p>
+                  </div>
+                  <span className={`text-xs font-bold ${selectedTopProducts.length >= 10 ? 'text-red-500' : 'text-gray-400'}`}>
+                    {selectedTopProducts.length}/10
+                  </span>
+                </div>
+
+                {!modal.editing ? (
+                  <p className="mt-3 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-500">
+                    Save this {modal.form.type} first, then edit it to choose top products.
+                  </p>
+                ) : (
+                  <>
+                    <select
+                      value=""
+                      onChange={(e) => addTopProduct(e.target.value)}
+                      disabled={selectedTopProducts.length >= 10}
+                      className="mt-3 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-[#ff7a1a] disabled:opacity-50"
+                    >
+                      <option value="">Add a product...</option>
+                      {availableTopProducts
+                        .filter((product) => !(modal.form.topProductIds ?? []).includes(product.id))
+                        .map((product) => (
+                          <option key={product.id} value={product.id}>{product.name}</option>
+                        ))}
+                    </select>
+
+                    {availableTopProducts.length === 0 && (
+                      <p className="mt-2 text-xs text-gray-400">
+                        No products are assigned to this {modal.form.type} yet.
+                      </p>
+                    )}
+
+                    {selectedTopProducts.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {selectedTopProducts.map((product, index) => (
+                          <div key={product.id} className="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-2">
+                            <span className="w-5 text-xs font-black text-gray-400">{index + 1}</span>
+                            <span className="min-w-0 flex-1 truncate text-sm font-semibold text-gray-700">{product.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => moveTopProduct(product.id, -1)}
+                              disabled={index === 0}
+                              className="rounded-lg px-2 py-1 text-xs font-bold text-gray-500 hover:bg-white disabled:opacity-30"
+                            >
+                              Up
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveTopProduct(product.id, 1)}
+                              disabled={index === selectedTopProducts.length - 1}
+                              className="rounded-lg px-2 py-1 text-xs font-bold text-gray-500 hover:bg-white disabled:opacity-30"
+                            >
+                              Down
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeTopProduct(product.id)}
+                              className="rounded-lg px-2 py-1 text-xs font-bold text-red-400 hover:bg-red-50"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
               <div>
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Image URL</label>
                 {modal.form.image && (

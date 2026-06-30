@@ -10,6 +10,9 @@ export interface Product {
   salePrice: number | null
   discountStartsAt?: string
   discountEndsAt?: string
+  soldCount?: number
+  orderCount?: number
+  sortOrder?: number
   currency: string
   images: string[]
   categoryIds: string[]
@@ -65,6 +68,7 @@ export interface Category {
   parentId: string | null
   sortOrder: number
   isActive: boolean
+  topProductIds?: string[]
   order?: number
 }
 

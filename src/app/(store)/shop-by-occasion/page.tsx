@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getAllProducts, getProductsByOccasion } from '@/lib/data'
 import { getActiveTaxonomiesByType } from '@/lib/taxonomy-data'
+import { sortProductsForTaxonomy } from '@/lib/filter-product-sorting'
 
 export const dynamic = 'force-dynamic'
 import PageTitleSection from '@/components/PageTitleSection'
@@ -24,7 +25,7 @@ export default async function ShopByOccasionPage({ searchParams }: Props) {
     ? occasions.find((occasion) => occasion.slug === tag)
     : undefined
   const products = activeOccasion
-    ? getProductsByOccasion(activeOccasion.id)
+    ? sortProductsForTaxonomy(getProductsByOccasion(activeOccasion.id), activeOccasion)
     : getAllProducts()
 
   return (

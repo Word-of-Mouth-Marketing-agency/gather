@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getProductsByOccasion } from '@/lib/data'
 import { getActiveTaxonomiesByType, getTaxonomyBySlug } from '@/lib/taxonomy-data'
+import { sortProductsForTaxonomy } from '@/lib/filter-product-sorting'
 
 export const dynamic = 'force-dynamic'
 import ProductCard from '@/components/ProductCard'
@@ -33,7 +34,7 @@ export default async function OccasionDetailPage({ params }: Props) {
 
   if (!occasion || occasion.type !== 'occasion' || occasion.isActive === false) notFound()
 
-  const products = getProductsByOccasion(occasion.id)
+  const products = sortProductsForTaxonomy(getProductsByOccasion(occasion.id), occasion)
 
   return (
     <>

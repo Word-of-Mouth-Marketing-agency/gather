@@ -42,6 +42,10 @@ const PRODUCTS_FILE = 'products.json'
 const CATEGORIES_FILE = 'categories.json'
 const BUNDLES_FILE = 'bundles.json'
 
+function normalizeTopProductIds(ids?: string[]): string[] {
+  return [...new Set(ids ?? [])].filter(Boolean).slice(0, 10)
+}
+
 export class JsonProductRepository implements ProductRepository {
   getAll(): Product[] {
     return readJson<Product[]>(PRODUCTS_FILE)
@@ -98,6 +102,7 @@ export class JsonCategoryRepository implements CategoryRepository {
       id: generateId('cat'),
       sortOrder: data.sortOrder ?? data.order ?? 0,
       isActive: data.isActive ?? true,
+      topProductIds: normalizeTopProductIds(data.topProductIds),
     }
     items.push(item)
     writeJson(CATEGORIES_FILE, items)
@@ -108,7 +113,13 @@ export class JsonCategoryRepository implements CategoryRepository {
     const items = this.getAll()
     const idx = items.findIndex((c) => c.id === id)
     if (idx < 0) return undefined
-    items[idx] = { ...items[idx], ...data }
+    items[idx] = {
+      ...items[idx],
+      ...data,
+      topProductIds: data.topProductIds === undefined
+        ? items[idx].topProductIds
+        : normalizeTopProductIds(data.topProductIds),
+    }
     writeJson(CATEGORIES_FILE, items)
     return items[idx]
   }

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getProductsByCategory } from '@/lib/data'
 import { getActiveTaxonomiesByType, getTaxonomyBySlug } from '@/lib/taxonomy-data'
+import { sortProductsForTaxonomy } from '@/lib/filter-product-sorting'
 import ProductCard from '@/components/ProductCard'
 import PageTitleSection from '@/components/PageTitleSection'
 import GsapReveal from '@/components/GsapReveal'
@@ -33,7 +34,7 @@ export default async function CategoryDetailPage({ params }: Props) {
 
   if (!category || category.type !== 'category' || category.isActive === false) notFound()
 
-  const products = getProductsByCategory(category.id)
+  const products = sortProductsForTaxonomy(getProductsByCategory(category.id), category)
 
   return (
     <>
