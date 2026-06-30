@@ -10,9 +10,6 @@ export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<Review[]>([])
   const [products] = useState<Product[]>(getAllProducts())
   const [loading, setLoading] = useState(true)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editTitle, setEditTitle] = useState('')
-  const [editComment, setEditComment] = useState('')
 
   useEffect(() => {
     fetch('/api/reviews')
@@ -49,23 +46,6 @@ export default function AdminReviewsPage() {
     if (res.ok) {
       setReviews((prev) => prev.filter((r) => r.id !== id))
     }
-  }
-
-  const startEdit = (review: Review) => {
-    setEditingId(review.id)
-    setEditTitle(review.title || '')
-    setEditComment(review.comment)
-  }
-
-  const saveEdit = async (id: string) => {
-    await updateReview(id, { title: editTitle, comment: editComment })
-    setEditingId(null)
-  }
-
-  const cancelEdit = () => {
-    setEditingId(null)
-    setEditTitle('')
-    setEditComment('')
   }
 
   if (loading) {
@@ -124,48 +104,13 @@ export default function AdminReviewsPage() {
                       <span>{new Date(review.createdAt).toLocaleDateString()}</span>
                     </div>
 
-                    {editingId === review.id ? (
-                      <div className="space-y-3">
-                        <input
-                          type="text"
-                          value={editTitle}
-                          onChange={(e) => setEditTitle(e.target.value)}
-                          placeholder="Title (optional)"
-                          className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a]"
-                        />
-                        <textarea
-                          value={editComment}
-                          onChange={(e) => setEditComment(e.target.value)}
-                          rows={3}
-                          className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] resize-none"
-                        />
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => saveEdit(review.id)}
-                            className="px-3 py-1.5 rounded-lg bg-[#ff7a1a] text-white text-xs font-bold hover:bg-[#e06c0f] transition-colors"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={cancelEdit}
-                            className="px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 text-xs font-bold hover:bg-gray-200 transition-colors"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        {review.title && (
-                          <p className="text-sm font-bold text-gray-900 mb-1">{review.title}</p>
-                        )}
-                        <p className="text-sm text-gray-600">{review.comment}</p>
-                      </>
+                    {review.title && (
+                      <p className="text-sm font-bold text-gray-900 mb-1">{review.title}</p>
                     )}
+                    <p className="text-sm text-gray-600">{review.comment}</p>
                   </div>
 
-                  {editingId !== review.id && (
-                    <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0">
                       {review.status === 'pending' && (
                         <>
                           <button
@@ -207,15 +152,6 @@ export default function AdminReviewsPage() {
                         </button>
                       )}
                       <button
-                        onClick={() => startEdit(review)}
-                        className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
-                        title="Edit"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                      <button
                         onClick={() => deleteReview(review.id)}
                         className="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors"
                         title="Delete"
@@ -225,7 +161,6 @@ export default function AdminReviewsPage() {
                         </svg>
                       </button>
                     </div>
-                  )}
                 </div>
               </div>
             ))}

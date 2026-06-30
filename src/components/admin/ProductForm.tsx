@@ -59,7 +59,11 @@ export default function ProductForm({ initialData, productId }: Props) {
   const [uploading, setUploading] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [occasions, setOccasions] = useState<Category[]>([])
-  const fileRef = useRef<HTMLInputElement>(null)
+  const featuredFileRef = useRef<HTMLInputElement>(null)
+  const galleryFileRef = useRef<HTMLInputElement>(null)
+
+  const featuredImage = form.images[0] ?? ''
+  const galleryImages = form.images.slice(1)
 
   useEffect(() => {
     async function load() {
@@ -92,26 +96,48 @@ export default function ProductForm({ initialData, productId }: Props) {
       : [...form.occasionIds, id])
   }
 
-  async function handleUpload(files: FileList | null) {
+  async function uploadFile(file: File): Promise<string | null> {
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await fetch('/api/media/upload', { method: 'POST', body: fd })
+    if (!res.ok) return null
+    const asset = await res.json()
+    return asset.url
+  }
+
+  async function handleFeaturedUpload(files: FileList | null) {
+    const file = files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const url = await uploadFile(file)
+      if (url) setField('images', [url, ...galleryImages])
+    } catch { /* ignore */ }
+    setUploading(false)
+    if (featuredFileRef.current) featuredFileRef.current.value = ''
+  }
+
+  async function handleGalleryUpload(files: FileList | null) {
     if (!files || files.length === 0) return
     setUploading(true)
     try {
+      const uploaded: string[] = []
       for (const file of Array.from(files)) {
-        const fd = new FormData()
-        fd.append('file', file)
-        const res = await fetch('/api/media/upload', { method: 'POST', body: fd })
-        if (res.ok) {
-          const asset = await res.json()
-          setField('images', [...form.images, asset.url])
-        }
+        const url = await uploadFile(file)
+        if (url) uploaded.push(url)
       }
+      if (uploaded.length > 0) setField('images', [featuredImage, ...galleryImages, ...uploaded].filter(Boolean))
     } catch { /* ignore */ }
     setUploading(false)
-    if (fileRef.current) fileRef.current.value = ''
+    if (galleryFileRef.current) galleryFileRef.current.value = ''
   }
 
-  function removeImage(idx: number) {
-    setField('images', form.images.filter((_, i) => i !== idx))
+  function removeFeaturedImage() {
+    setField('images', galleryImages)
+  }
+
+  function removeGalleryImage(idx: number) {
+    setField('images', [featuredImage, ...galleryImages.filter((_, i) => i !== idx)].filter(Boolean))
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -286,34 +312,87 @@ export default function ProductForm({ initialData, productId }: Props) {
 
       {/* Images */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
-        <h2 className="text-lg font-black text-gray-900">Images</h2>
-        <div className="flex flex-wrap gap-3">
-          {form.images.map((url, i) => (
-            <div key={i} className="relative w-24 h-24 rounded-xl overflow-hidden bg-gray-100 group">
-              <Image src={url} alt={`Product ${i + 1}`} fill className="object-cover" sizes="96px" />
+        <div>
+          <h2 className="text-lg font-black text-gray-900">Product Images</h2>
+          <p className="mt-1 text-xs text-gray-400">The featured image is used first on product cards and as the main detail image.</p>
+        </div>
+
+        <div className="space-y-3">
+          <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Featured Image</label>
+          <div className="flex flex-wrap gap-3">
+            {featuredImage ? (
+              <div className="relative w-28 h-28 rounded-xl overflow-hidden bg-gray-100 group">
+                <Image src={featuredImage} alt="Featured product image" fill className="object-cover" sizes="112px" />
+                <button
+                  type="button"
+                  onClick={removeFeaturedImage}
+                  className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  &times;
+                </button>
+              </div>
+            ) : (
               <button
                 type="button"
-                onClick={() => removeImage(i)}
-                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={() => featuredFileRef.current?.click()}
+                className="w-28 h-28 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#ff7a1a] transition-colors text-gray-400 hover:text-[#ff7a1a]"
               >
-                ✕
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="text-[10px] font-semibold">{uploading ? '...' : 'Add featured'}</span>
               </button>
-            </div>
-          ))}
-          <label className="w-24 h-24 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#ff7a1a] transition-colors text-gray-400 hover:text-[#ff7a1a]">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            <span className="text-[10px] font-semibold">{uploading ? '...' : 'Add'}</span>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => handleUpload(e.target.files)}
-              className="hidden"
-            />
-          </label>
+            )}
+          </div>
+          {featuredImage && (
+            <button
+              type="button"
+              onClick={() => featuredFileRef.current?.click()}
+              disabled={uploading}
+              className="rounded-xl border border-gray-200 px-3 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+            >
+              {uploading ? 'Uploading...' : 'Replace featured image'}
+            </button>
+          )}
+          <input
+            ref={featuredFileRef}
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleFeaturedUpload(e.target.files)}
+            className="hidden"
+          />
+        </div>
+
+        <div className="space-y-3 border-t border-gray-100 pt-4">
+          <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Product Gallery Images</label>
+          <div className="flex flex-wrap gap-3">
+            {galleryImages.map((url, i) => (
+              <div key={`${url}-${i}`} className="relative w-24 h-24 rounded-xl overflow-hidden bg-gray-100 group">
+                <Image src={url} alt={`Product gallery ${i + 1}`} fill className="object-cover" sizes="96px" />
+                <button
+                  type="button"
+                  onClick={() => removeGalleryImage(i)}
+                  className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+            <label className="w-24 h-24 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#ff7a1a] transition-colors text-gray-400 hover:text-[#ff7a1a]">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              <span className="text-[10px] font-semibold">{uploading ? '...' : 'Add gallery'}</span>
+              <input
+                ref={galleryFileRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => handleGalleryUpload(e.target.files)}
+                className="hidden"
+              />
+            </label>
+          </div>
         </div>
       </div>
 

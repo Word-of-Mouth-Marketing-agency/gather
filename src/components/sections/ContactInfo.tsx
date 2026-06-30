@@ -3,6 +3,7 @@ import type { ContactSocialLinks } from '@/types'
 interface Props {
   infoTitle: string
   infoBody: string
+  whatsappNumber?: string
   socialLinks: ContactSocialLinks
 }
 
@@ -29,13 +30,19 @@ const socialIcons: Record<string, React.ReactNode> = {
   ),
 }
 
-export default function ContactInfo({ infoTitle, infoBody, socialLinks }: Props) {
+function whatsappHref(number?: string): string {
+  const digits = (number ?? '').replace(/\D/g, '')
+  return digits ? `https://wa.me/${digits}` : ''
+}
+
+export default function ContactInfo({ infoTitle, infoBody, whatsappNumber, socialLinks }: Props) {
   const links = [
     { key: 'facebook', href: socialLinks.facebook, label: 'Facebook' },
     { key: 'instagram', href: socialLinks.instagram, label: 'Instagram' },
     { key: 'tiktok', href: socialLinks.tiktok, label: 'TikTok' },
     { key: 'youtube', href: socialLinks.youtube, label: 'YouTube' },
   ].filter((l) => l.href)
+  const whatsappLink = whatsappHref(whatsappNumber)
 
   return (
     <div>
@@ -45,6 +52,17 @@ export default function ContactInfo({ infoTitle, infoBody, socialLinks }: Props)
       <p className="mt-5 text-base sm:text-lg text-[#7a6247] leading-relaxed">
         {infoBody}
       </p>
+
+      {whatsappLink && (
+        <a
+          href={whatsappLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#fff4e8] px-5 py-3 text-sm font-black text-[#171717] transition-colors hover:bg-[#ff7a1a] hover:text-white"
+        >
+          WhatsApp: {whatsappNumber}
+        </a>
+      )}
 
       {links.length > 0 && (
         <div className="flex items-center gap-4 mt-8">

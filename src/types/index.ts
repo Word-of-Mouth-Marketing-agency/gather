@@ -300,6 +300,7 @@ export interface ContactPageContent {
   infoBody: string
   formTitle: string
   recipientEmail: string
+  whatsappNumber?: string
   socialLinks: ContactSocialLinks
   updatedAt: string
 }

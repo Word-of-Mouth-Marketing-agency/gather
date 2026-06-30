@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import PageTitleSection from '@/components/PageTitleSection'
 import ContactInfo from '@/components/sections/ContactInfo'
 import ContactForm from '@/components/sections/ContactForm'
-import { getContactPageContent } from '@/lib/data'
+import { readJson } from '@/lib/db'
+import type { ContactPageContent } from '@/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 }
 
 export default function ContactPage() {
-  const content = getContactPageContent()
+  const content = readJson<ContactPageContent>('contact.json')
   const accentWord = content.pageTitle.split(' ').pop() || 'Us'
 
   return (
@@ -25,6 +26,7 @@ export default function ContactPage() {
             <ContactInfo
               infoTitle={content.infoTitle}
               infoBody={content.infoBody}
+              whatsappNumber={content.whatsappNumber}
               socialLinks={content.socialLinks}
             />
             <ContactForm
