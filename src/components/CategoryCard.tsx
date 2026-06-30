@@ -1,13 +1,12 @@
 import Link from 'next/link'
 import type { Category } from '@/types'
-import { useLocale } from '@/components/LocaleProvider'
 
 interface Props {
   category: Category
+  locale?: string
 }
 
-export default function CategoryCard({ category }: Props) {
-  const { locale } = useLocale()
+export default function CategoryCard({ category, locale }: Props) {
   const name = locale === 'ar' ? category.nameAr ?? category.name : category.name
   const image = category.image || '/assets/gather/categories/decorations.png'
   const href =

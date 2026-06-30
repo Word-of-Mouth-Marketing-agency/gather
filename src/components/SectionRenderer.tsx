@@ -14,9 +14,10 @@ import GatherMomentsSection from './sections/GatherMomentsSection'
 
 interface Props {
   sections: Section[]
+  locale?: string
 }
 
-export default function SectionRenderer({ sections }: Props) {
+export default function SectionRenderer({ sections, locale }: Props) {
   const visible = [...sections]
     .filter((s) => s.visible)
     .sort((a, b) => a.order - b.order)
@@ -24,13 +25,13 @@ export default function SectionRenderer({ sections }: Props) {
   return (
     <div className="flex flex-col">
       {visible.map((section) => (
-        <SectionSwitch key={section.id} section={section} />
+        <SectionSwitch key={section.id} section={section} locale={locale} />
       ))}
     </div>
   )
 }
 
-function SectionSwitch({ section }: { section: Section }) {
+function SectionSwitch({ section, locale }: { section: Section; locale?: string }) {
   const type = section.type as SectionType
 
   switch (type) {
@@ -52,6 +53,7 @@ function SectionSwitch({ section }: { section: Section }) {
         <CategoryGridSection
           {...(section.props as React.ComponentProps<typeof CategoryGridSection>)}
           type="category"
+          locale={locale}
         />
       )
 
@@ -60,6 +62,7 @@ function SectionSwitch({ section }: { section: Section }) {
         <CategoryGridSection
           {...(section.props as React.ComponentProps<typeof CategoryGridSection>)}
           type="occasion"
+          locale={locale}
         />
       )
 

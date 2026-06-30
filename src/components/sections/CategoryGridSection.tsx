@@ -4,7 +4,11 @@ import CategoryCard from '@/components/CategoryCard'
 import AnimatedTitle from '@/components/AnimatedTitle'
 import GsapReveal from '@/components/GsapReveal'
 
-export default function CategoryGridSection({ title, subtitle, type, limit }: CategoryGridSectionProps) {
+interface Props extends CategoryGridSectionProps {
+  locale?: string
+}
+
+export default function CategoryGridSection({ title, subtitle, type, limit, locale }: Props) {
   const categories = getActiveTaxonomiesByType(type, limit)
 
   if (categories.length === 0) return null
@@ -27,7 +31,7 @@ export default function CategoryGridSection({ title, subtitle, type, limit }: Ca
         >
           {categories.map((category) => (
             <div key={category.id} data-reveal-item>
-              <CategoryCard category={category} />
+              <CategoryCard category={category} locale={locale} />
             </div>
           ))}
         </GsapReveal>
