@@ -36,7 +36,7 @@ export default function AnimatedTitle({
         const isAccent = accentWord ? token.toLowerCase() === accentWord.toLowerCase() : false
 
         return (
-          <span key={`${token}-${index}`} className="inline-block overflow-hidden align-bottom">
+          <span key={`${token}-${index}`} className="inline-block overflow-hidden align-bottom pb-[0.12em]">
             <span
               data-title-word-inner
               className={`inline-block will-change-transform ${isAccent ? accentClassName : ''}`}
