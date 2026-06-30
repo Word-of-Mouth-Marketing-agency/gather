@@ -99,7 +99,7 @@ export default function SignupPage() {
                 onChange={(e) => setFn('name', e.target.value)}
                 required
                 className="w-full min-h-[50px] rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20 transition-colors"
-                placeholder="Ahmed Hassan"
+                placeholder={t('signup.namePlaceholder')}
               />
             </div>
 
@@ -111,7 +111,7 @@ export default function SignupPage() {
                 onChange={(e) => setFn('email', e.target.value)}
                 required
                 className="w-full min-h-[50px] rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20 transition-colors"
-                placeholder="ahmed@example.com"
+                placeholder={t('forgotPassword.placeholder')}
               />
             </div>
 
@@ -123,7 +123,7 @@ export default function SignupPage() {
                 onChange={(e) => setFn('phone', e.target.value)}
                 required
                 className="w-full min-h-[50px] rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20 transition-colors"
-                placeholder="+20 10 0000 0000"
+                placeholder={t('checkout.phonePlaceholder')}
               />
             </div>
 
@@ -136,7 +136,7 @@ export default function SignupPage() {
                 required
                 minLength={6}
                 className="w-full min-h-[50px] rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20 transition-colors"
-                placeholder="At least 6 characters"
+                placeholder={t('signup.passwordPlaceholder')}
               />
             </div>
 
@@ -149,7 +149,7 @@ export default function SignupPage() {
                 required
                 minLength={6}
                 className="w-full min-h-[50px] rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20 transition-colors"
-                placeholder="Repeat your password"
+                placeholder={t('signup.confirmPlaceholder')}
               />
             </div>
 

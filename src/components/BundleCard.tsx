@@ -6,12 +6,14 @@ import type { Bundle } from '@/types'
 import { getBundleProducts, formatPrice } from '@/lib/data'
 import { addBundleToCart } from '@/lib/cart'
 import { isBundlePurchasable } from '@/lib/scheduled-discounts'
+import { useLocale } from '@/components/LocaleProvider'
 
 interface Props {
   bundle: Bundle
 }
 
 export default function BundleCard({ bundle }: Props) {
+  const { locale, t } = useLocale()
   const [added, setAdded] = useState(false)
   const products = getBundleProducts(bundle)
   const canBuy = isBundlePurchasable(bundle)
@@ -29,10 +31,10 @@ export default function BundleCard({ bundle }: Props) {
       <div className="flex flex-col lg:flex-row">
         <div className="flex-1 p-5 sm:p-6 lg:p-8">
           <span className="inline-block text-xs font-black uppercase tracking-wider text-[#ff7a1a] bg-[#fff4e8] px-3 py-1 rounded-full mb-3">
-            {bundle.badge}
+            {locale === 'ar' ? bundle.badgeAr ?? bundle.badge : bundle.badge}
           </span>
 
-          <h3 className="text-xl sm:text-2xl font-bold text-[#171717]">{bundle.name}</h3>
+          <h3 className="text-xl sm:text-2xl font-bold text-[#171717]">{locale === 'ar' ? bundle.nameAr ?? bundle.name : bundle.name}</h3>
           <p className="mt-1 text-sm text-[#7a6247]">{bundle.description}</p>
 
           <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3">
@@ -66,14 +68,14 @@ export default function BundleCard({ bundle }: Props) {
         <div className="lg:w-64 bg-[#FDF6EE] p-5 sm:p-6 lg:p-8 flex flex-col justify-center gap-4 border-t lg:border-t-0 lg:border-l border-[#f1e2d3]">
           <div>
             <p className="text-xs font-semibold text-[#7a6247] uppercase tracking-wide mb-2">
-              Total products price
+              {t('bundle.totalProductsPrice')}
             </p>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-[#7a6247]">Before</span>
+              <span className="text-[#7a6247]">{t('bundle.before')}</span>
               <del className="text-gray-400">{formatPrice(bundle.regularPrice ?? 0, bundle.currency)}</del>
             </div>
             <div className="flex items-center justify-between text-base mt-1">
-              <span className="font-semibold text-[#171717]">Offer price</span>
+              <span className="font-semibold text-[#171717]">{t('bundle.offerPrice')}</span>
               <strong className="text-lg font-black text-[#ff7a1a]">
                 {formatPrice(bundle.offerPrice, bundle.currency)}
               </strong>
@@ -91,7 +93,7 @@ export default function BundleCard({ bundle }: Props) {
                 : 'bg-[#ff7a1a] text-white hover:-translate-y-0.5 hover:opacity-90 active:translate-y-0'
             }`}
           >
-            {added ? '✓ Added to Cart' : canBuy ? bundle.buttonText || 'Buy Offer' : 'Offer unavailable'}
+            {added ? t('bundle.addedToCart') : canBuy ? bundle.buttonText || t('bundle.buyOffer') : t('bundle.offerUnavailable')}
           </button>
         </div>
       </div>

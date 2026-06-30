@@ -4,12 +4,16 @@ import AnimatedTitle from '@/components/AnimatedTitle'
 import GsapReveal from '@/components/GsapReveal'
 import { getAboutPageContent } from '@/lib/data'
 import { getServerLocale } from '@/lib/locale-server'
+import { t } from '@/lib/translations'
 
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  title: 'About Gather',
-  description: 'Learn about Gather and how we make celebrations easier.',
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale()
+  return {
+    title: t('meta.about', locale),
+    description: 'Learn about Gather and how we make celebrations easier.',
+  }
 }
 
 export default async function AboutPage() {

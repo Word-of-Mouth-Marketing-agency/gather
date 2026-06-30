@@ -6,8 +6,10 @@ import PageTitleSection from '@/components/PageTitleSection'
 import Link from 'next/link'
 import SignInPrompt from '@/components/SignInPrompt'
 import type { Order } from '@/lib/orders'
+import { useLocale } from '@/components/LocaleProvider'
 
 export default function OrdersPage() {
+  const { locale, href, t } = useLocale()
   const session = useCustomerSession()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -25,21 +27,21 @@ export default function OrdersPage() {
 
   return (
     <>
-      <PageTitleSection title="My Orders" />
+      <PageTitleSection title={t('orders.title')} />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="mb-6">
-          <Link href="/my-account" className="text-sm text-[#ff7a1a] font-semibold hover:underline">&larr; Back to Account</Link>
+          <Link href={href('/my-account')} className="text-sm text-[#ff7a1a] font-semibold hover:underline">{t('orders.back')}</Link>
         </div>
 
         {loading ? (
-          <div className="text-center py-16 text-[#7a6247]">Loading orders...</div>
+          <div className="text-center py-16 text-[#7a6247]">{t('orders.loading')}</div>
         ) : orders.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-4xl mb-4">📦</div>
-            <h2 className="text-xl font-black text-[#171717]">No orders yet</h2>
-            <p className="text-sm text-[#7a6247] mt-2">Start shopping to see your orders here.</p>
-            <Link href="/shop-by-category" className="inline-flex mt-4 gather-btn-primary">
-              Browse Products
+            <h2 className="text-xl font-black text-[#171717]">{t('orders.empty')}</h2>
+            <p className="text-sm text-[#7a6247] mt-2">{t('orders.emptyDesc')}</p>
+            <Link href={href('/shop-by-category')} className="inline-flex mt-4 gather-btn-primary">
+              {t('orders.browse')}
             </Link>
           </div>
         ) : (
@@ -61,13 +63,13 @@ export default function OrdersPage() {
                   </span>
                 </div>
                 <div className="text-sm text-[#7a6247] space-y-1">
-                  <p>Items: {order.items.length}</p>
-                  <p>Total: {order.total.toLocaleString('en-EG')} {order.currency}</p>
-                  <p>Delivery: {order.delivery.address}, {order.delivery.city} — {order.delivery.date} ({order.delivery.slot})</p>
+                  <p>{t('orders.items')}: {order.items.length}</p>
+                  <p>{t('orders.total')}: {order.total.toLocaleString('en-EG')} {order.currency}</p>
+                  <p>{t('orders.delivery')}: {order.delivery.address}, {order.delivery.city} — {order.delivery.date} ({order.delivery.slot})</p>
                 </div>
                 {order.notes && (
                   <p className="mt-2 text-xs text-[#6b4b00] bg-[#fff7df] border border-[#f1d38a] rounded-lg px-3 py-2">
-                    Notes: {order.notes}
+                    {t('orders.notes')}: {order.notes}
                   </p>
                 )}
               </div>

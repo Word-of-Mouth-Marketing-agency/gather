@@ -119,7 +119,7 @@ function ResetPasswordForm() {
                 required
                 minLength={6}
                 className="w-full min-h-[50px] rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20 transition-colors"
-                placeholder="At least 6 characters"
+                placeholder={t('resetPassword.passwordPlaceholder')}
               />
             </div>
 
@@ -132,7 +132,7 @@ function ResetPasswordForm() {
                 required
                 minLength={6}
                 className="w-full min-h-[50px] rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20 transition-colors"
-                placeholder="Confirm your password"
+                placeholder={t('resetPassword.confirmPlaceholder')}
               />
             </div>
 

@@ -9,6 +9,7 @@ export default function AdminContactEditorPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [lang, setLang] = useState<'en' | 'ar'>('en')
 
   useEffect(() => {
     fetch('/api/pages/contact')
@@ -140,18 +141,51 @@ export default function AdminContactEditorPage() {
         </div>
       )}
 
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setLang('en')}
+          className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-colors ${lang === 'en' ? 'bg-[#ff7a1a] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+        >
+          English
+        </button>
+        <button
+          onClick={() => setLang('ar')}
+          className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-colors ${lang === 'ar' ? 'bg-[#ff7a1a] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+        >
+          العربية
+        </button>
+      </div>
+
       <SectionPanel title="Page Settings" description="General settings for the Contact page.">
-        <Field label="Page Title" value={content.pageTitle} onChange={(v) => setContent({ ...content, pageTitle: v })} hint='Shown in the page title banner. The accent word will be highlighted.' />
+        <Field label="Page Title" value={lang === 'ar' ? (content.ar?.pageTitle || content.pageTitle) : content.pageTitle} onChange={(v) => {
+          if (lang === 'ar') {
+            setContent({ ...content, ar: { ...content.ar, pageTitle: v } })
+          } else {
+            setContent({ ...content, pageTitle: v })
+          }
+        }} hint='Shown in the page title banner. The accent word will be highlighted.' />
       </SectionPanel>
 
       <SectionPanel title="Contact Info Section" description="The left column with title, description, and social media links.">
         <div className="space-y-4">
-          <Field label="Info Title" value={content.infoTitle} onChange={(v) => setContent({ ...content, infoTitle: v })} hint="Heading shown next to the contact form" />
+          <Field label="Info Title" value={lang === 'ar' ? (content.ar?.infoTitle || content.infoTitle) : content.infoTitle} onChange={(v) => {
+            if (lang === 'ar') {
+              setContent({ ...content, ar: { ...content.ar, infoTitle: v } })
+            } else {
+              setContent({ ...content, infoTitle: v })
+            }
+          }} hint="Heading shown next to the contact form" />
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-500">Info Body Text</label>
             <textarea
-              value={content.infoBody}
-              onChange={(e) => setContent({ ...content, infoBody: e.target.value })}
+              value={lang === 'ar' ? (content.ar?.infoBody || content.infoBody) : content.infoBody}
+              onChange={(e) => {
+                if (lang === 'ar') {
+                  setContent({ ...content, ar: { ...content.ar, infoBody: e.target.value } })
+                } else {
+                  setContent({ ...content, infoBody: e.target.value })
+                }
+              }}
               rows={4}
               className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] resize-none"
             />
@@ -161,7 +195,13 @@ export default function AdminContactEditorPage() {
 
       <SectionPanel title="Contact Form" description="Settings for the contact form on the right side.">
         <div className="space-y-4">
-          <Field label="Form Title" value={content.formTitle} onChange={(v) => setContent({ ...content, formTitle: v })} hint="Heading shown above the contact form" />
+          <Field label="Form Title" value={lang === 'ar' ? (content.ar?.formTitle || content.formTitle) : content.formTitle} onChange={(v) => {
+            if (lang === 'ar') {
+              setContent({ ...content, ar: { ...content.ar, formTitle: v } })
+            } else {
+              setContent({ ...content, formTitle: v })
+            }
+          }} hint="Heading shown above the contact form" />
           <Field label="Recipient Email" value={content.recipientEmail} onChange={(v) => setContent({ ...content, recipientEmail: v })} hint="Email address where contact form submissions will be sent (future email integration)" />
           <Field label="WhatsApp Number" value={content.whatsappNumber ?? ''} onChange={(v) => setContent({ ...content, whatsappNumber: v })} hint="Used for the contact page WhatsApp link. Include country code, e.g. +20123456789." />
         </div>

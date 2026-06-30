@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLocale } from '@/components/LocaleProvider'
 
 interface Props {
   formTitle: string
@@ -8,13 +9,12 @@ interface Props {
   locale?: string
 }
 
-export default function ContactForm({ formTitle, recipientEmail, locale = 'en' }: Props) {
+export default function ContactForm({ formTitle, recipientEmail }: Props) {
+  const { t } = useLocale()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [submitted, setSubmitted] = useState(false)
-
-  const isAr = locale === 'ar'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,10 +39,10 @@ export default function ContactForm({ formTitle, recipientEmail, locale = 'en' }
           </svg>
         </div>
         <h3 className="text-2xl font-bold text-[#171717] mb-2">
-          {isAr ? 'تم إرسال الرسالة بنجاح' : 'Message sent successfully'}
+          {t('contact.successTitle')}
         </h3>
         <p className="text-[#7a6247] text-sm">
-          {isAr ? 'سنتواصل معك في أقرب وقت ممكن.' : "We'll get back to you as soon as possible."}
+          {t('contact.successBody')}
         </p>
       </div>
     )
@@ -61,7 +61,7 @@ export default function ContactForm({ formTitle, recipientEmail, locale = 'en' }
             <input
               id="contact-name"
               type="text"
-              placeholder={isAr ? 'الاسم' : 'Name'}
+              placeholder={t('contact.name')}
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -73,7 +73,7 @@ export default function ContactForm({ formTitle, recipientEmail, locale = 'en' }
             <input
               id="contact-email"
               type="email"
-              placeholder={isAr ? 'البريد الإلكتروني' : 'Email'}
+              placeholder={t('contact.email')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -86,7 +86,7 @@ export default function ContactForm({ formTitle, recipientEmail, locale = 'en' }
           <label htmlFor="contact-message" className="sr-only">Message</label>
           <textarea
             id="contact-message"
-            placeholder={isAr ? 'رسالتك' : 'Message'}
+            placeholder={t('contact.message')}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             required
@@ -99,7 +99,7 @@ export default function ContactForm({ formTitle, recipientEmail, locale = 'en' }
           type="submit"
           className="gather-btn-primary w-full justify-center py-3.5 text-base"
         >
-          {isAr ? 'إرسال الرسالة' : 'Send'}
+          {t('contact.send')}
         </button>
       </form>
     </div>

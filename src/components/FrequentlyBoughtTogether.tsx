@@ -6,12 +6,14 @@ import Link from 'next/link'
 import type { Product } from '@/types'
 import { formatPrice, getDisplayPrice } from '@/lib/data'
 import { addToCart } from '@/lib/cart'
+import { useLocale } from '@/components/LocaleProvider'
 
 interface Props {
   products: Product[]
 }
 
 export default function FrequentlyBoughtTogether({ products }: Props) {
+  const { t } = useLocale()
   const [selected, setSelected] = useState<Set<string>>(
     new Set(products.map((p) => p.id))
   )
@@ -42,8 +44,8 @@ export default function FrequentlyBoughtTogether({ products }: Props) {
   return (
     <section className="gather-section p-6 rounded-3xl">
       <div className="mb-5">
-        <h2 className="text-xl font-black text-[#171717]">Frequently Bought Together</h2>
-        <p className="mt-1 text-sm text-[#7a6247]">Complete your celebration with these recommended add-ons.</p>
+        <h2 className="text-xl font-black text-[#171717]">{t('fbt.title')}</h2>
+        <p className="mt-1 text-sm text-[#7a6247]">{t('fbt.subtitle')}</p>
       </div>
 
       <div className="space-y-3">
@@ -104,7 +106,7 @@ export default function FrequentlyBoughtTogether({ products }: Props) {
                 href={`/products/${product.slug}`}
                 className="shrink-0 inline-flex items-center justify-center h-9 px-3 rounded-full bg-[#fff4e8] text-[#ff7a1a] text-xs font-black hover:bg-[#ff7a1a] hover:text-white transition-colors"
               >
-                View
+                {t('fbt.view')}
               </Link>
             </article>
           )
@@ -114,7 +116,7 @@ export default function FrequentlyBoughtTogether({ products }: Props) {
       {/* Summary */}
       <div className="mt-4 flex items-center justify-between gap-4 p-4 bg-white rounded-[18px] border border-[#f1e2d3] shadow-[0_10px_24px_rgba(0,0,0,0.04)]">
         <div>
-          <p className="text-xs font-bold text-[#7a6247]">Selected add-ons total</p>
+          <p className="text-xs font-bold text-[#7a6247]">{t('fbt.selectedTotal')}</p>
           <p className="text-2xl font-black text-[#111]">{formatPrice(total, 'EGP')}</p>
         </div>
         <button
@@ -128,7 +130,7 @@ export default function FrequentlyBoughtTogether({ products }: Props) {
               : 'bg-[#ff7a1a] text-white hover:bg-[#fe6c00] hover:-translate-y-0.5'
           }`}
         >
-          {added ? '✓ Added!' : adding ? 'Adding...' : 'Add selected to Cart'}
+          {added ? t('fbt.addedAll') : adding ? t('fbt.adding') : t('fbt.addSelected')}
         </button>
       </div>
     </section>

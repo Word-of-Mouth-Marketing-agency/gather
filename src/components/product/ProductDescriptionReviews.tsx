@@ -6,12 +6,14 @@ import ProductRatingSummary from './ProductRatingSummary'
 import { useCustomerSession } from '@/lib/customer-auth'
 import StarRating from '@/components/StarRating'
 import { InteractiveStarRating } from '@/components/StarRating'
+import { useLocale } from '@/components/LocaleProvider'
 
 interface Props {
   product: Product
 }
 
 export default function ProductDescriptionReviews({ product }: Props) {
+  const { locale, t } = useLocale()
   const session = useCustomerSession()
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
@@ -73,20 +75,20 @@ export default function ProductDescriptionReviews({ product }: Props) {
   return (
     <section className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.9fr] gap-6">
       <div className="rounded-[28px] border border-[#ead8c4] bg-white p-5 sm:p-7">
-        <h2 className="text-2xl sm:text-3xl font-bold text-[#171717]">Description</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-[#171717]">{t('reviews.description')}</h2>
         {product.description ? (
           <p className="mt-4 text-base font-semibold leading-8 text-[#5f4b36]">
             {product.description}
           </p>
         ) : (
           <p className="mt-4 text-base font-semibold text-[#7a6247]">
-            More details for this product are coming soon.
+            {t('reviews.comingSoon')}
           </p>
         )}
       </div>
 
       <div className="rounded-[28px] border border-[#ead8c4] bg-[#fffaf3] p-5 sm:p-7">
-        <h2 className="text-2xl sm:text-3xl font-bold text-[#171717]">Reviews / Ratings</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-[#171717]">{t('reviews.title')}</h2>
         <div className="mt-4">
           <ProductRatingSummary
             rating={averageRating}
@@ -98,7 +100,7 @@ export default function ProductDescriptionReviews({ product }: Props) {
         {submitted && (
           <div className="mt-4 p-4 rounded-2xl bg-green-50 border border-green-200">
             <p className="text-sm font-bold text-green-700">
-              Your review has been submitted and is pending approval.
+              {t('reviews.submitted')}
             </p>
           </div>
         )}
@@ -110,34 +112,34 @@ export default function ProductDescriptionReviews({ product }: Props) {
                 onClick={() => setShowForm(true)}
                 className="w-full py-3 rounded-2xl bg-[#ff7a1a] text-white font-bold text-sm hover:bg-[#e06c0f] transition-colors"
               >
-                Write a Review
+                {t('reviews.write')}
               </button>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4 p-4 rounded-2xl bg-white border border-[#ead8c4]">
                 <div>
-                  <label className="text-xs font-bold text-gray-500 mb-2 block">Rating</label>
+                  <label className="text-xs font-bold text-gray-500 mb-2 block">{t('reviews.rating')}</label>
                   <InteractiveStarRating rating={rating} onChange={setRating} size="lg" />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-gray-500 mb-1.5 block">Title (optional)</label>
+                  <label className="text-xs font-bold text-gray-500 mb-1.5 block">{t('reviews.titleOptional')}</label>
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Summarize your review"
+                    placeholder={t('reviews.summarize')}
                     className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a]"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-gray-500 mb-1.5 block">Comment</label>
+                  <label className="text-xs font-bold text-gray-500 mb-1.5 block">{t('reviews.comment')}</label>
                   <textarea
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     required
                     rows={3}
-                    placeholder="Share your experience with this product"
+                    placeholder={t('reviews.shareExperience')}
                     className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] resize-none"
                   />
                 </div>
@@ -148,14 +150,14 @@ export default function ProductDescriptionReviews({ product }: Props) {
                     disabled={submitting}
                     className="px-4 py-2 rounded-xl bg-[#ff7a1a] text-white text-sm font-bold hover:bg-[#e06c0f] disabled:opacity-50 transition-colors"
                   >
-                    {submitting ? 'Submitting...' : 'Submit Review'}
+                    {submitting ? t('reviews.submitting') : t('reviews.submit')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
                     className="px-4 py-2 rounded-xl bg-gray-100 text-gray-600 text-sm font-bold hover:bg-gray-200 transition-colors"
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </button>
                 </div>
               </form>
@@ -166,13 +168,13 @@ export default function ProductDescriptionReviews({ product }: Props) {
         {!session && (
           <div className="mt-5 p-4 rounded-2xl bg-white border border-[#ead8c4] text-center">
             <p className="text-sm font-bold text-gray-700 mb-2">
-              Want to write a review?
+              {t('reviews.wantToReview')}
             </p>
             <a
               href="/login"
               className="text-sm font-bold text-[#ff7a1a] hover:underline"
             >
-              Log in to your account
+              {t('reviews.loginToReview')}
             </a>
           </div>
         )}
@@ -196,7 +198,7 @@ export default function ProductDescriptionReviews({ product }: Props) {
                       {review.title || review.customerName}
                     </h3>
                     {review.title && (
-                      <span className="text-xs text-gray-400">by {review.customerName}</span>
+                      <span className="text-xs text-gray-400">{t('reviews.by')} {review.customerName}</span>
                     )}
                   </div>
                   <StarRating rating={review.rating} />
@@ -214,7 +216,7 @@ export default function ProductDescriptionReviews({ product }: Props) {
           </div>
         ) : (
           <p className="mt-5 rounded-2xl bg-white px-4 py-5 text-sm font-bold text-[#7a6247] border border-[#ead8c4]">
-            No reviews yet. Be the first to review this product!
+            {t('reviews.noReviews')}
           </p>
         )}
       </div>

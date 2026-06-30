@@ -11,9 +11,12 @@ import ProductCard from '@/components/ProductCard'
 import TaxonomyFilterBar from '@/components/TaxonomyFilterBar'
 import GsapReveal from '@/components/GsapReveal'
 
-export const metadata: Metadata = {
-  title: 'Shop by Category',
-  description: 'Browse all gift categories at Gather — gift boxes, flowers, chocolates, candles, balloons, and more.',
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale()
+  return {
+    title: t('meta.shopByCategory', locale),
+    description: 'Browse all gift categories at Gather — gift boxes, flowers, chocolates, candles, balloons, and more.',
+  }
 }
 
 interface Props {

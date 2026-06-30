@@ -7,8 +7,10 @@ import { getWishlist, removeFromWishlist } from '@/lib/wishlist'
 import { getAllProducts } from '@/lib/data'
 import ProductCard from '@/components/ProductCard'
 import type { Product } from '@/types'
+import { useLocale } from '@/components/LocaleProvider'
 
 export default function WishlistPage() {
+  const { locale, href, t } = useLocale()
   const [mounted, setMounted] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
 
@@ -42,7 +44,7 @@ export default function WishlistPage() {
   if (!mounted) {
     return (
       <>
-        <PageTitleSection title="Wishlist" />
+        <PageTitleSection title={t('wishlist.title')} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <div className="w-12 h-12 mx-auto rounded-full bg-gray-100 animate-pulse" />
         </main>
@@ -52,15 +54,15 @@ export default function WishlistPage() {
 
   return (
     <>
-      <PageTitleSection title="Wishlist" />
+      <PageTitleSection title={t('wishlist.title')} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <p className="text-[#7a6247] mb-8">{products.length} item{products.length !== 1 ? 's' : ''} saved</p>
+        <p className="text-[#7a6247] mb-8">{t(products.length === 1 ? 'wishlist.itemsSaved_one' : 'wishlist.itemsSaved_other', { count: products.length })}</p>
 
         {products.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-gray-400 mb-4">Your wishlist is empty</p>
-            <Link href="/shop-by-category" className="gather-btn-primary">
-              Browse Products
+            <p className="text-gray-400 mb-4">{t('wishlist.empty')}</p>
+            <Link href={href('/shop-by-category')} className="gather-btn-primary">
+              {t('wishlist.browse')}
             </Link>
           </div>
         ) : (

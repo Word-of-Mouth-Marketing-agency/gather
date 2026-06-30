@@ -7,12 +7,14 @@ import { formatPrice, getDisplayPrice } from '@/lib/data'
 import { addToCart } from '@/lib/cart'
 import { isProductDiscountActive } from '@/lib/scheduled-discounts'
 import { isInWishlist, toggleWishlist } from '@/lib/wishlist'
+import { useLocale } from '@/components/LocaleProvider'
 
 interface Props {
   product: Product
 }
 
 export default function ProductCard({ product }: Props) {
+  const { t } = useLocale()
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
   const wishlisted = useSyncExternalStore(
@@ -63,7 +65,7 @@ export default function ProductCard({ product }: Props) {
       <div className="w-full min-h-[276px] rounded-2xl bg-[#fdf6ee] px-4 pb-4 pt-[101px] shadow-[2px_4px_0_rgba(0,0,0,0.8)] flex flex-col gap-2">
         <div className="h-5">
           {hasDiscount ? (
-            <span className="inline-block text-[10px] font-black text-white bg-[#DB7100] px-2 py-0.5 rounded-md uppercase tracking-wider">SALE</span>
+            <span className="inline-block text-[10px] font-black text-white bg-[#DB7100] px-2 py-0.5 rounded-md uppercase tracking-wider">{t('product.sale')}</span>
           ) : null}
         </div>
 
@@ -95,13 +97,13 @@ export default function ProductCard({ product }: Props) {
             }`}
             aria-label={`Add ${product.name} to cart`}
           >
-            {added ? '✓ Added' : adding ? '...' : product.stock === 0 ? 'Out of stock' : 'Add to cart'}
+            {added ? t('product.addedShort') : adding ? '...' : product.stock === 0 ? t('product.outOfStock') : t('product.addToCart')}
           </button>
 
           <button
             onClick={handleToggleWishlist}
             className="shrink-0 w-11 h-11 flex items-center justify-center rounded-xl border-2 border-[#DB7100] transition-all duration-200 hover:bg-[#DB7100] group/btn"
-            aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            aria-label={wishlisted ? t('product.removeFromWishlist') : t('product.addToWishlist')}
           >
             <svg
               className={`w-5 h-5 transition-colors duration-200 ${

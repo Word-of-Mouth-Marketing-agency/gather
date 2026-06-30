@@ -156,7 +156,7 @@ export default function Navbar() {
             <button
               onClick={() => setSearchOpen(true)}
               className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Search"
+              aria-label={t('common.search')}
             >
               <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
@@ -167,7 +167,7 @@ export default function Navbar() {
             <Link
               href={href(session ? '/my-account' : '/login')}
               className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Account"
+              aria-label={t('common.account')}
             >
               {session ? (
                 <span className="w-5 h-5 rounded-full bg-[#ff7a1a] text-white text-[10px] font-bold flex items-center justify-center">
@@ -184,7 +184,7 @@ export default function Navbar() {
             <Link
               href={href("/wishlist")}
               className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Wishlist"
+              aria-label={t('common.wishlist')}
             >
               <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -195,7 +195,7 @@ export default function Navbar() {
             <button
               onClick={handleLanguageToggle}
               className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Language"
+              aria-label={t('common.language')}
               title="Language"
             >
               <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
@@ -209,7 +209,7 @@ export default function Navbar() {
             {/* Mobile burger */}
             <button
               className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              aria-label="Open menu"
+              aria-label={t('common.openMenu')}
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen(true)}
             >
@@ -225,7 +225,7 @@ export default function Navbar() {
       <div className={`fixed inset-0 z-[60] lg:hidden ${mobileOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
         <button
           type="button"
-          aria-label="Close menu"
+          aria-label={t('common.closeMenu')}
           onClick={closeMobile}
           className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${
             mobileOpen ? 'opacity-100' : 'opacity-0'
@@ -247,7 +247,7 @@ export default function Navbar() {
               type="button"
               onClick={closeMobile}
               className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff4e8] text-2xl leading-none text-[#171717]"
-              aria-label="Close menu"
+              aria-label={t('common.closeMenu')}
             >
               &times;
             </button>
@@ -293,7 +293,7 @@ export default function Navbar() {
                   href={href("/wishlist")}
                   onClick={closeMobile}
                   className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#7a6247] hover:text-[#ff7a1a]"
-                  aria-label="Wishlist"
+                  aria-label={t('common.wishlist')}
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -303,7 +303,7 @@ export default function Navbar() {
                   href={href(session ? '/my-account' : '/login')}
                   onClick={closeMobile}
                   className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#7a6247] hover:text-[#ff7a1a]"
-                  aria-label="Account"
+                  aria-label={t('common.account')}
                 >
                   {session ? (
                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#ff7a1a] text-[11px] font-black text-white">
@@ -319,7 +319,7 @@ export default function Navbar() {
                   href={href("/cart")}
                   onClick={closeMobile}
                   className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#7a6247] hover:text-[#ff7a1a]"
-                  aria-label="Cart"
+                  aria-label={t('common.cart')}
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 8h14M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
@@ -329,7 +329,7 @@ export default function Navbar() {
                   type="button"
                   onClick={handleLanguageToggle}
                   className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#7a6247] hover:text-[#ff7a1a]"
-                  aria-label="Language"
+                  aria-label={t('common.language')}
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

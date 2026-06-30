@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, startTransition } from 'react'
 import { useCustomerSession } from '@/lib/customer-auth'
+import { useLocale } from '@/components/LocaleProvider'
 
 interface Props {
   open: boolean
@@ -10,6 +11,35 @@ interface Props {
 
 export default function ShareMomentModal({ open, onClose }: Props) {
   const session = useCustomerSession()
+  const { locale, t } = useLocale()
+
+  const occasionOptions = locale === 'ar' ? [
+    { value: 'Birthday', label: 'عيد ميلاد' },
+    { value: 'Engagement', label: 'خطوبة' },
+    { value: 'Family Gathering', label: 'تجمع عائلي' },
+    { value: 'Friends Gathering', label: 'تجمع أصدقاء' },
+    { value: 'Professional Meetings', label: 'اجتماعات مهنية' },
+    { value: 'Christmas', label: 'الكريسماس' },
+    { value: 'Ramadan', label: 'رمضان' },
+    { value: "Mother's Day", label: 'عيد الأم' },
+    { value: 'Easter', label: 'عيد الفصح' },
+    { value: 'Eid Al-Fitr', label: 'عيد الفطر' },
+    { value: 'Eid Al-Adha', label: 'عيد الأضحى' },
+    { value: 'Other', label: 'أخرى' },
+  ] : [
+    { value: 'Birthday', label: 'Birthday' },
+    { value: 'Engagement', label: 'Engagement' },
+    { value: 'Family Gathering', label: 'Family Gathering' },
+    { value: 'Friends Gathering', label: 'Friends Gathering' },
+    { value: 'Professional Meetings', label: 'Professional Meetings' },
+    { value: 'Christmas', label: 'Christmas' },
+    { value: 'Ramadan', label: 'Ramadan' },
+    { value: "Mother's Day", label: "Mother's Day" },
+    { value: 'Easter', label: 'Easter' },
+    { value: 'Eid Al-Fitr', label: 'Eid Al-Fitr' },
+    { value: 'Eid Al-Adha', label: 'Eid Al-Adha' },
+    { value: 'Other', label: 'Other' },
+  ]
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -76,12 +106,12 @@ export default function ShareMomentModal({ open, onClose }: Props) {
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {}
-    if (!name.trim()) errs.name = 'Name is required'
-    if (!file) errs.image = 'Photo is required'
-    if (!consent) errs.consent = 'You must agree to share your photo'
-    if (!occasion) errs.occasion = 'Please select an occasion'
+    if (!name.trim()) errs.name = t('moment.nameRequired')
+    if (!file) errs.image = t('moment.photoRequired')
+    if (!consent) errs.consent = t('moment.consentRequired')
+    if (!occasion) errs.occasion = t('moment.occasionRequired')
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errs.email = 'Invalid email format'
+      errs.email = t('moment.invalidEmail')
     }
     setErrors(errs)
     return Object.keys(errs).length === 0
@@ -108,7 +138,7 @@ export default function ShareMomentModal({ open, onClose }: Props) {
 
       if (!res.ok) {
         const data = await res.json()
-        setErrors({ form: data.error || 'Submission failed' })
+        setErrors({ form: data.error || t('moment.submissionFailed') })
         return
       }
 
@@ -122,7 +152,7 @@ export default function ShareMomentModal({ open, onClose }: Props) {
       setErrors({})
       if (fileRef.current) fileRef.current.value = ''
     } catch {
-      setErrors({ form: 'Network error. Please try again.' })
+      setErrors({ form: t('moment.networkError') })
     } finally {
       setSubmitting(false)
     }
@@ -159,7 +189,7 @@ export default function ShareMomentModal({ open, onClose }: Props) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="Share your Gather moment"
+          aria-label={t('moment.title')}
     >
       <div
         ref={dialogRef}
@@ -169,7 +199,7 @@ export default function ShareMomentModal({ open, onClose }: Props) {
         <button
           onClick={() => { onClose(); reset() }}
           className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors"
-          aria-label="Close modal"
+          aria-label={t('common.closeModal')}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -183,30 +213,30 @@ export default function ShareMomentModal({ open, onClose }: Props) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-[#171717] mb-2">Thank You!</h3>
+            <h3 className="text-xl font-bold text-[#171717] mb-2">{t('moment.thankYou')}</h3>
             <p className="text-sm text-[#7a6247] mb-6">
-              Your moment has been submitted. It will appear on the website after admin review.
+              {t('moment.submittedMsg')}
             </p>
             <button
               onClick={() => { onClose(); reset() }}
               className="gather-btn-primary justify-center w-full"
             >
-              Done
+              {t('moment.done')}
             </button>
           </div>
         ) : (
           <>
             <h2 className="text-2xl sm:text-3xl font-black text-[#171717] mb-2">
-              Share Your Gather Moment
+              {t('moment.title')}
             </h2>
             <p className="text-sm sm:text-base text-[#7a6247] mb-6">
-              Upload your celebration photo and get a chance to win a shopping voucher.
+              {t('moment.subtitle')}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="moment-name" className="block text-sm font-semibold text-[#171717] mb-1">
-                  Name <span className="text-red-500">*</span>
+                  {t('moment.name')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="moment-name"
@@ -220,7 +250,7 @@ export default function ShareMomentModal({ open, onClose }: Props) {
 
               <div>
                 <label htmlFor="moment-photo" className="block text-sm font-semibold text-[#171717] mb-1">
-                  Upload your celebration photo <span className="text-red-500">*</span>
+                  {t('moment.uploadPhoto')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   ref={fileRef}
@@ -235,7 +265,7 @@ export default function ShareMomentModal({ open, onClose }: Props) {
 
               <div>
                 <label htmlFor="moment-email" className="block text-sm font-semibold text-[#171717] mb-1">
-                  Email Address
+                  {t('moment.email')}
                 </label>
                 <input
                   id="moment-email"
@@ -249,7 +279,7 @@ export default function ShareMomentModal({ open, onClose }: Props) {
 
               <div>
                 <label htmlFor="moment-phone" className="block text-sm font-semibold text-[#171717] mb-1">
-                  Phone
+                  {t('moment.phone')}
                 </label>
                 <input
                   id="moment-phone"
@@ -262,7 +292,7 @@ export default function ShareMomentModal({ open, onClose }: Props) {
 
               <div>
                 <label htmlFor="moment-occasion" className="block text-sm font-semibold text-[#171717] mb-1">
-                  Occasion Type <span className="text-red-500">*</span>
+                  {t('moment.occasionType')} <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="moment-occasion"
@@ -270,19 +300,10 @@ export default function ShareMomentModal({ open, onClose }: Props) {
                   onChange={(e) => setOccasion(e.target.value)}
                   className={inputClass('occasion')}
                 >
-                  <option value="">Select occasion</option>
-                  <option value="Birthday">Birthday</option>
-                  <option value="Engagement">Engagement</option>
-                  <option value="Family Gathering">Family Gathering</option>
-                  <option value="Friends Gathering">Friends Gathering</option>
-                  <option value="Professional Meetings">Professional Meetings</option>
-                  <option value="Christmas">Christmas</option>
-                  <option value="Ramadan">Ramadan</option>
-                  <option value="Mother's Day">Mother&apos;s Day</option>
-                  <option value="Easter">Easter</option>
-                  <option value="Eid Al-Fitr">Eid Al-Fitr</option>
-                  <option value="Eid Al-Adha">Eid Al-Adha</option>
-                  <option value="Other">Other</option>
+                  <option value="">{t('moment.selectOccasion')}</option>
+                  {occasionOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
                 </select>
                 {errors.occasion && <p className="text-xs text-red-500 mt-1">{errors.occasion}</p>}
               </div>
@@ -296,7 +317,7 @@ export default function ShareMomentModal({ open, onClose }: Props) {
                   className={`mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-[#FE7501] focus:ring-[#FE7501]/40 ${errors.consent ? 'ring-2 ring-red-400' : ''}`}
                 />
                 <label htmlFor="moment-consent" className="text-xs sm:text-sm text-[#7a6247] leading-relaxed">
-                  I confirm that I own this photo or have permission to share it, and I allow GATHER to use it on the website, social media, and marketing materials. <span className="text-red-500">*</span>
+                  {t('moment.consent')} <span className="text-red-500">*</span>
                 </label>
               </div>
               {errors.consent && <p className="text-xs text-red-500 mt-0">{errors.consent}</p>}
@@ -312,7 +333,7 @@ export default function ShareMomentModal({ open, onClose }: Props) {
                 disabled={submitting}
                 className="gather-btn-primary w-full justify-center disabled:opacity-60"
               >
-                {submitting ? 'Submitting...' : 'Submit'}
+                {submitting ? t('moment.submitting') : t('moment.submit')}
               </button>
             </form>
           </>

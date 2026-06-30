@@ -7,8 +7,11 @@ import { t } from '@/lib/translations'
 
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  title: 'Gather — Premium Gifts Delivered in Cairo',
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale()
+  return {
+    title: t('meta.home', locale),
+  }
 }
 
 export default async function HomePage() {

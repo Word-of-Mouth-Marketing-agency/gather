@@ -6,8 +6,10 @@ import Link from 'next/link'
 import { getAllProducts, getAllCategories } from '@/lib/data'
 import ProductCard from '@/components/ProductCard'
 import type { Product } from '@/types'
+import { useLocale } from '@/components/LocaleProvider'
 
 function SearchResults() {
+  const { t } = useLocale()
   const params = useSearchParams()
   const q = params.get('q') || ''
   const query = q.trim().toLowerCase()
@@ -16,12 +18,12 @@ function SearchResults() {
     return (
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <h1 className="text-3xl sm:text-4xl font-black text-[#171717] mb-2">
-          Search
+          {t('search.title')}
         </h1>
-        <p className="text-[#7a6247] mb-8">Enter a search term to find products.</p>
+        <p className="text-[#7a6247] mb-8">{t('search.placeholder')}</p>
         <div className="text-center py-20">
           <Link href="/shop-by-category" className="gather-btn-primary">
-            Browse All Products
+            {t('search.browse')}
           </Link>
         </div>
       </main>
@@ -69,17 +71,17 @@ function SearchResults() {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <h1 className="text-3xl sm:text-4xl font-black text-[#171717] mb-2">
-        Search results for &ldquo;{q}&rdquo;
+        {t('search.resultsFor')} &ldquo;{q}&rdquo;
       </h1>
       <p className="text-[#7a6247] mb-8">
-        {products.length} product{products.length !== 1 ? 's' : ''} found
+        {products.length} {products.length === 1 ? t('search.found') : t('search.found')}
       </p>
 
       {products.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-gray-400 mb-4">No products match your search.</p>
+          <p className="text-gray-400 mb-4">{t('search.noMatch')}</p>
           <Link href="/shop-by-category" className="gather-btn-primary">
-            Browse All Products
+            {t('search.browse')}
           </Link>
         </div>
       ) : (
@@ -94,10 +96,11 @@ function SearchResults() {
 }
 
 export default function SearchPage() {
+  const { t } = useLocale()
   return (
     <Suspense fallback={
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <p className="text-gray-400">Loading...</p>
+        <p className="text-gray-400">{t('search.loading')}</p>
       </main>
     }>
       <SearchResults />

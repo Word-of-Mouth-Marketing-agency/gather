@@ -89,7 +89,7 @@ function EmptyCheckoutState() {
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
       <div className="text-6xl mb-4">🛒</div>
       <h1 className="text-2xl font-black text-[#171717]">{t('cart.empty')}</h1>
-      <p className="mt-2 text-gray-400 text-sm">Add some items before checking out.</p>
+      <p className="mt-2 text-gray-400 text-sm">{t('checkout.empty')}</p>
       <Link href={href('/shop-by-category')} className="inline-flex mt-6 gather-btn-primary">
         {t('cart.continueShopping')}
       </Link>
@@ -295,7 +295,7 @@ export default function CheckoutPageClient() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3 space-y-6">
             <section className="gather-section p-6 rounded-3xl space-y-4">
-              <h2 className="text-lg font-black text-[#171717]">Billing Details</h2>
+              <h2 className="text-lg font-black text-[#171717]">{t('checkout.billingDetails')}</h2>
 
               <div className="grid grid-cols-2 gap-4">
                 <Field label={t('checkout.firstName')} error={errors.firstName}>
@@ -304,7 +304,7 @@ export default function CheckoutPageClient() {
                     value={form.firstName}
                     onChange={(e) => setFn('firstName', e.target.value)}
                     className={inputCls(!!errors.firstName)}
-                    placeholder="Ahmed"
+                    placeholder={t('checkout.firstNamePlaceholder')}
                   />
                 </Field>
                 <Field label={t('checkout.lastName')} error={errors.lastName}>
@@ -313,7 +313,7 @@ export default function CheckoutPageClient() {
                     value={form.lastName}
                     onChange={(e) => setFn('lastName', e.target.value)}
                     className={inputCls(!!errors.lastName)}
-                    placeholder="Hassan"
+                    placeholder={t('checkout.lastNamePlaceholder')}
                   />
                 </Field>
               </div>
@@ -324,7 +324,7 @@ export default function CheckoutPageClient() {
                   value={form.email}
                   onChange={(e) => setFn('email', e.target.value)}
                   className={inputCls(!!errors.email)}
-                  placeholder="ahmed@example.com"
+                  placeholder={t('checkout.emailPlaceholder')}
                 />
               </Field>
 
@@ -334,7 +334,7 @@ export default function CheckoutPageClient() {
                   value={form.phone}
                   onChange={(e) => setFn('phone', e.target.value)}
                   className={inputCls(!!errors.phone)}
-                  placeholder="+20 10 0000 0000"
+                  placeholder={t('checkout.phonePlaceholder')}
                 />
               </Field>
 
@@ -360,7 +360,7 @@ export default function CheckoutPageClient() {
                   value={form.address}
                   onChange={(e) => setFn('address', e.target.value)}
                   className={inputCls(!!errors.address)}
-                  placeholder="123 El Nasr Street, Apt 4B"
+                  placeholder={t('checkout.addressPlaceholder')}
                 />
               </Field>
             </section>
@@ -409,7 +409,7 @@ export default function CheckoutPageClient() {
                 onChange={(e) => setFn('orderNotes', e.target.value)}
                 rows={3}
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20 transition-colors resize-none"
-                placeholder="Any special instructions, card message, etc."
+                placeholder={t('checkout.notesPlaceholder')}
               />
             </section>
 
@@ -461,7 +461,7 @@ export default function CheckoutPageClient() {
                   <div key={bundle.id} className="flex gap-3 text-sm">
                     <div className="flex-1 min-w-0">
                       <span className="text-gray-700 font-medium line-clamp-1">{bundle.name}</span>
-                      <span className="text-[10px] font-semibold text-[#ff7a1a]">Bundle</span>
+                      <span className="text-[10px] font-semibold text-[#ff7a1a]">{t('cart.bundle')}</span>
                     </div>
                     <span className="shrink-0 text-gray-500">×{bundle.quantity}</span>
                     <span className="shrink-0 font-bold text-[#171717]">
@@ -499,9 +499,7 @@ export default function CheckoutPageClient() {
 
               {unavailableBundles.length > 0 && (
                 <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-600">
-                  {locale === 'ar'
-                    ? 'قم بإزالة عروض الباقة غير المتاحة قبل تقديم طلبك.'
-                    : 'Remove unavailable bundle offers before placing your order.'}
+                  {t('checkout.removeBundleOffer')}
                 </p>
               )}
 

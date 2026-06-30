@@ -6,6 +6,7 @@ import Link from 'next/link'
 import type { Product } from '@/types'
 import { addToCart } from '@/lib/cart'
 import { formatPrice, getDisplayPrice } from '@/lib/data'
+import { useLocale } from '@/components/LocaleProvider'
 
 interface Props {
   currentProduct: Product
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function FrequentlyBoughtTogether({ currentProduct, suggestions }: Props) {
+  const { t } = useLocale()
   const products = [currentProduct, ...suggestions].slice(0, 4)
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
@@ -36,13 +38,13 @@ export default function FrequentlyBoughtTogether({ currentProduct, suggestions }
     <section className="rounded-[28px] border border-[#ead8c4] bg-[#fffaf3] p-5 sm:p-7">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-6">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#171717]">Frequently Bought Together</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#171717]">{t('fbt.title')}</h2>
           <p className="mt-1 text-sm font-semibold text-[#7a6247]">
-            A ready-to-go pairing for an easier celebration.
+            {t('fbt.pairSubtitle')}
           </p>
         </div>
         <div className="lg:text-right">
-          <p className="text-xs font-black uppercase text-[#7a6247]">Total price</p>
+          <p className="text-xs font-black uppercase text-[#7a6247]">{t('fbt.totalPrice')}</p>
           <p className="text-2xl font-black text-[#FE7501]">{formatPrice(total, currentProduct.currency)}</p>
         </div>
       </div>
@@ -65,7 +67,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, suggestions }
                       />
                     ) : (
                       <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-[#7a6247]">
-                        No image
+                        {t('fbt.noImage')}
                       </span>
                     )}
                   </div>
@@ -90,7 +92,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, suggestions }
               : 'bg-[#FE7501] text-white shadow-lg hover:bg-[#fe6c00] hover:-translate-y-0.5'
           }`}
         >
-          {added ? 'Added all to Cart' : adding ? 'Adding...' : 'Add all to Cart'}
+          {added ? t('fbt.addedAllCart') : adding ? t('fbt.adding') : t('fbt.addAll')}
         </button>
       </div>
     </section>

@@ -12,6 +12,7 @@ export default function AdminHomepageEditorPage() {
   const [saving, setSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [tab, setTab] = useState<Tab>('hero-slides')
+  const [lang, setLang] = useState<'en' | 'ar'>('en')
 
   useEffect(() => {
     fetch('/api/homepage')
@@ -146,6 +147,21 @@ export default function AdminHomepageEditorPage() {
         </div>
       )}
 
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setLang('en')}
+          className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-colors ${lang === 'en' ? 'bg-[#ff7a1a] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+        >
+          English
+        </button>
+        <button
+          onClick={() => setLang('ar')}
+          className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-colors ${lang === 'ar' ? 'bg-[#ff7a1a] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+        >
+          العربية
+        </button>
+      </div>
+
       <div className="flex gap-1 bg-gray-100 rounded-xl p-1 overflow-x-auto">
         {tabs.map((t) => (
           <button
@@ -169,20 +185,38 @@ export default function AdminHomepageEditorPage() {
       )}
       {tab === 'hero-text' && (
         <HeroTextEditor
-          heroText={content.heroText}
-          onChange={(heroText) => setContent({ ...content, heroText })}
+          heroText={lang === 'ar' ? (content.ar?.heroText || content.heroText) : content.heroText}
+          onChange={(heroText) => {
+            if (lang === 'ar') {
+              setContent({ ...content, ar: { ...content.ar, heroText } })
+            } else {
+              setContent({ ...content, heroText })
+            }
+          }}
         />
       )}
       {tab === 'about' && (
         <AboutEditor
-          about={content.aboutGather}
-          onChange={(aboutGather) => setContent({ ...content, aboutGather })}
+          about={lang === 'ar' ? (content.ar?.aboutGather || content.aboutGather) : content.aboutGather}
+          onChange={(aboutGather) => {
+            if (lang === 'ar') {
+              setContent({ ...content, ar: { ...content.ar, aboutGather } })
+            } else {
+              setContent({ ...content, aboutGather })
+            }
+          }}
         />
       )}
       {tab === 'why-cards' && (
         <WhyCardsEditor
-          cards={content.whyGatherCards}
-          onChange={(whyGatherCards) => setContent({ ...content, whyGatherCards })}
+          cards={lang === 'ar' ? (content.ar?.whyGatherCards || content.whyGatherCards) : content.whyGatherCards}
+          onChange={(whyGatherCards) => {
+            if (lang === 'ar') {
+              setContent({ ...content, ar: { ...content.ar, whyGatherCards } })
+            } else {
+              setContent({ ...content, whyGatherCards })
+            }
+          }}
         />
       )}
 

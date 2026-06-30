@@ -2,9 +2,14 @@ import type { Metadata } from 'next'
 import CartPageClient from '@/components/CartPageClient'
 import type { CoPurchaseOrder } from '@/lib/cart-suggestions'
 import { getAllOrders } from '@/lib/orders'
+import { getServerLocale } from '@/lib/locale-server'
+import { t } from '@/lib/translations'
 
-export const metadata: Metadata = {
-  title: 'Cart',
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale()
+  return {
+    title: t('meta.cart', locale),
+  }
 }
 
 export const dynamic = 'force-dynamic'

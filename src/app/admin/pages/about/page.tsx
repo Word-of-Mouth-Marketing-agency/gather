@@ -9,6 +9,7 @@ export default function AdminAboutEditorPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [lang, setLang] = useState<'en' | 'ar'>('en')
 
   useEffect(() => {
     fetch('/api/pages/about')
@@ -82,27 +83,56 @@ export default function AdminAboutEditorPage() {
   }
 
   const updateSection1 = (patch: Partial<AboutSection>) => {
-    setContent({ ...content, section1: { ...content.section1, ...patch } })
+    if (lang === 'ar') {
+      setContent({ ...content, ar: { ...content.ar, section1: { ...(content.ar?.section1 || content.section1), ...patch } } })
+    } else {
+      setContent({ ...content, section1: { ...content.section1, ...patch } })
+    }
   }
 
   const updateSection2 = (patch: Partial<AboutSection>) => {
-    setContent({ ...content, section2: { ...content.section2, ...patch } })
+    if (lang === 'ar') {
+      setContent({ ...content, ar: { ...content.ar, section2: { ...(content.ar?.section2 || content.section2), ...patch } } })
+    } else {
+      setContent({ ...content, section2: { ...content.section2, ...patch } })
+    }
   }
 
   const updateListItem = (index: number, value: string) => {
-    const newList = [...content.section2ListItems]
-    newList[index] = value
-    setContent({ ...content, section2ListItems: newList })
+    if (lang === 'ar') {
+      const currentList = content.ar?.section2ListItems || activeListItems
+      const newList = [...currentList]
+      newList[index] = value
+      setContent({ ...content, ar: { ...content.ar, section2ListItems: newList } })
+    } else {
+      const newList = [...activeListItems]
+      newList[index] = value
+      setContent({ ...content, section2ListItems: newList })
+    }
   }
 
   const addListItem = () => {
-    setContent({ ...content, section2ListItems: [...content.section2ListItems, ''] })
+    if (lang === 'ar') {
+      const currentList = content.ar?.section2ListItems || activeListItems
+      setContent({ ...content, ar: { ...content.ar, section2ListItems: [...currentList, ''] } })
+    } else {
+      setContent({ ...content, section2ListItems: [...activeListItems, ''] })
+    }
   }
 
   const removeListItem = (index: number) => {
-    const newList = content.section2ListItems.filter((_, i) => i !== index)
-    setContent({ ...content, section2ListItems: newList })
+    if (lang === 'ar') {
+      const newList = (content.ar?.section2ListItems || activeListItems).filter((_item: string, i: number) => i !== index)
+      setContent({ ...content, ar: { ...content.ar, section2ListItems: newList } })
+    } else {
+      const newList = activeListItems.filter((_item: string, i: number) => i !== index)
+      setContent({ ...content, section2ListItems: newList })
+    }
   }
+
+  const activeSection1 = lang === 'ar' ? (content.ar?.section1 || content.section1) : content.section1
+  const activeSection2 = lang === 'ar' ? (content.ar?.section2 || content.section2) : content.section2
+  const activeListItems = lang === 'ar' ? (content.ar?.section2ListItems || content.section2ListItems) : content.section2ListItems
 
   const handleUpload = async (file: File, section: 1 | 2) => {
     const formData = new FormData()
@@ -177,17 +207,38 @@ export default function AdminAboutEditorPage() {
         </div>
       )}
 
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setLang('en')}
+          className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-colors ${lang === 'en' ? 'bg-[#ff7a1a] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+        >
+          English
+        </button>
+        <button
+          onClick={() => setLang('ar')}
+          className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-colors ${lang === 'ar' ? 'bg-[#ff7a1a] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+        >
+          العربية
+        </button>
+      </div>
+
       <SectionPanel title="Page Settings" description="General settings for the About page.">
-        <Field label="Page Title" value={content.pageTitle} onChange={(v) => setContent({ ...content, pageTitle: v })} hint="Shown in the page title banner" />
+        <Field label="Page Title" value={lang === 'ar' ? (content.ar?.pageTitle || content.pageTitle) : content.pageTitle} onChange={(v) => {
+          if (lang === 'ar') {
+            setContent({ ...content, ar: { ...content.ar, pageTitle: v } })
+          } else {
+            setContent({ ...content, pageTitle: v })
+          }
+        }} hint="Shown in the page title banner" />
       </SectionPanel>
 
       <SectionPanel title="Section 1 — Our Story" description="The first section with story text and image.">
         <div className="space-y-4">
-          <Field label="Title" value={content.section1.title} onChange={(v) => updateSection1({ title: v })} />
+          <Field label="Title" value={activeSection1.title} onChange={(v) => updateSection1({ title: v })} />
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-500">Body Text</label>
             <textarea
-              value={content.section1.body}
+              value={activeSection1.body}
               onChange={(e) => updateSection1({ body: e.target.value })}
               rows={6}
               className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] resize-none"
@@ -199,7 +250,7 @@ export default function AdminAboutEditorPage() {
             <div className="flex items-center gap-2">
               <input
                 type="text"
-                value={content.section1.image}
+                value={activeSection1.image}
                 onChange={(e) => updateSection1({ image: e.target.value })}
                 placeholder="/assets/gather/image.webp"
                 className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-gray-200 text-sm font-mono focus:outline-none focus:border-[#ff7a1a] truncate"
@@ -213,14 +264,14 @@ export default function AdminAboutEditorPage() {
               </label>
             </div>
             <div className="rounded-xl border border-gray-200 bg-[#f8f6f3] overflow-hidden flex items-center justify-center h-48">
-              {content.section1.image ? (
-                <img src={content.section1.image} alt="Section 1 preview" className="max-w-full max-h-full object-contain" />
+              {activeSection1.image ? (
+                <img src={activeSection1.image} alt="Section 1 preview" className="max-w-full max-h-full object-contain" />
               ) : (
                 <p className="text-xs text-gray-400 font-medium">No image set</p>
               )}
             </div>
-            {content.section1.image && (
-              <p className="text-xs text-gray-400 font-mono truncate" title={content.section1.image}>{content.section1.image}</p>
+            {activeSection1.image && (
+              <p className="text-xs text-gray-400 font-mono truncate" title={activeSection1.image}>{activeSection1.image}</p>
             )}
           </div>
         </div>
@@ -228,11 +279,11 @@ export default function AdminAboutEditorPage() {
 
       <SectionPanel title="Section 2 — What we OFFER" description="The second section with offer list and image.">
         <div className="space-y-4">
-          <Field label="Title" value={content.section2.title} onChange={(v) => updateSection2({ title: v })} hint='The word "OFFER" will be highlighted in orange' />
+          <Field label="Title" value={activeSection2.title} onChange={(v) => updateSection2({ title: v })} hint='The word "OFFER" will be highlighted in orange' />
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-500">Intro Text</label>
             <textarea
-              value={content.section2.body}
+              value={activeSection2.body}
               onChange={(e) => updateSection2({ body: e.target.value })}
               rows={2}
               className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] resize-none"
@@ -250,7 +301,7 @@ export default function AdminAboutEditorPage() {
                 Add Item
               </button>
             </div>
-            {content.section2ListItems.map((item, idx) => (
+            {activeListItems.map((item, idx) => (
               <div key={idx} className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-md bg-[#fff4e8] flex items-center justify-center text-[#ff7a1a] text-xs font-bold shrink-0">{idx + 1}</span>
                 <input
@@ -275,7 +326,7 @@ export default function AdminAboutEditorPage() {
             <div className="flex items-center gap-2">
               <input
                 type="text"
-                value={content.section2.image}
+                value={activeSection2.image}
                 onChange={(e) => updateSection2({ image: e.target.value })}
                 placeholder="/assets/gather/image.webp"
                 className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-gray-200 text-sm font-mono focus:outline-none focus:border-[#ff7a1a] truncate"
@@ -289,14 +340,14 @@ export default function AdminAboutEditorPage() {
               </label>
             </div>
             <div className="rounded-xl border border-gray-200 bg-[#f8f6f3] overflow-hidden flex items-center justify-center h-48">
-              {content.section2.image ? (
-                <img src={content.section2.image} alt="Section 2 preview" className="max-w-full max-h-full object-contain" />
+              {activeSection2.image ? (
+                <img src={activeSection2.image} alt="Section 2 preview" className="max-w-full max-h-full object-contain" />
               ) : (
                 <p className="text-xs text-gray-400 font-medium">No image set</p>
               )}
             </div>
-            {content.section2.image && (
-              <p className="text-xs text-gray-400 font-mono truncate" title={content.section2.image}>{content.section2.image}</p>
+            {activeSection2.image && (
+              <p className="text-xs text-gray-400 font-mono truncate" title={activeSection2.image}>{activeSection2.image}</p>
             )}
           </div>
         </div>

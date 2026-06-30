@@ -7,6 +7,7 @@ type CategoryForm = Omit<Category, 'id'>
 
 const EMPTY_FORM: CategoryForm = {
   name: '',
+  nameAr: '',
   slug: '',
   description: '',
   type: 'category',
@@ -75,6 +76,7 @@ export default function AdminCategoriesPage() {
       editing: item.id,
       form: {
         name: item.name,
+        nameAr: item.nameAr || '',
         slug: item.slug,
         description: item.description,
         type: item.type,
@@ -310,6 +312,15 @@ export default function AdminCategoriesPage() {
                   value={modal.form.name}
                   onChange={(e) => setFormField('name', e.target.value)}
                   className="w-full mt-1 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a]"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Arabic Name</label>
+                <input
+                  value={modal.form.nameAr || ''}
+                  onChange={(e) => setFormField('nameAr', e.target.value)}
+                  className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+                  dir="rtl"
                 />
               </div>
               <div>

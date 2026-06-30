@@ -3,8 +3,11 @@ import Link from 'next/link'
 import { getServerLocale } from '@/lib/locale-server'
 import { t } from '@/lib/translations'
 
-export const metadata: Metadata = {
-  title: 'Order Confirmed',
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale()
+  return {
+    title: t('meta.checkoutConfirmed', locale),
+  }
 }
 
 export default async function CheckoutSuccessPage() {

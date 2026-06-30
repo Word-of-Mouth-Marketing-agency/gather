@@ -40,7 +40,7 @@ function EmptyCartState() {
 }
 
 function CartUpsellCard({ product }: { product: Product }) {
-  const { href } = useLocale()
+  const { href, t } = useLocale()
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
 
@@ -70,7 +70,7 @@ function CartUpsellCard({ product }: { product: Product }) {
           />
         ) : (
           <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-[#7a6247]">
-            No image
+            {t('cart.noImage')}
           </span>
         )}
       </Link>
@@ -99,7 +99,7 @@ function CartUpsellCard({ product }: { product: Product }) {
         }`}
         aria-label={`Add ${product.name} to cart`}
       >
-        {added ? 'Added' : adding ? '...' : product.stock === 0 ? 'Out' : 'Add'}
+        {added ? t('cart.added') : adding ? '...' : product.stock === 0 ? t('product.outOfStock') : t('product.addToCart')}
       </button>
     </article>
   )
@@ -110,7 +110,7 @@ type Props = {
 }
 
 export default function CartPageClient({ coPurchaseOrders }: Props) {
-  const { href, t } = useLocale()
+  const { locale, href, t } = useLocale()
   const [mounted, setMounted] = useState(false)
   const [products, setProducts] = useState<CartEntry[]>([])
   const [bundles, setBundles] = useState<BundleCartItem[]>([])
@@ -180,7 +180,7 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
       <PageTitleSection title={t('cart.title')} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <h1 className="text-2xl sm:text-3xl font-black text-[#171717] mb-8">
-          {t('cart.title')} ({itemCount} {itemCount === 1 ? 'item' : 'items'})
+          {t('cart.title')} ({t(itemCount === 1 ? 'cart.itemCount_one' : 'cart.itemCount_other', { count: itemCount })})
         </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -259,7 +259,7 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
                 <div className="flex items-center gap-2">
                   <h3 className="font-bold text-sm text-[#171717] line-clamp-1">{bundle.name}</h3>
                   <span className="text-[10px] font-black uppercase tracking-wider text-[#ff7a1a] bg-[#fff4e8] px-2 py-0.5 rounded-full shrink-0">
-                    Bundle
+                    {t('cart.bundle')}
                   </span>
                 </div>
                 {bundle.badge && (
@@ -357,7 +357,7 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
 
             {hasUnavailableBundles && (
               <p className="mt-4 rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-600">
-                Remove unavailable bundle offers before checkout.
+                {t('cart.removeUnavailable')}
               </p>
             )}
 
@@ -382,10 +382,10 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
           <section className="mt-12 sm:mt-14">
             <div className="mb-5">
               <h2 className="text-2xl sm:text-3xl font-black text-[#171717]">
-                You may also like
+                {t('cart.youMayLike')}
               </h2>
               <p className="mt-1.5 text-sm sm:text-base font-semibold text-[#7a6247]">
-                Complete your gathering with these picks.
+                {t('cart.completeGathering')}
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">

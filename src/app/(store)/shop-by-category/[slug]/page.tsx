@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import { getProductsByCategory } from '@/lib/data'
 import { getActiveTaxonomiesByType, getTaxonomyBySlug } from '@/lib/taxonomy-data'
 import { sortProductsForTaxonomy } from '@/lib/filter-product-sorting'
+import { getServerLocale } from '@/lib/locale-server'
+import { t } from '@/lib/translations'
 import ProductCard from '@/components/ProductCard'
 import PageTitleSection from '@/components/PageTitleSection'
 import GsapReveal from '@/components/GsapReveal'
@@ -30,6 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CategoryDetailPage({ params }: Props) {
   const { slug } = await params
+  const locale = await getServerLocale()
   const category = getTaxonomyBySlug(slug)
 
   if (!category || category.type !== 'category' || category.isActive === false) notFound()
@@ -42,7 +45,7 @@ export default async function CategoryDetailPage({ params }: Props) {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
       {products.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">No products in this category yet.</div>
+        <div className="text-center py-20 text-gray-400">{t('empty.noProductsCategory', locale)}</div>
       ) : (
         <GsapReveal
           className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5"

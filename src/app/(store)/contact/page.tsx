@@ -5,12 +5,16 @@ import ContactForm from '@/components/sections/ContactForm'
 import { readJson } from '@/lib/db'
 import type { ContactPageContent } from '@/types'
 import { getServerLocale } from '@/lib/locale-server'
+import { t } from '@/lib/translations'
 
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  title: 'Contact',
-  description: 'Get in touch with Gather for orders, inquiries, or support.',
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale()
+  return {
+    title: t('meta.contact', locale),
+    description: 'Get in touch with Gather for orders, inquiries, or support.',
+  }
 }
 
 export default async function ContactPage() {
