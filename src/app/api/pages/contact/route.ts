@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireAdminApi } from '@/lib/admin-api'
 import { readJson, writeJson } from '@/lib/db'
 import type { ContactPageContent } from '@/types'
 
@@ -10,6 +11,9 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   try {
     const body = await request.json()
     const current = readJson<ContactPageContent>(FILE)

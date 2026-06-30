@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server'
+import { requireAdminApi } from '@/lib/admin-api'
 import { getAllOrders, createOrder, updateOrderStatus } from '@/lib/orders'
 import { getShippingFeeForCity } from '@/lib/shipping-fees'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const email = searchParams.get('email')
+  if (!email) {
+    const unauthorized = await requireAdminApi()
+    if (unauthorized) return unauthorized
+  }
   let orders = getAllOrders()
   if (email) {
     orders = orders.filter((o) => o.customer.email.toLowerCase() === email.toLowerCase())
@@ -34,6 +39,9 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   try {
     const { id, status } = await request.json()
     if (!id || !status) {

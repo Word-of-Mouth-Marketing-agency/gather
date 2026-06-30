@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireAdminApi } from '@/lib/admin-api'
 import { getProductRepository } from '@/lib/repositories'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -10,6 +11,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   const { id } = await params
   const data = await request.json()
   if (data.discountStartsAt && data.discountEndsAt && data.discountEndsAt < data.discountStartsAt) {
@@ -22,6 +26,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   const { id } = await params
   const repo = getProductRepository()
   const deleted = repo.delete(id)

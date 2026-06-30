@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server'
+import { requireAdminApi } from '@/lib/admin-api'
 import { readJson, writeJson } from '@/lib/db'
 import type { MomentSubmission } from '@/types'
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   try {
     const { id } = await params
     const body = await request.json()
@@ -41,6 +45,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   try {
     const { id } = await params
     const items = readJson<MomentSubmission[]>('moments.json')
@@ -55,9 +62,10 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const path = require('path') as typeof import('path')
 
-    const imagePath = path.join(process.cwd(), 'public', items[index].imageUrl)
+    const uploadsDir = path.resolve(process.cwd(), 'public', 'uploads', 'moments')
+    const imagePath = path.resolve(process.cwd(), 'public', items[index].imageUrl.replace(/^\/+/, ''))
     try {
-      if (fs.existsSync(imagePath)) {
+      if (imagePath.startsWith(uploadsDir) && fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath)
       }
     } catch {

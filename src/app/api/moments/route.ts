@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { readJson, writeJson, generateId } from '@/lib/db'
+import { validateImageUpload } from '@/lib/upload-validation'
 import type { MomentSubmission } from '@/types'
 
 export async function GET(request: Request) {
@@ -39,9 +40,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Image is required' }, { status: 400 })
     }
 
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'Only image files are accepted' }, { status: 400 })
-    }
+    const validation = validateImageUpload(file)
+    if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 })
 
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
@@ -57,9 +57,8 @@ export async function POST(request: Request) {
       fs.mkdirSync(baseDir, { recursive: true })
     }
 
-    const ext = path.extname(file.name).toLowerCase()
     const safeName = file.name.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_{2,}/g, '_')
-    const filename = `${Date.now()}-${safeName}`
+    const filename = `${Date.now()}-${safeName}${validation.extension}`
     const buffer = Buffer.from(await file.arrayBuffer())
     fs.writeFileSync(path.join(baseDir, filename), buffer)
 

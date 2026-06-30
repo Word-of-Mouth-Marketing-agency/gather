@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { parseAdminSessionToken } from '@/lib/admin-session'
 
 const ADMIN_LOGIN = '/admin/login'
 const ADMIN_PREFIX = '/admin'
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (!pathname.startsWith(ADMIN_PREFIX)) return NextResponse.next()
@@ -18,8 +19,8 @@ export function middleware(request: NextRequest) {
   }
 
   try {
-    const payload = JSON.parse(Buffer.from(session, 'base64').toString('utf-8'))
-    if (payload.exp < Date.now()) {
+    const payload = await parseAdminSessionToken(session)
+    if (!payload) {
       const loginUrl = new URL(ADMIN_LOGIN, request.url)
       return NextResponse.redirect(loginUrl)
     }

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireAdminApi } from '@/lib/admin-api'
 import { createShippingFee, getAllShippingFees, getActiveShippingFees } from '@/lib/shipping-fees'
 
 export async function GET(request: Request) {
@@ -8,6 +9,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   try {
     const data = await request.json()
     const item = createShippingFee(data)

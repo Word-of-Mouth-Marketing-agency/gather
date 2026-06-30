@@ -1,7 +1,35 @@
 import { readJson, writeJson, generateId } from './db'
 import type { Customer, Address } from '@/types'
+import { randomBytes, scryptSync, timingSafeEqual } from 'crypto'
 
 const CUSTOMERS_FILE = 'customers.json'
+const PASSWORD_PREFIX = 'scrypt'
+const PASSWORD_KEY_LENGTH = 64
+
+function hashPassword(password: string): string {
+  const salt = randomBytes(16).toString('base64url')
+  const hash = scryptSync(password, salt, PASSWORD_KEY_LENGTH).toString('base64url')
+  return `${PASSWORD_PREFIX}$${salt}$${hash}`
+}
+
+function verifyPassword(password: string, stored: string): boolean {
+  const [prefix, salt, hash] = stored.split('$')
+  if (prefix !== PASSWORD_PREFIX || !salt || !hash) {
+    return password === stored
+  }
+
+  try {
+    const expected = Buffer.from(hash, 'base64url')
+    const actual = scryptSync(password, salt, expected.length)
+    return expected.length === actual.length && timingSafeEqual(expected, actual)
+  } catch {
+    return false
+  }
+}
+
+function isLegacyPlaintextPassword(stored: string): boolean {
+  return !stored.startsWith(`${PASSWORD_PREFIX}$`)
+}
 
 function getCustomers(): Customer[] {
   try {
@@ -67,7 +95,7 @@ export function createCustomer(data: {
     name: data.name,
     email: data.email.toLowerCase(),
     phone: data.phone,
-    password: data.password,
+    password: hashPassword(data.password),
     addresses: [],
     isActive: true,
     status: 'active',
@@ -78,6 +106,22 @@ export function createCustomer(data: {
   }
   customers.push(customer)
   saveCustomers(customers)
+  return customer
+}
+
+export function verifyCustomerPassword(email: string, password: string): Customer | null {
+  const customers = getCustomers()
+  const idx = customers.findIndex((c) => c.email.toLowerCase() === email.toLowerCase())
+  if (idx < 0) return null
+  const customer = customers[idx]
+  if (!verifyPassword(password, customer.password)) return null
+
+  if (isLegacyPlaintextPassword(customer.password)) {
+    customers[idx] = { ...customer, password: hashPassword(password) }
+    saveCustomers(customers)
+    return customers[idx]
+  }
+
   return customer
 }
 

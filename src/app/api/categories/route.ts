@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireAdminApi } from '@/lib/admin-api'
 import { getCategoryRepository } from '@/lib/repositories'
 
 export async function GET() {
@@ -7,6 +8,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   try {
     const data = await request.json()
     const repo = getCategoryRepository()

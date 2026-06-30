@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
 import './globals.css'
 
+const siteUrl = process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://gather-eg.com'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: 'Gather — Premium Gifts Delivered Same-Day in Cairo',
     template: '%s | Gather',

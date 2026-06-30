@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireAdminApi } from '@/lib/admin-api'
 import { readJson, writeJson } from '@/lib/db'
 import type { Review, ReviewStatus } from '@/types'
 
@@ -8,6 +9,9 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   try {
     const { id } = await params
     const body = await request.json()
@@ -57,6 +61,9 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   try {
     const { id } = await params
     const reviews = readJson<Review[]>(FILE)

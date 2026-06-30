@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { customerIsActive, findCustomerByEmail } from '@/lib/customer-data'
+import { customerIsActive, verifyCustomerPassword } from '@/lib/customer-data'
 
 export async function POST(request: Request) {
   try {
@@ -9,8 +9,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
     }
 
-    const customer = findCustomerByEmail(email)
-    if (!customer || customer.password !== password) {
+    const customer = verifyCustomerPassword(email, password)
+    if (!customer) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
     }
 

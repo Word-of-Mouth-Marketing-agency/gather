@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server'
+import { requireAdminApi } from '@/lib/admin-api'
 import { deleteOrder, getOrderById, updateOrderStatus } from '@/lib/orders'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   const { id } = await params
   const order = getOrderById(id)
   if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -9,6 +13,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   try {
     const { id } = await params
     const { status } = await request.json()
@@ -22,6 +29,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   const { id } = await params
   const deleted = deleteOrder(id)
   if (!deleted) return NextResponse.json({ error: 'Not found' }, { status: 404 })

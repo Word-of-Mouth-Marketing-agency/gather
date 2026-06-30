@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server'
+import { requireAdminApi } from '@/lib/admin-api'
 import { getAdminCustomers, updateCustomer } from '@/lib/customer-data'
 
 export async function GET() {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   return NextResponse.json(getAdminCustomers())
 }
 
 export async function POST(request: Request) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   try {
     const { id, name, email, phone, isActive, status } = await request.json()
     if (!id) return NextResponse.json({ error: 'Customer ID required' }, { status: 400 })

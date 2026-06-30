@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
+import { requireAdminApi } from '@/lib/admin-api'
 import { readJson, writeJson } from '@/lib/db'
+import { validateImageUpload } from '@/lib/upload-validation'
 import type { MediaAsset } from '@/types'
 
 export async function GET() {
@@ -8,10 +10,15 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const unauthorized = await requireAdminApi()
+  if (unauthorized) return unauthorized
+
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+    const validation = validateImageUpload(file)
+    if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 })
 
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const fs = require('fs') as typeof import('fs')
@@ -20,8 +27,7 @@ export async function POST(request: Request) {
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
     if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true })
 
-    const ext = path.extname(file.name)
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}${ext}`
+    const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}${validation.extension}`
     const buffer = Buffer.from(await file.arrayBuffer())
     fs.writeFileSync(path.join(uploadsDir, filename), buffer)
 
