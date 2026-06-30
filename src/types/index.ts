@@ -495,5 +495,8 @@ export interface Customer {
   acceptedDataPolicy?: boolean
   acceptedTermsAndConditions?: boolean
   acceptedCustomerPoliciesAt?: string
+  needsPasswordSetup?: boolean
+  passwordResetToken?: string
+  passwordResetExpiry?: number
   createdAt: string
 }

@@ -136,6 +136,20 @@ export default function CheckoutPageClient() {
             }
           })
           .catch(() => {})
+        fetch(`/api/orders?email=${encodeURIComponent(session.email)}`)
+          .then((r) => r.json())
+          .then((orders) => {
+            if (Array.isArray(orders) && orders.length > 0) {
+              const lastOrder = orders[orders.length - 1]
+              setForm((f) => ({
+                ...f,
+                city: f.city || lastOrder.delivery?.city || '',
+                address: f.address || lastOrder.delivery?.address || '',
+                phone: f.phone || lastOrder.customer?.phone || '',
+              }))
+            }
+          })
+          .catch(() => {})
       }
       setMounted(true)
     })

@@ -4,12 +4,24 @@ import { useState, useEffect, startTransition } from 'react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
+const FALLBACK_HREF = 'https://wa.me/201000000000?text=Hi%20GATHER%2C%20I%20need%20help%20with%20my%20order.'
+
 export default function RabbitAssistant() {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
+  const [whatsappHref, setWhatsappHref] = useState(FALLBACK_HREF)
 
   useEffect(() => {
     startTransition(() => { setMounted(true) })
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/site-settings')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.whatsappMessageHref) setWhatsappHref(data.whatsappMessageHref)
+      })
+      .catch(() => {})
   }, [])
 
   if (!mounted || pathname.startsWith('/admin')) return null
@@ -17,7 +29,7 @@ export default function RabbitAssistant() {
   return (
     <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2 max-w-[calc(100vw-1.5rem)]">
       <a
-        href="https://wa.me/201000000000?text=Hi%20GATHER%2C%20I%20need%20help%20with%20my%20order."
+        href={whatsappHref}
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-3"

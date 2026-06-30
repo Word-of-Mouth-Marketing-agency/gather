@@ -3,7 +3,7 @@
     "id": "page-home",
     "slug": "home",
     "title": "Home",
-    "metaDescription": "Gather — Premium gifts delivered same-day across Cairo. Shop gift boxes, flowers, chocolates, and more for every occasion.",
+    "metaDescription": "Gather — Premium gifts delivered across Cairo. Shop gift boxes, flowers, chocolates, and more for every occasion.",
     "updatedAt": "2026-06-03T00:00:00Z",
     "sections": [
       {
@@ -13,7 +13,7 @@
         "visible": true,
         "props": {
           "title": "Gather Every Moment",
-          "subtitle": "Premium gifts delivered same-day across Cairo. Make every celebration unforgettable.",
+          "subtitle": "Premium gifts delivered across Cairo. Make every celebration unforgettable.",
           "ctaText": "Shop Now",
           "ctaUrl": "/shop-by-category",
           "image": "/images/hero-bg.jpg",
@@ -139,7 +139,7 @@
         "visible": true,
         "props": {
           "title": "Our Story",
-          "content": "Gather was founded with a simple belief: that gifting should be effortless, meaningful, and beautiful. We curate the finest gifts from premium local and international suppliers, arrange them with care, and deliver them same-day across Cairo.\n\nFrom birthdays to corporate events, from Ramadan baskets to Eid boxes — we help you celebrate every moment with intention.",
+          "content": "Gather was founded with a simple belief: that gifting should be effortless, meaningful, and beautiful. We curate the finest gifts from premium local and international suppliers, arrange them with care, and deliver them across Cairo.\n\nFrom birthdays to corporate events, from Ramadan baskets to Eid boxes — we help you celebrate every moment with intention.",
           "align": "center"
         }
       }

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { requireAdminApi } from '@/lib/admin-api'
 import { getAllOrders, createOrder, updateOrderStatus } from '@/lib/orders'
 import { getShippingFeeForCity } from '@/lib/shipping-fees'
+import { upsertCustomerFromCheckout } from '@/lib/customer-data'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -22,8 +23,19 @@ export async function POST(request: Request) {
     const data = await request.json()
     const shippingFee = getShippingFeeForCity(data.delivery?.city ?? '')
     const subtotal = Number(data.subtotal) || 0
+
+    const customer = upsertCustomerFromCheckout({
+      firstName: data.customer?.firstName ?? '',
+      lastName: data.customer?.lastName ?? '',
+      email: data.customer?.email ?? '',
+      phone: data.customer?.phone ?? '',
+      city: data.delivery?.city,
+      address: data.delivery?.address,
+    })
+
     const order = createOrder({
       ...data,
+      customerId: customer.id,
       subtotal,
       shippingFee,
       total: subtotal + shippingFee,

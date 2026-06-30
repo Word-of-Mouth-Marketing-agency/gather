@@ -6,17 +6,17 @@ const siteUrl = process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'htt
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Gather — Premium Gifts Delivered Same-Day in Cairo',
+    default: 'Gather — Premium Gifts Delivered in Cairo',
     template: '%s | Gather',
   },
   description:
-    "Gather — Cairo's premium gifting platform. Shop gift boxes, flowers, chocolates, and more for every occasion. Same-day delivery available.",
+    "Gather — Cairo's premium gifting platform. Shop gift boxes, flowers, chocolates, and more for every occasion. Fast delivery available across Cairo.",
   icons: {
     icon: '/assets/gather/favicon.png',
   },
   openGraph: {
-    title: 'Gather — Premium Gifts Delivered Same-Day in Cairo',
-    description: 'Shop premium gifts for every occasion. Same-day delivery across Cairo.',
+    title: 'Gather — Premium Gifts Delivered in Cairo',
+    description: 'Shop premium gifts for every occasion. Fast delivery across Cairo.',
     url: 'https://gather-eg.com',
     siteName: 'Gather',
     locale: 'en_US',
@@ -32,8 +32,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Gather — Premium Gifts Delivered Same-Day in Cairo',
-    description: 'Shop premium gifts for every occasion. Same-day delivery across Cairo.',
+    title: 'Gather — Premium Gifts Delivered in Cairo',
+    description: 'Shop premium gifts for every occasion. Fast delivery across Cairo.',
     images: ['/assets/gather/gather-logo.webp'],
   },
   robots: {

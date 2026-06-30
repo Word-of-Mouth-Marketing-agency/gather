@@ -6,7 +6,7 @@ import HeroSlideshow from '@/components/sections/HeroSlideshow'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Gather — Premium Gifts Delivered Same-Day in Cairo',
+  title: 'Gather — Premium Gifts Delivered in Cairo',
 }
 
 export default function HomePage() {

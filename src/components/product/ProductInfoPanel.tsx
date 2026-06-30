@@ -115,7 +115,7 @@ export default function ProductInfoPanel({ product, categories, occasions }: Pro
         </div>
 
         <div className="rounded-2xl bg-[#fff7df] border border-[#f1d38a] border-l-4 border-l-[#d99a00] px-4 py-3 text-sm font-semibold text-[#6b4b00]">
-          Same-day delivery available for orders placed before 2:00 PM.
+          Fast delivery available across Cairo.
         </div>
 
         <div className="space-y-3 pt-2">

@@ -1,17 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import PageTitleSection from '@/components/PageTitleSection'
-import { setCustomerSession } from '@/lib/customer-auth'
 
-export default function LoginPage() {
-  const router = useRouter()
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [devToken, setDevToken] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -19,22 +17,14 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/auth/customer/login', {
+      const res = await fetch('/api/auth/customer/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email }),
       })
-
       const data = await res.json()
-
-      if (!res.ok) {
-        setError(data.error || 'Login failed')
-        return
-      }
-
-      setCustomerSession(data)
-      router.push('/my-account')
-      router.refresh()
+      setSent(true)
+      if (data.devToken) setDevToken(data.devToken)
     } catch {
       setError('An error occurred. Please try again.')
     } finally {
@@ -42,13 +32,45 @@ export default function LoginPage() {
     }
   }
 
+  if (sent) {
+    return (
+      <>
+        <PageTitleSection title="Check Your Email" />
+        <main className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="gather-section p-8 rounded-3xl text-center">
+            <div className="text-4xl mb-4">📧</div>
+            <h2 className="text-lg font-black text-[#171717]">Reset link sent</h2>
+            <p className="mt-2 text-sm text-[#7a6247]">
+              If an account exists for {email}, you will receive a password reset link shortly.
+            </p>
+            {devToken && (
+              <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-left">
+                <p className="text-xs font-semibold text-amber-800 mb-1">Dev: Reset Token</p>
+                <p className="text-xs text-amber-700 break-all font-mono">{devToken}</p>
+                <Link
+                  href={`/reset-password?token=${devToken}`}
+                  className="mt-2 inline-block text-xs text-amber-700 font-semibold underline hover:text-amber-900"
+                >
+                  Open reset page
+                </Link>
+              </div>
+            )}
+            <Link href="/login" className="mt-6 inline-block text-sm text-[#ff7a1a] font-semibold hover:underline">
+              Back to Sign In
+            </Link>
+          </div>
+        </main>
+      </>
+    )
+  }
+
   return (
     <>
-      <PageTitleSection title="Sign In" />
+      <PageTitleSection title="Forgot Password" />
       <main className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="gather-section p-8 rounded-3xl">
           <p className="text-sm text-[#7a6247] mb-6 text-center">
-            Welcome back! Sign in to manage your orders and account.
+            Enter your email address and we&apos;ll send you a link to reset your password.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -70,37 +92,18 @@ export default function LoginPage() {
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                className="w-full min-h-[50px] rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20 transition-colors"
-                placeholder="Enter your password"
-              />
-              <div className="text-right">
-                <Link href="/forgot-password" className="text-xs text-[#ff7a1a] font-medium hover:underline">
-                  Forgot password?
-                </Link>
-              </div>
-            </div>
-
             <button
               type="submit"
               disabled={loading}
               className="w-full py-4 rounded-full bg-[#ff7a1a] text-white font-black text-base shadow-lg hover:bg-[#fe6c00] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? 'Sending...' : 'Send Reset Link'}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-[#7a6247]">
-            Don&apos;t have an account?{' '}
-            <Link href="/signup" className="text-[#ff7a1a] font-semibold hover:underline">
-              Create one
+            <Link href="/login" className="text-[#ff7a1a] font-semibold hover:underline">
+              Back to Sign In
             </Link>
           </p>
         </div>

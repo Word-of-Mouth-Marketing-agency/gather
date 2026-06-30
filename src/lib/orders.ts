@@ -12,6 +12,7 @@ export interface Order {
   shippingFee?: number
   total: number
   currency: string
+  customerId?: string
   customer: {
     firstName: string
     lastName: string

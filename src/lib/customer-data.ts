@@ -125,6 +125,74 @@ export function verifyCustomerPassword(email: string, password: string): Custome
   return customer
 }
 
+export function upsertCustomerFromCheckout(data: {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  city?: string
+  address?: string
+}): Customer {
+  const customers = getCustomers()
+  const existingIdx = customers.findIndex((c) => c.email.toLowerCase() === data.email.toLowerCase())
+
+  if (existingIdx >= 0) {
+    const customer = customers[existingIdx]
+    if (!customer.name && `${data.firstName} ${data.lastName}`.trim()) {
+      customer.name = `${data.firstName} ${data.lastName}`.trim()
+    }
+    if (!customer.phone && data.phone) {
+      customer.phone = data.phone
+    }
+    if (data.city && data.address) {
+      const existingAddr = customer.addresses.find((a) => a.city === data.city && a.street === data.address)
+      if (!existingAddr) {
+        const newAddr: Address = {
+          id: generateId('addr'),
+          label: 'Checkout address',
+          city: data.city,
+          street: data.address,
+          phone: data.phone,
+          isDefault: customer.addresses.length === 0,
+        }
+        customer.addresses.push(newAddr)
+      }
+    }
+    saveCustomers(customers)
+    return customer
+  }
+
+  const firstName = data.firstName || ''
+  const lastName = data.lastName || ''
+  const name = `${firstName} ${lastName}`.trim()
+  const guestPassword = hashPassword(`${data.email}:${Date.now()}:${Math.random()}`)
+  const customer: Customer = {
+    id: generateId('cust'),
+    name: name || data.email.split('@')[0],
+    email: data.email.toLowerCase(),
+    phone: data.phone,
+    password: guestPassword,
+    addresses: [],
+    isActive: true,
+    status: 'active',
+    needsPasswordSetup: true,
+    createdAt: new Date().toISOString(),
+  }
+  if (data.city && data.address) {
+    customer.addresses.push({
+      id: generateId('addr'),
+      label: 'Checkout address',
+      city: data.city,
+      street: data.address,
+      phone: data.phone,
+      isDefault: true,
+    })
+  }
+  customers.push(customer)
+  saveCustomers(customers)
+  return customer
+}
+
 export function updateCustomer(id: string, data: Partial<Pick<Customer, 'name' | 'email' | 'phone' | 'isActive' | 'status'>>): Customer | null {
   const customers = getCustomers()
   const idx = customers.findIndex((c) => c.id === id)
@@ -196,6 +264,46 @@ export function deleteCustomerAddress(customerId: string, addressId: string): bo
   const len = customers[cIdx].addresses.length
   customers[cIdx].addresses = customers[cIdx].addresses.filter((a) => a.id !== addressId)
   if (customers[cIdx].addresses.length === len) return false
+  saveCustomers(customers)
+  return true
+}
+
+const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000
+
+export function generatePasswordResetToken(email: string): string | null {
+  const customers = getCustomers()
+  const idx = customers.findIndex((c) => c.email.toLowerCase() === email.toLowerCase())
+  if (idx < 0) return null
+
+  const token = randomBytes(32).toString('base64url')
+  customers[idx].passwordResetToken = token
+  customers[idx].passwordResetExpiry = Date.now() + RESET_TOKEN_EXPIRY_MS
+  saveCustomers(customers)
+  return token
+}
+
+export function resetPasswordWithToken(token: string, newPassword: string): boolean {
+  const customers = getCustomers()
+  const idx = customers.findIndex((c) => {
+    if (!c.passwordResetToken || !c.passwordResetExpiry) return false
+    return c.passwordResetToken === token && c.passwordResetExpiry > Date.now()
+  })
+  if (idx < 0) return false
+
+  customers[idx].password = hashPassword(newPassword)
+  customers[idx].passwordResetToken = undefined
+  customers[idx].passwordResetExpiry = undefined
+  customers[idx].needsPasswordSetup = false
+  saveCustomers(customers)
+  return true
+}
+
+export function setCustomerPassword(id: string, newPassword: string): boolean {
+  const customers = getCustomers()
+  const idx = customers.findIndex((c) => c.id === id)
+  if (idx < 0) return false
+  customers[idx].password = hashPassword(newPassword)
+  customers[idx].needsPasswordSetup = false
   saveCustomers(customers)
   return true
 }
