@@ -1,8 +1,16 @@
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
+import { Tajawal } from 'next/font/google'
 import './globals.css'
 
 const siteUrl = process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://gather-eg.com'
+
+const tajawal = Tajawal({
+  subsets: ['arabic'],
+  weight: ['400', '500', '700', '800'],
+  variable: '--font-tajawal',
+  display: 'swap',
+})
 
 export async function generateMetadata(): Promise<Metadata> {
   let localeHeader = 'en'
@@ -72,7 +80,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   } catch { /* default to en */ }
 
   return (
-    <html lang={isArabic ? 'ar' : 'en'} dir={isArabic ? 'rtl' : 'ltr'} className="h-full antialiased">
+    <html lang={isArabic ? 'ar' : 'en'} dir={isArabic ? 'rtl' : 'ltr'} className={`h-full antialiased ${isArabic ? tajawal.variable : ''}`}>
       <body className="min-h-full" suppressHydrationWarning>
         {children}
       </body>

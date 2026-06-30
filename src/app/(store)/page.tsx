@@ -61,7 +61,7 @@ export default async function HomePage() {
 
   return (
     <main className="overflow-x-clip">
-      <HeroSlideshow slides={homepage.heroSlides} heroText={heroText} />
+      <HeroSlideshow slides={homepage.heroSlides} heroText={heroText} isRTL={isAr} />
       <SectionRenderer sections={sections} />
     </main>
   )

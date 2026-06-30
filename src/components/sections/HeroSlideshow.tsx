@@ -11,9 +11,10 @@ const SLIDE_INTERVAL = 6000
 interface Props {
   slides: HeroSlide[]
   heroText: HeroText
+  isRTL?: boolean
 }
 
-export default function HeroSlideshow({ slides, heroText }: Props) {
+export default function HeroSlideshow({ slides, heroText, isRTL = false }: Props) {
   const activeSlides = slides.filter((s) => s.isActive).sort((a, b) => a.sortOrder - b.sortOrder)
   const [active, setActive] = useState(0)
   const copyRef = useRef<HTMLDivElement>(null)
@@ -78,7 +79,7 @@ export default function HeroSlideshow({ slides, heroText }: Props) {
 
       <div className="absolute inset-0 flex items-start justify-center pt-[clamp(2rem,11vw,4rem)] sm:items-center sm:justify-start sm:pt-0">
         <div className="mx-auto w-full max-w-7xl px-[clamp(1rem,4vw,4rem)]">
-          <div ref={copyRef} className="mx-auto max-w-[min(680px,92vw)] text-center text-white sm:ml-[clamp(0.75rem,5vw,4rem)] sm:mr-0 sm:text-left xl:ml-0">
+          <div ref={copyRef} className={`mx-auto max-w-[min(680px,92vw)] text-center text-white ${isRTL ? 'sm:mr-[clamp(0.75rem,5vw,4rem)] sm:ml-0 sm:text-right xl:mr-0' : 'sm:ml-[clamp(0.75rem,5vw,4rem)] sm:mr-0 sm:text-left xl:ml-0'}`}>
             <p
               data-hero-copy
               className="font-black leading-none text-white"
