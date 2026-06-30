@@ -5,13 +5,16 @@ import { useState } from 'react'
 interface Props {
   formTitle: string
   recipientEmail: string
+  locale?: string
 }
 
-export default function ContactForm({ formTitle, recipientEmail }: Props) {
+export default function ContactForm({ formTitle, recipientEmail, locale = 'en' }: Props) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [submitted, setSubmitted] = useState(false)
+
+  const isAr = locale === 'ar'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,8 +38,12 @@ export default function ContactForm({ formTitle, recipientEmail }: Props) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h3 className="text-2xl font-bold text-[#171717] mb-2">Message sent successfully</h3>
-        <p className="text-[#7a6247] text-sm">We&apos;ll get back to you as soon as possible.</p>
+        <h3 className="text-2xl font-bold text-[#171717] mb-2">
+          {isAr ? 'تم إرسال الرسالة بنجاح' : 'Message sent successfully'}
+        </h3>
+        <p className="text-[#7a6247] text-sm">
+          {isAr ? 'سنتواصل معك في أقرب وقت ممكن.' : "We'll get back to you as soon as possible."}
+        </p>
       </div>
     )
   }
@@ -54,7 +61,7 @@ export default function ContactForm({ formTitle, recipientEmail }: Props) {
             <input
               id="contact-name"
               type="text"
-              placeholder="Name"
+              placeholder={isAr ? 'الاسم' : 'Name'}
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -66,7 +73,7 @@ export default function ContactForm({ formTitle, recipientEmail }: Props) {
             <input
               id="contact-email"
               type="email"
-              placeholder="Email"
+              placeholder={isAr ? 'البريد الإلكتروني' : 'Email'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -79,7 +86,7 @@ export default function ContactForm({ formTitle, recipientEmail }: Props) {
           <label htmlFor="contact-message" className="sr-only">Message</label>
           <textarea
             id="contact-message"
-            placeholder="Message"
+            placeholder={isAr ? 'رسالتك' : 'Message'}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             required
@@ -92,7 +99,7 @@ export default function ContactForm({ formTitle, recipientEmail }: Props) {
           type="submit"
           className="gather-btn-primary w-full justify-center py-3.5 text-base"
         >
-          Send
+          {isAr ? 'إرسال الرسالة' : 'Send'}
         </button>
       </form>
     </div>

@@ -35,8 +35,9 @@ export default function RabbitAssistant() {
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-3"
+        dir="ltr"
       >
-        <span className="bg-white text-[#171717] text-xs sm:text-sm font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-lg whitespace-nowrap">
+        <span className="bg-white text-[#171717] text-xs sm:text-sm font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-lg whitespace-nowrap" dir="auto">
           {t('rabbit.needHelp')}
         </span>
         <div className="w-[48px] h-[48px] sm:w-[68px] sm:h-[68px] shrink-0 rounded-full bg-[#fff4e8] border-2 border-[#FE7501] flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer overflow-hidden">

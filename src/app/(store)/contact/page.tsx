@@ -35,6 +35,7 @@ export default async function ContactPage() {
             <ContactForm
               formTitle={isAr ? content.ar?.formTitle ?? content.formTitle : content.formTitle}
               recipientEmail={content.recipientEmail}
+              locale={locale}
             />
           </div>
         </div>
