@@ -23,6 +23,7 @@ export interface Product {
   reviewCount?: number
   reviews?: ProductReview[]
   crossSellIds: string[]
+  frequentlyBoughtTogetherIds?: string[]
   featured: boolean
   createdAt: string
 }

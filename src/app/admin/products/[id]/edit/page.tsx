@@ -54,6 +54,7 @@ export default function EditProductPage() {
     categoryIds: product.categoryIds,
     occasionIds: product.occasionIds,
     crossSellIds: product.crossSellIds,
+    frequentlyBoughtTogetherIds: product.frequentlyBoughtTogetherIds ?? [],
     featured: product.featured,
   }
 

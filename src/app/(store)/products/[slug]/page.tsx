@@ -48,7 +48,7 @@ export default async function ProductPage({ params }: Props) {
   const productOccasions = product.occasionIds
     .map((id) => getCategoryById(id))
     .filter((item): item is Category => item !== undefined)
-  const recommendations = getRecommendedProducts(product, allProducts, 3)
+  const recommendations = getFrequentlyBoughtTogetherProducts(product, allProducts, 3)
   const relatedProducts = getRelatedProducts(product, allProducts, 8)
 
   return (
@@ -110,6 +110,17 @@ function getRecommendedProducts(product: Product, allProducts: Product[], limit:
 
   const featured = allProducts.filter((item) => item.id !== product.id && item.featured)
   return uniqueProducts([...related, ...featured]).slice(0, limit)
+}
+
+function getFrequentlyBoughtTogetherProducts(product: Product, allProducts: Product[], limit: number): Product[] {
+  const manual = (product.frequentlyBoughtTogetherIds ?? [])
+    .map((id) => allProducts.find((item) => item.id === id))
+    .filter((item): item is Product => Boolean(item))
+    .filter((item) => item.id !== product.id)
+    .filter((item) => (item as Product & { isActive?: boolean }).isActive !== false)
+
+  const manualProducts = uniqueProducts(manual).slice(0, limit)
+  return manualProducts.length > 0 ? manualProducts : getRecommendedProducts(product, allProducts, limit)
 }
 
 function getRelatedProducts(product: Product, allProducts: Product[], limit: number): Product[] {

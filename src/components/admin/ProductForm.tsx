@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import type { Category } from '@/types'
+import type { Category, Product } from '@/types'
+
+const FBT_LIMIT = 3
 
 export interface ProductFormData {
   name: string
@@ -22,6 +24,7 @@ export interface ProductFormData {
   categoryIds: string[]
   occasionIds: string[]
   crossSellIds: string[]
+  frequentlyBoughtTogetherIds: string[]
   featured: boolean
 }
 
@@ -42,6 +45,7 @@ const EMPTY: ProductFormData = {
   categoryIds: [],
   occasionIds: [],
   crossSellIds: [],
+  frequentlyBoughtTogetherIds: [],
   featured: false,
 }
 
@@ -59,6 +63,8 @@ export default function ProductForm({ initialData, productId }: Props) {
   const [uploading, setUploading] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [occasions, setOccasions] = useState<Category[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [fbtSearch, setFbtSearch] = useState('')
   const featuredFileRef = useRef<HTMLInputElement>(null)
   const galleryFileRef = useRef<HTMLInputElement>(null)
 
@@ -68,12 +74,16 @@ export default function ProductForm({ initialData, productId }: Props) {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch('/api/categories')
-        if (res.ok) {
-          const all: Category[] = await res.json()
+        const [categoriesRes, productsRes] = await Promise.all([
+          fetch('/api/categories'),
+          fetch('/api/products'),
+        ])
+        if (categoriesRes.ok) {
+          const all: Category[] = await categoriesRes.json()
           setCategories(all.filter((c) => c.type === 'category'))
           setOccasions(all.filter((c) => c.type === 'occasion'))
         }
+        if (productsRes.ok) setProducts(await productsRes.json())
       } catch { /* ignore */ }
     }
     load()
@@ -94,6 +104,48 @@ export default function ProductForm({ initialData, productId }: Props) {
     setField('occasionIds', form.occasionIds.includes(id)
       ? form.occasionIds.filter((o) => o !== id)
       : [...form.occasionIds, id])
+  }
+
+  const selectedFbtProducts = form.frequentlyBoughtTogetherIds
+    .map((id) => products.find((product) => product.id === id))
+    .filter((product): product is Product => Boolean(product))
+
+  const searchableFbtProducts = products
+    .filter((product) => product.id !== productId)
+    .filter((product) => !form.frequentlyBoughtTogetherIds.includes(product.id))
+    .filter((product) => {
+      const q = fbtSearch.trim().toLowerCase()
+      if (!q) return true
+      const sku = (product as Product & { sku?: string }).sku ?? ''
+      return (
+        product.name.toLowerCase().includes(q) ||
+        product.slug.toLowerCase().includes(q) ||
+        product.id.toLowerCase().includes(q) ||
+        sku.toLowerCase().includes(q)
+      )
+    })
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .slice(0, 8)
+
+  function addFbtProduct(id: string) {
+    if (!id || id === productId || form.frequentlyBoughtTogetherIds.includes(id)) return
+    if (form.frequentlyBoughtTogetherIds.length >= FBT_LIMIT) return
+    setField('frequentlyBoughtTogetherIds', [...form.frequentlyBoughtTogetherIds, id])
+    setFbtSearch('')
+  }
+
+  function removeFbtProduct(id: string) {
+    setField('frequentlyBoughtTogetherIds', form.frequentlyBoughtTogetherIds.filter((productId) => productId !== id))
+  }
+
+  function moveFbtProduct(id: string, direction: -1 | 1) {
+    const current = [...form.frequentlyBoughtTogetherIds]
+    const index = current.indexOf(id)
+    const nextIndex = index + direction
+    if (index < 0 || nextIndex < 0 || nextIndex >= current.length) return
+    const [item] = current.splice(index, 1)
+    current.splice(nextIndex, 0, item)
+    setField('frequentlyBoughtTogetherIds', current)
   }
 
   async function uploadFile(file: File): Promise<string | null> {
@@ -144,6 +196,10 @@ export default function ProductForm({ initialData, productId }: Props) {
     e.preventDefault()
     if (form.discountStartsAt && form.discountEndsAt && form.discountEndsAt < form.discountStartsAt) {
       setError('Discount end date cannot be before the start date.')
+      return
+    }
+    if (form.frequentlyBoughtTogetherIds.length > FBT_LIMIT) {
+      setError(`Frequently Bought Together can include up to ${FBT_LIMIT} products.`)
       return
     }
     setSaving(true)
@@ -394,6 +450,94 @@ export default function ProductForm({ initialData, productId }: Props) {
             </label>
           </div>
         </div>
+      </div>
+
+      {/* Frequently Bought Together */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-black text-gray-900">Frequently Bought Together</h2>
+            <p className="mt-1 text-xs text-gray-400">
+              Choose up to {FBT_LIMIT} products to show with this product. If empty, the storefront uses automatic suggestions.
+            </p>
+          </div>
+          <span className={`text-xs font-bold ${selectedFbtProducts.length >= FBT_LIMIT ? 'text-red-500' : 'text-gray-400'}`}>
+            {selectedFbtProducts.length}/{FBT_LIMIT}
+          </span>
+        </div>
+
+        <div className="relative">
+          <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="search"
+            value={fbtSearch}
+            onChange={(e) => setFbtSearch(e.target.value)}
+            disabled={selectedFbtProducts.length >= FBT_LIMIT}
+            placeholder="Search products by name, slug, or ID..."
+            className="w-full rounded-xl border border-gray-200 py-2.5 pl-9 pr-3 text-sm focus:outline-none focus:border-[#ff7a1a] disabled:opacity-50"
+          />
+        </div>
+
+        {selectedFbtProducts.length < FBT_LIMIT && (
+          <div className="max-h-44 overflow-y-auto rounded-xl border border-gray-100 bg-gray-50">
+            {searchableFbtProducts.length > 0 ? (
+              searchableFbtProducts.map((product) => (
+                <button
+                  key={product.id}
+                  type="button"
+                  onClick={() => addFbtProduct(product.id)}
+                  className="flex w-full items-center justify-between gap-3 border-b border-white px-3 py-2 text-left last:border-b-0 hover:bg-white"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold text-gray-700">{product.name}</span>
+                    <span className="block truncate text-xs text-gray-400">{product.slug}</span>
+                  </span>
+                  <span className="shrink-0 rounded-lg bg-[#fff4e8] px-2 py-1 text-xs font-bold text-[#ff7a1a]">Add</span>
+                </button>
+              ))
+            ) : (
+              <p className="px-3 py-3 text-xs text-gray-400">
+                {fbtSearch ? 'No matching products found.' : 'No products available.'}
+              </p>
+            )}
+          </div>
+        )}
+
+        {selectedFbtProducts.length > 0 && (
+          <div className="space-y-2">
+            {selectedFbtProducts.map((product, index) => (
+              <div key={product.id} className="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-2">
+                <span className="w-5 text-xs font-black text-gray-400">{index + 1}</span>
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-gray-700">{product.name}</span>
+                <button
+                  type="button"
+                  onClick={() => moveFbtProduct(product.id, -1)}
+                  disabled={index === 0}
+                  className="rounded-lg px-2 py-1 text-xs font-bold text-gray-500 hover:bg-white disabled:opacity-30"
+                >
+                  Up
+                </button>
+                <button
+                  type="button"
+                  onClick={() => moveFbtProduct(product.id, 1)}
+                  disabled={index === selectedFbtProducts.length - 1}
+                  className="rounded-lg px-2 py-1 text-xs font-bold text-gray-500 hover:bg-white disabled:opacity-30"
+                >
+                  Down
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeFbtProduct(product.id)}
+                  className="rounded-lg px-2 py-1 text-xs font-bold text-red-400 hover:bg-red-50"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Categories */}

@@ -41,6 +41,13 @@ import { writeJson, generateId } from './db'
 const PRODUCTS_FILE = 'products.json'
 const CATEGORIES_FILE = 'categories.json'
 const BUNDLES_FILE = 'bundles.json'
+const FBT_SUGGESTION_LIMIT = 3
+
+function normalizeFrequentlyBoughtTogetherIds(ids?: string[], productId?: string): string[] {
+  return [...new Set(ids ?? [])]
+    .filter((id) => id && id !== productId)
+    .slice(0, FBT_SUGGESTION_LIMIT)
+}
 
 function normalizeTopProductIds(ids?: string[]): string[] {
   return [...new Set(ids ?? [])].filter(Boolean).slice(0, 10)
@@ -62,6 +69,10 @@ export class JsonProductRepository implements ProductRepository {
       id: generateId('prod'),
       createdAt: new Date().toISOString(),
     }
+    product.frequentlyBoughtTogetherIds = normalizeFrequentlyBoughtTogetherIds(
+      data.frequentlyBoughtTogetherIds,
+      product.id
+    )
     products.push(product)
     writeJson(PRODUCTS_FILE, products)
     return product
@@ -71,7 +82,13 @@ export class JsonProductRepository implements ProductRepository {
     const products = this.getAll()
     const idx = products.findIndex((p) => p.id === id)
     if (idx < 0) return undefined
-    products[idx] = { ...products[idx], ...data }
+    products[idx] = {
+      ...products[idx],
+      ...data,
+      frequentlyBoughtTogetherIds: data.frequentlyBoughtTogetherIds === undefined
+        ? products[idx].frequentlyBoughtTogetherIds
+        : normalizeFrequentlyBoughtTogetherIds(data.frequentlyBoughtTogetherIds, id),
+    }
     writeJson(PRODUCTS_FILE, products)
     return products[idx]
   }
