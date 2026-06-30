@@ -32,6 +32,7 @@ export default function AdminCategoriesPage() {
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [productSearch, setProductSearch] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
   async function load() {
@@ -65,6 +66,7 @@ export default function AdminCategoriesPage() {
       editing: null,
       form: { ...EMPTY_FORM, type: activeTab, sortOrder: nextSortOrder },
     })
+    setProductSearch('')
   }
 
   function openEdit(item: Category) {
@@ -84,10 +86,12 @@ export default function AdminCategoriesPage() {
         topProductIds: (item.topProductIds ?? []).slice(0, 10),
       },
     })
+    setProductSearch('')
   }
 
   function closeModal() {
     setModal({ open: false, editing: null, form: EMPTY_FORM })
+    setProductSearch('')
   }
 
   function setFormField<K extends keyof CategoryForm>(key: K, value: CategoryForm[K]) {
@@ -105,11 +109,25 @@ export default function AdminCategoriesPage() {
     )
     .sort((a, b) => a.name.localeCompare(b.name))
 
+  const searchableTopProducts = availableTopProducts
+    .filter((product) => !(modal.form.topProductIds ?? []).includes(product.id))
+    .filter((product) => {
+      const q = productSearch.trim().toLowerCase()
+      if (!q) return true
+      return (
+        product.name.toLowerCase().includes(q) ||
+        product.slug.toLowerCase().includes(q) ||
+        product.id.toLowerCase().includes(q)
+      )
+    })
+    .slice(0, 8)
+
   function addTopProduct(productId: string) {
     if (!productId) return
     const current = modal.form.topProductIds ?? []
     if (current.includes(productId) || current.length >= 10) return
     setFormField('topProductIds', [...current, productId])
+    setProductSearch('')
   }
 
   function removeTopProduct(productId: string) {
@@ -352,19 +370,46 @@ export default function AdminCategoriesPage() {
                   </p>
                 ) : (
                   <>
-                    <select
-                      value=""
-                      onChange={(e) => addTopProduct(e.target.value)}
-                      disabled={selectedTopProducts.length >= 10}
-                      className="mt-3 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-[#ff7a1a] disabled:opacity-50"
-                    >
-                      <option value="">Add a product...</option>
-                      {availableTopProducts
-                        .filter((product) => !(modal.form.topProductIds ?? []).includes(product.id))
-                        .map((product) => (
-                          <option key={product.id} value={product.id}>{product.name}</option>
-                        ))}
-                    </select>
+                    <div className="mt-3">
+                      <div className="relative">
+                        <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input
+                          type="search"
+                          value={productSearch}
+                          onChange={(e) => setProductSearch(e.target.value)}
+                          disabled={selectedTopProducts.length >= 10}
+                          placeholder="Search products by name, slug, or ID..."
+                          className="w-full rounded-xl border border-gray-200 py-2.5 pl-9 pr-3 text-sm focus:outline-none focus:border-[#ff7a1a] disabled:opacity-50"
+                        />
+                      </div>
+
+                      {selectedTopProducts.length < 10 && (
+                        <div className="mt-2 max-h-44 overflow-y-auto rounded-xl border border-gray-100 bg-gray-50">
+                          {searchableTopProducts.length > 0 ? (
+                            searchableTopProducts.map((product) => (
+                              <button
+                                key={product.id}
+                                type="button"
+                                onClick={() => addTopProduct(product.id)}
+                                className="flex w-full items-center justify-between gap-3 border-b border-white px-3 py-2 text-left last:border-b-0 hover:bg-white"
+                              >
+                                <span className="min-w-0">
+                                  <span className="block truncate text-sm font-semibold text-gray-700">{product.name}</span>
+                                  <span className="block truncate text-xs text-gray-400">{product.slug}</span>
+                                </span>
+                                <span className="shrink-0 rounded-lg bg-[#fff4e8] px-2 py-1 text-xs font-bold text-[#ff7a1a]">Add</span>
+                              </button>
+                            ))
+                          ) : (
+                            <p className="px-3 py-3 text-xs text-gray-400">
+                              {productSearch ? 'No matching products found.' : 'No more products available for this item.'}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
 
                     {availableTopProducts.length === 0 && (
                       <p className="mt-2 text-xs text-gray-400">
@@ -452,26 +497,6 @@ export default function AdminCategoriesPage() {
                     className="hidden"
                   />
                 </div>
-              </div>
-              <div>
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Parent ID</label>
-                <input
-                  value={modal.form.parentId ?? ''}
-                  onChange={(e) => setFormField('parentId', e.target.value || null)}
-                  className="w-full mt-1 px-3 py-2 rounded-xl border border-gray-200 text-sm font-mono focus:outline-none focus:border-[#ff7a1a]"
-                  placeholder="null"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Type</label>
-                <select
-                  value={modal.form.type}
-                  onChange={(e) => setFormField('type', e.target.value as 'category' | 'occasion')}
-                  className="w-full mt-1 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a]"
-                >
-                  <option value="category">Category</option>
-                  <option value="occasion">Occasion</option>
-                </select>
               </div>
             </div>
 
