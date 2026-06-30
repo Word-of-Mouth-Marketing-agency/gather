@@ -82,10 +82,10 @@ export default function HeroSlideshow({ slides, heroText, isRTL = false }: Props
           <div ref={copyRef} className={`mx-auto max-w-[min(680px,92vw)] text-center text-white ${isRTL ? 'sm:mr-[clamp(0.75rem,5vw,4rem)] sm:ml-0 sm:text-right xl:mr-0' : 'sm:ml-[clamp(0.75rem,5vw,4rem)] sm:mr-0 sm:text-left xl:ml-0'}`}>
             <p
               data-hero-copy
-              className="font-black leading-none text-white"
+              className={`font-black text-white ${isRTL ? 'leading-[1.2]' : 'leading-none'}`}
               style={{
                 fontSize: 'clamp(2.55rem, 6.4vw, 5.2rem)',
-                WebkitTextStroke: 'clamp(0.7px, 0.1vw, 1px) #FE7501',
+                ...(isRTL ? {} : { WebkitTextStroke: 'clamp(0.7px, 0.1vw, 1px) #FE7501' }),
                 textShadow: 'clamp(2px, 0.28vw, 3px) clamp(2px, 0.36vw, 4px) 0 rgba(0,0,0,0.72)',
               }}
             >
@@ -93,10 +93,10 @@ export default function HeroSlideshow({ slides, heroText, isRTL = false }: Props
             </p>
             <h1
               data-hero-copy
-              className="mt-[clamp(0.25rem,0.8vw,0.6rem)] font-black leading-[0.96] text-white"
+              className={`mt-[clamp(0.25rem,0.8vw,0.6rem)] font-black text-white ${isRTL ? 'leading-[1.15]' : 'leading-[0.96]'}`}
               style={{
                 fontSize: 'clamp(1.65rem, 4vw, 3.35rem)',
-                WebkitTextStroke: 'clamp(0.45px, 0.08vw, 0.8px) #FE7501',
+                ...(isRTL ? {} : { WebkitTextStroke: 'clamp(0.45px, 0.08vw, 0.8px) #FE7501' }),
                 textShadow: 'clamp(1px, 0.22vw, 2px) clamp(2px, 0.3vw, 3px) 0 rgba(0,0,0,0.72)',
               }}
             >
@@ -104,10 +104,10 @@ export default function HeroSlideshow({ slides, heroText, isRTL = false }: Props
             </h1>
             <p
               data-hero-copy
-              className="mt-[clamp(0.75rem,1.5vw,1.25rem)] max-w-[36rem] font-black leading-tight text-white"
+              className={`mt-[clamp(0.75rem,1.5vw,1.25rem)] max-w-[36rem] font-black text-white ${isRTL ? 'leading-[1.45]' : 'leading-tight'}`}
               style={{
                 fontSize: 'clamp(1rem, 1.6vw, 1.35rem)',
-                WebkitTextStroke: 'clamp(0.25px, 0.05vw, 0.45px) #DB7100',
+                ...(isRTL ? {} : { WebkitTextStroke: 'clamp(0.25px, 0.05vw, 0.45px) #DB7100' }),
                 textShadow: '1px 2px 0 rgba(0,0,0,0.7)',
               }}
             >

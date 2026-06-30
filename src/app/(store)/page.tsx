@@ -55,7 +55,60 @@ export default async function HomePage() {
           ...s,
           props: {
             ...s.props,
+            title: t('home.whyGather', locale),
+            subtitle: t('home.whyGatherSub', locale),
             cards: whyGatherCards,
+          },
+        }
+      }
+      if (s.type === 'category-grid') {
+        return {
+          ...s,
+          props: {
+            ...s.props,
+            title: t('home.shopByCategory', locale),
+            subtitle: t('home.shopByCategorySub', locale),
+          },
+        }
+      }
+      if (s.type === 'product-grid') {
+        return {
+          ...s,
+          props: {
+            ...s.props,
+            title: t('home.featuredItems', locale),
+            subtitle: t('home.featuredSub', locale),
+          },
+        }
+      }
+      if (s.type === 'occasions' || s.type === 'occasion-grid') {
+        return {
+          ...s,
+          props: {
+            ...s.props,
+            title: t('home.shopByOccasion', locale),
+            subtitle: t('home.shopByOccasionSub', locale),
+          },
+        }
+      }
+      if (s.type === 'offers-grid') {
+        return {
+          ...s,
+          props: {
+            ...s.props,
+            title: t('home.offers', locale),
+            subtitle: t('home.offersSub', locale),
+          },
+        }
+      }
+      if (s.type === 'moments') {
+        return {
+          ...s,
+          props: {
+            ...s.props,
+            title: t('home.gatherMoments', locale),
+            subtitle: t('home.gatherMomentsSub', locale),
+            buttonText: t('home.shareMoment', locale),
           },
         }
       }

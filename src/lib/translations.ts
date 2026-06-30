@@ -438,13 +438,13 @@ const ar: TranslationMap = {
   'nav.home': 'الرئيسية',
   'nav.shopByOccasion': 'تسوق حسب المناسبة',
   'nav.shopByCategory': 'تسوق حسب الفئة',
-  'nav.about': 'عن جاذر',
+  'nav.about': 'عن چزر',
   'nav.contact': 'اتصل بنا',
   'nav.search': 'بحث',
   'nav.go': 'بحث',
   'nav.cancel': 'إلغاء',
   'nav.searchPlaceholder': 'ابحث عن منتجات...',
-  'nav.followGather': 'تابع جاذر',
+  'nav.followGather': 'تابع چزر',
 
   // ─── Footer ───
   'footer.tagline': 'كل ما تحتاجه لمناسبتك.',
@@ -457,11 +457,11 @@ const ar: TranslationMap = {
   'footer.privacyPolicy': 'سياسة الخصوصية',
   'footer.refundReturns': 'سياسة الاسترداد والإرجاع',
   'footer.contactInfo': 'معلومات التواصل',
-  'footer.copyright': '© ٢٠٢٦ جاذر. جميع الحقوق محفوظة.',
+  'footer.copyright': '© ٢٠٢٦ چزر. جميع الحقوق محفوظة.',
   'footer.poweredBy': 'مقدم من',
 
   // ─── Hero ───
-  'hero.brandLine': 'جاذر',
+  'hero.brandLine': 'چزر',
   'hero.headline': 'تجمعنا اللحظات الحلوة',
   'hero.subtitle': 'كل ما تحتاجه مناسبتك.',
   'hero.ctaPrimary': 'تسوق الآن',
@@ -476,14 +476,14 @@ const ar: TranslationMap = {
   'home.shopByOccasionSub': 'كل ما تحتاجه لجعل مناسبتك لا تُنسى',
   'home.offers': 'العروض والتخفيضات',
   'home.offersSub': 'اجعل مناسبتك أسهل وأسعد وبسعر أفضل.',
-  'home.gatherMoments': 'لحظات جاذر',
-  'home.gatherMomentsSub': 'شارك لحظتك السعيدة مع جاذر واحصل على فرصة للفوز بقسائم تسوق لمناسبتك القادمة.',
+  'home.gatherMoments': 'لحظات چزر',
+  'home.gatherMomentsSub': 'شارك لحظتك السعيدة مع چزر واحصل على فرصة للفوز بقسائم تسوق لمناسبتك القادمة.',
   'home.shareMoment': 'شارك لحظتك',
-  'home.aboutGather': 'عن جاذر',
+  'home.aboutGather': 'عن چزر',
   'home.aboutGatherSub': 'نصمم البهجة لكل مناسبة، ونوصلها لباب بيتك. اجعل كل لحظة تستحق.',
   'home.aboutGatherBody': 'من كيك أعياد الميلاد إلى البالونات، والوجبات الخفيفة إلى الديكورات — اطلب كل ما تحتاجه لأي مناسبة، ووصله لباب بيتك.',
   'home.aboutUs': 'اعرف عنا',
-  'home.whyGather': 'ليه جاذر',
+  'home.whyGather': 'ليه چزر',
   'home.whyGatherSub': 'نخلي كل مناسبة لا تُنسى',
   'home.viewAll': 'عرض الكل',
   'home.noProducts': 'لا توجد منتجات.',
@@ -498,8 +498,8 @@ const ar: TranslationMap = {
 
   // ─── PreFooter CTA ───
   'prefooter.join': 'انضم إلى',
-  'prefooter.family': 'عائلة جاذر',
-  'prefooter.cta': 'لا تفوّت فرصة الانضمام لعائلة جاذر للاستمتاع بعروض ومزايا رائعة.',
+  'prefooter.family': 'عائلة چزر',
+  'prefooter.cta': 'لا تفوّت فرصة الانضمام لعائلة چزر للاستمتاع بعروض ومزايا رائعة.',
   'prefooter.signUp': 'اشترك الآن',
 
   // ─── Product page ───
@@ -515,7 +515,7 @@ const ar: TranslationMap = {
   'product.category': 'الفئة',
   'product.occasion': 'المناسبة',
   'product.relatedProducts': 'منتجات ذات صلة',
-  'product.limitedOffer': 'عرض جاذر لفترة محدودة',
+  'product.limitedOffer': 'عرض چزر لفترة محدودة',
   'product.sale': 'عرض',
   'product.addedShort': '✓ تمت الإضافة',
   'product.removeFromWishlist': 'إزالة من المفضلة',
@@ -646,7 +646,7 @@ const ar: TranslationMap = {
 
   // ─── Signup ───
   'signup.title': 'إنشاء حساب',
-  'signup.subtitle': 'أنشئ حساب جاذر للاستمتاع بتجربة دفع أسرع ومتابعة الطلبات.',
+  'signup.subtitle': 'أنشئ حساب چزر للاستمتاع بتجربة دفع أسرع ومتابعة الطلبات.',
   'signup.fullName': 'الاسم الكامل',
   'signup.email': 'البريد الإلكتروني',
   'signup.phone': 'رقم الهاتف',
@@ -684,7 +684,7 @@ const ar: TranslationMap = {
   'account.signOut': 'تسجيل الخروج',
 
   // ─── About page ───
-  'about.title': 'عن جاذر',
+  'about.title': 'عن چزر',
   'about.ourStory': 'قصتنا',
   'about.whatWeOffer': 'ماذا نقدم',
 
@@ -825,7 +825,7 @@ const ar: TranslationMap = {
   'addresses.deleteConfirm': 'حذف هذا العنوان؟',
 
   // ─── Moment / Share ───
-  'moment.title': 'شارك لحظة جاذر',
+  'moment.title': 'شارك لحظة چزر',
   'moment.subtitle': 'ارفع صورة احتفالك واحصل على فرصة للفوز بقسيمة تسوق.',
   'moment.name': 'الاسم',
   'moment.uploadPhoto': 'ارفع صورة احتفالك',
@@ -833,7 +833,7 @@ const ar: TranslationMap = {
   'moment.phone': 'الهاتف',
   'moment.occasionType': 'نوع المناسبة',
   'moment.selectOccasion': 'اختر المناسبة',
-  'moment.consent': 'أؤكد أنني أملك هذه الصورة أو لدي إذن بمشاركتها، وأسمح لجاذر باستخدامها على الموقع ووسائل التواصل الاجتماعي والمواد التسويقية.',
+  'moment.consent': 'أؤكد أنني أملك هذه الصورة أو لدي إذن بمشاركتها، وأسمح لچزر باستخدامها على الموقع ووسائل التواصل الاجتماعي والمواد التسويقية.',
   'moment.submit': 'إرسال',
   'moment.submitting': 'جاري الإرسال...',
   'moment.thankYou': 'شكرًا لك!',
@@ -848,13 +848,13 @@ const ar: TranslationMap = {
   'moment.networkError': 'خطأ في الشبكة. يرجى المحاولة مرة أخرى.',
 
   // ─── SEO Metadata ───
-  'meta.home': 'جاذر — هدايا فاخرة مع توصيل في القاهرة',
+  'meta.home': 'چزر — هدايا فاخرة مع توصيل في القاهرة',
   'meta.shopByCategory': 'تسوق حسب الفئة',
   'meta.shopByOccasion': 'تسوق حسب المناسبة',
   'meta.cart': 'سلة التسوق',
   'meta.checkout': 'إتمام الطلب',
   'meta.checkoutConfirmed': 'تم تأكيد الطلب',
-  'meta.about': 'عن جاذر',
+  'meta.about': 'عن چزر',
   'meta.contact': 'اتصل بنا',
   'meta.privacy': 'سياسة الخصوصية',
   'meta.refund': 'سياسة الاسترداد والإرجاع',
