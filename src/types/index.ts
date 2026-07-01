@@ -331,7 +331,9 @@ export interface ContactPageContent {
 
 export interface PolicyPageContent {
   pageTitle: string
+  titleAr?: string
   content: string
+  contentAr?: string
   updatedAt: string
 }
 

@@ -152,12 +152,23 @@ export default function AdminRefundReturnsEditorPage() {
             />
             <p className="text-[11px] text-gray-300">Shown in the page title banner</p>
           </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-gray-500">Arabic Page Title</label>
+            <input
+              type="text"
+              value={content.titleAr ?? ''}
+              onChange={(e) => setContent({ ...content, titleAr: e.target.value || undefined })}
+              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a]"
+              dir="auto"
+            />
+            <p className="text-[11px] text-gray-300">Arabic title for RTL storefront</p>
+          </div>
         </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-50 bg-gray-50/50">
-          <h2 className="text-base font-bold text-gray-900">Policy Content</h2>
+          <h2 className="text-base font-bold text-gray-900">Policy Content (English)</h2>
           <p className="text-xs text-gray-400 mt-0.5">The main body of the refund & returns policy. Use Markdown-style formatting: ## for headings, **bold**, - for lists, 1. for numbered lists, blank lines for paragraphs.</p>
         </div>
         <div className="p-5">
@@ -167,6 +178,23 @@ export default function AdminRefundReturnsEditorPage() {
             rows={30}
             className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm font-mono leading-relaxed focus:outline-none focus:border-[#ff7a1a] resize-y"
             placeholder="Enter policy content here..."
+          />
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-50 bg-gray-50/50">
+          <h2 className="text-base font-bold text-gray-900">Policy Content (Arabic)</h2>
+          <p className="text-xs text-gray-400 mt-0.5">Arabic translation for the RTL storefront. Uses the same Markdown-style formatting.</p>
+        </div>
+        <div className="p-5">
+          <textarea
+            value={content.contentAr ?? ''}
+            onChange={(e) => setContent({ ...content, contentAr: e.target.value || undefined })}
+            rows={30}
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm font-mono leading-relaxed focus:outline-none focus:border-[#ff7a1a] resize-y"
+            dir="auto"
+            placeholder="أدخل المحتوى العربي هنا..."
           />
         </div>
       </div>
