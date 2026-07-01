@@ -6,6 +6,7 @@ import { getActiveBundles } from '@/lib/data'
 import BundleCard from '@/components/BundleCard'
 import AnimatedTitle from '@/components/AnimatedTitle'
 import GsapReveal from '@/components/GsapReveal'
+import { useLocale } from '@/components/LocaleProvider'
 
 export default function OffersBundlesSection({ title, subtitle }: OffersGridSectionProps) {
   const bundles = getActiveBundles().sort((a, b) => a.sortOrder - b.sortOrder)
@@ -14,6 +15,7 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
   const trackRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLDivElement>(null)
   const [translateY, setTranslateY] = useState(0)
+  const { isRTL } = useLocale()
 
   useEffect(() => {
     const el = sectionRef.current
@@ -80,14 +82,14 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
                 className="w-10 h-10 rounded-full bg-white border border-[#f1e2d3] flex items-center justify-center text-lg text-[#7a6247] hover:text-[#ff7a1a] hover:border-[#ff7a1a] transition-colors"
                 aria-label="Previous offer"
               >
-                ‹
+                {isRTL ? '›' : '‹'}
               </button>
               <button
                 onClick={next}
                 className="w-10 h-10 rounded-full bg-white border border-[#f1e2d3] flex items-center justify-center text-lg text-[#7a6247] hover:text-[#ff7a1a] hover:border-[#ff7a1a] transition-colors"
                 aria-label="Next offer"
               >
-                ›
+                {isRTL ? '‹' : '›'}
               </button>
             </div>
           )}
@@ -97,7 +99,7 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
           <GsapReveal
             className="flex transition-transform ease-in-out duration-[400ms]"
             itemSelector="[data-reveal-item]"
-            style={{ transform: `translateX(-${current * 100}%)` }}
+            style={{ transform: isRTL ? `translateX(${current * 100}%)` : `translateX(-${current * 100}%)` }}
           >
             {bundles.map((bundle) => (
               <div key={bundle.id} data-reveal-item className="w-full shrink-0 px-0.5">

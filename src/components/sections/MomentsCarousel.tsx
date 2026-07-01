@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useLocale } from '@/components/LocaleProvider'
 
 interface Props {
   images: string[]
@@ -21,6 +22,7 @@ export default function MomentsCarousel({ images, gap = 20 }: Props) {
   const [isPaused, setIsPaused] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const { isRTL } = useLocale()
 
   const totalSlides = images.length
   const maxIndex = Math.max(0, totalSlides - slidesPerView)
@@ -80,7 +82,9 @@ export default function MomentsCarousel({ images, gap = 20 }: Props) {
         <div
           className="flex gap-5 transition-transform ease-in-out"
           style={{
-            transform: `translateX(calc(-${translatePercent}% - ${translateGap}px))`,
+            transform: isRTL
+              ? `translateX(calc(${translatePercent}% + ${translateGap}px))`
+              : `translateX(calc(-${translatePercent}% - ${translateGap}px))`,
             transitionDuration: '500ms',
           }}
         >
@@ -105,21 +109,25 @@ export default function MomentsCarousel({ images, gap = 20 }: Props) {
         <>
           <button
             onClick={prev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:text-[#FE7501] transition-colors z-10"
+            className={`absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:text-[#FE7501] transition-colors z-10 ${
+              isRTL ? 'right-0 -translate-x-4' : 'left-0 -translate-x-4'
+            }`}
             aria-label="Previous moments"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              <path strokeLinecap="round" strokeLinejoin="round" d={isRTL ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'} />
             </svg>
           </button>
 
           <button
             onClick={next}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:text-[#FE7501] transition-colors z-10"
+            className={`absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:text-[#FE7501] transition-colors z-10 ${
+              isRTL ? 'left-0 translate-x-4' : 'right-0 translate-x-4'
+            }`}
             aria-label="Next moments"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              <path strokeLinecap="round" strokeLinejoin="round" d={isRTL ? 'M15 19l-7-7 7-7' : 'M9 5l7 7-7 7'} />
             </svg>
           </button>
 

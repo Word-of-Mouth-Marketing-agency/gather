@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Product } from '@/types'
 import ProductCard from '@/components/ProductCard'
+import { useLocale } from '@/components/LocaleProvider'
 
 interface Props {
   products: Product[]
@@ -24,6 +25,7 @@ export default function ProductSlider({ products }: Props) {
   const [isPaused, setIsPaused] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const { isRTL } = useLocale()
 
   const totalSlides = products.length
   const maxIndex = Math.max(0, totalSlides - slidesPerView)
@@ -69,6 +71,8 @@ export default function ProductSlider({ products }: Props) {
 
   if (totalSlides === 0) return null
 
+  const slidePct = (current / slidesPerView) * 100
+
   return (
     <div
       className="relative"
@@ -80,7 +84,7 @@ export default function ProductSlider({ products }: Props) {
         <div
           className="flex transition-transform ease-in-out"
           style={{
-            transform: `translateX(-${(current / slidesPerView) * 100}%)`,
+            transform: isRTL ? `translateX(${slidePct}%)` : `translateX(-${slidePct}%)`,
             transitionDuration: `${TRANSITION_MS}ms`,
           }}
         >
@@ -100,21 +104,25 @@ export default function ProductSlider({ products }: Props) {
         <>
           <button
             onClick={prev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:text-[#ff7a1a] transition-colors z-10"
+            className={`absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:text-[#ff7a1a] transition-colors z-10 ${
+              isRTL ? 'right-0 -translate-x-4' : 'left-0 -translate-x-4'
+            }`}
             aria-label="Previous products"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              <path strokeLinecap="round" strokeLinejoin="round" d={isRTL ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'} />
             </svg>
           </button>
 
           <button
             onClick={next}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:text-[#ff7a1a] transition-colors z-10"
+            className={`absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:text-[#ff7a1a] transition-colors z-10 ${
+              isRTL ? 'left-0 translate-x-4' : 'right-0 translate-x-4'
+            }`}
             aria-label="Next products"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              <path strokeLinecap="round" strokeLinejoin="round" d={isRTL ? 'M15 19l-7-7 7-7' : 'M9 5l7 7-7 7'} />
             </svg>
           </button>
 
