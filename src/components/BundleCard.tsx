@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function BundleCard({ bundle }: Props) {
-  const { locale, t } = useLocale()
+  const { locale, href, t } = useLocale()
   const [added, setAdded] = useState(false)
   const products = getBundleProducts(bundle)
   const canBuy = isBundlePurchasable(bundle)
@@ -44,7 +44,7 @@ export default function BundleCard({ bundle }: Props) {
                   <span className="text-lg font-bold text-[#ff7a1a] select-none">+</span>
                 )}
                 <Link
-                  href={`/products/${product.slug}`}
+                  href={href(`/products/${product.slug}`)}
                   className="flex items-center gap-2 bg-[#f8f6f4] rounded-full pr-3 pl-1 py-1 text-xs font-medium text-[#333] hover:bg-[#f1e2d3] transition-colors"
                 >
                   <span className="w-7 h-7 rounded-full bg-white flex items-center justify-center text-base shrink-0 overflow-hidden">

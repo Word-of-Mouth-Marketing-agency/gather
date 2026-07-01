@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function FrequentlyBoughtTogether({ products }: Props) {
-  const { locale, t } = useLocale()
+  const { locale, href, t } = useLocale()
   const [selected, setSelected] = useState<Set<string>>(
     new Set(products.map((p) => p.id))
   )
@@ -103,7 +103,7 @@ export default function FrequentlyBoughtTogether({ products }: Props) {
               </label>
 
               <Link
-                href={`/products/${product.slug}`}
+                href={href(`/products/${product.slug}`)}
                 className="shrink-0 inline-flex items-center justify-center h-9 px-3 rounded-full bg-[#fff4e8] text-[#ff7a1a] text-xs font-black hover:bg-[#ff7a1a] hover:text-white transition-colors"
               >
                 {t('fbt.view')}

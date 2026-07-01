@@ -40,7 +40,8 @@ function EmptyCartState() {
 }
 
 function CartUpsellCard({ product }: { product: Product }) {
-  const { href, t } = useLocale()
+  const { locale, href, t } = useLocale()
+  const name = locale === 'ar' ? product.nameAr ?? product.name : product.name
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
 
@@ -58,12 +59,12 @@ function CartUpsellCard({ product }: { product: Product }) {
       <Link
         href={href(`/products/${product.slug}`)}
         className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[14px] bg-[#fffaf3]"
-        aria-label={product.name}
+        aria-label={name}
       >
         {product.images[0] ? (
           <Image
             src={product.images[0]}
-            alt={product.name}
+            alt={name}
             fill
             className="object-contain p-2"
             sizes="80px"
@@ -80,7 +81,7 @@ function CartUpsellCard({ product }: { product: Product }) {
           href={href(`/products/${product.slug}`)}
           className="line-clamp-2 text-sm font-bold leading-snug text-[#171717] hover:text-[#ff7a1a]"
         >
-          {product.name}
+          {name}
         </Link>
         <p className="mt-1 text-sm font-black text-[#ff7a1a]">
           {formatPrice(getDisplayPrice(product), product.currency)}
@@ -97,7 +98,7 @@ function CartUpsellCard({ product }: { product: Product }) {
             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
             : 'bg-[#ff7a1a] text-white hover:bg-[#fe6c00]'
         }`}
-        aria-label={`Add ${product.name} to cart`}
+        aria-label={`Add ${name} to cart`}
       >
         {added ? t('cart.added') : adding ? '...' : product.stock === 0 ? t('product.outOfStock') : t('product.addToCart')}
       </button>

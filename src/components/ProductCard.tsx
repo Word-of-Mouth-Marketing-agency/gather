@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function ProductCard({ product }: Props) {
-  const { locale, t } = useLocale()
+  const { locale, href, t } = useLocale()
   const name = locale === 'ar' ? product.nameAr ?? product.name : product.name
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
@@ -48,7 +48,7 @@ export default function ProductCard({ product }: Props) {
   return (
     <article className="group block relative pt-[72px]">
       <Link
-        href={`/products/${product.slug}`}
+        href={href(`/products/${product.slug}`)}
         className="absolute left-0 right-0 top-0 h-[165px] z-10 flex items-center justify-center"
         aria-label={name}
       >
@@ -71,7 +71,7 @@ export default function ProductCard({ product }: Props) {
         </div>
 
         <h3 className="text-lg sm:text-xl font-medium text-[#171717] leading-tight line-clamp-2">
-          <Link href={`/products/${product.slug}`} className="hover:text-[#DB7100]">
+          <Link href={href(`/products/${product.slug}`)} className="hover:text-[#DB7100]">
             {name}
           </Link>
         </h3>

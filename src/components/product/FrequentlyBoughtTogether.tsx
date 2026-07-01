@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function FrequentlyBoughtTogether({ currentProduct, suggestions }: Props) {
-  const { locale, t } = useLocale()
+  const { locale, href, t } = useLocale()
   const products = [currentProduct, ...suggestions].slice(0, 4)
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
@@ -55,7 +55,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, suggestions }
             <div key={product.id} className="contents">
               {index > 0 && <span className="text-2xl font-black text-[#FE7501]">+</span>}
               <article className="w-[150px] sm:w-[170px] rounded-2xl border border-[#ead8c4] bg-white p-3">
-                <Link href={`/products/${product.slug}`} className="block">
+                <Link href={href(`/products/${product.slug}`)} className="block">
                   <div className="relative h-28 rounded-xl bg-[#fffaf3]">
                     {product.images[0] ? (
                       <Image
