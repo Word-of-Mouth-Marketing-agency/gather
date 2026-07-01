@@ -56,7 +56,6 @@ export default async function HomePage() {
           props: {
             ...s.props,
             title: t('home.whyGather', locale),
-            subtitle: t('home.whyGatherSub', locale),
             cards: whyGatherCards,
           },
         }

@@ -23,6 +23,7 @@ export async function PUT(request: Request) {
       heroText: body.heroText ?? current.heroText,
       aboutGather: body.aboutGather ?? current.aboutGather,
       whyGatherCards: Array.isArray(body.whyGatherCards) ? body.whyGatherCards : current.whyGatherCards,
+      ar: body.ar ?? current.ar,
       updatedAt: new Date().toISOString(),
     }
 

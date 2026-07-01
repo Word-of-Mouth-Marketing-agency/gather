@@ -477,13 +477,13 @@ const ar: TranslationMap = {
   'home.offers': 'العروض والتخفيضات',
   'home.offersSub': 'اجعل مناسبتك أسهل وأسعد وبسعر أفضل.',
   'home.gatherMoments': 'لحظات چزر',
-  'home.gatherMomentsSub': 'شارك لحظتك السعيدة مع چزر واحصل على فرصة للفوز بقسائم تسوق لمناسبتك القادمة.',
-  'home.shareMoment': 'شارك لحظتك',
+  'home.gatherMomentsSub': 'شارك لحظاتك السعيدة مع چزر واحصل على فرصة للفوز بقسائم تسوق لمناسبتك القادمة.',
+  'home.shareMoment': 'شارك اللحظة',
   'home.aboutGather': 'عن چزر',
   'home.aboutGatherSub': 'نصمم البهجة لكل مناسبة، ونوصلها لباب بيتك. اجعل كل لحظة تستحق.',
   'home.aboutGatherBody': 'من كيك أعياد الميلاد إلى البالونات، والوجبات الخفيفة إلى الديكورات — اطلب كل ما تحتاجه لأي مناسبة، ووصله لباب بيتك.',
   'home.aboutUs': 'اعرف عنا',
-  'home.whyGather': 'ليه چزر',
+  'home.whyGather': 'ليه چــــــــــزر',
   'home.whyGatherSub': 'نخلي كل مناسبة لا تُنسى',
   'home.viewAll': 'عرض الكل',
   'home.noProducts': 'لا توجد منتجات.',
@@ -499,9 +499,9 @@ const ar: TranslationMap = {
   // ─── PreFooter CTA ───
   'prefooter.join': 'انضم إلى',
   'prefooter.family': 'عائلة چزر',
-  'prefooter.cta': 'لا تفوّت فرصة الانضمام لعائلة چزر للاستمتاع بعروض ومزايا رائعة.',
-  'prefooter.signUp': 'اشترك الآن',
+  'prefooter.cta': 'لا تفوّت فرصة الانضمام لعائلة چزر للاستمتاع بعروض ومزايا خاصة.',
 
+  'prefooter.signUp': 'إنشاء حساب',
   // ─── Product page ───
   'product.quantity': 'الكمية',
   'product.addToCart': 'أضف إلى السلة',

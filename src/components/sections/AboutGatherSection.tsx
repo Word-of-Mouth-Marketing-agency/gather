@@ -14,8 +14,8 @@ export default function AboutGatherSection({
 }: AboutGatherSectionProps) {
   return (
     <section>
-
-      <div className="bg-white w-full">
+      {/* Isolate grid layout from RTL direction — left/right GIFs stay in place */}
+      <div className="bg-white w-full" dir="ltr">
         <div className="grid grid-cols-1 lg:grid-cols-3 min-h-[400px] lg:min-h-[96vh]">
           <div className="aspect-square w-full overflow-hidden bg-[#FCECDC] lg:aspect-auto lg:h-full flex items-center justify-center">
             {leftImage && (
