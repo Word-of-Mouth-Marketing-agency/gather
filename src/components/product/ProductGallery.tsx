@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLocale } from '@/components/LocaleProvider'
 
 interface Props {
   images: string[]
@@ -12,6 +13,7 @@ export default function ProductGallery({ images, productName, hasDiscount = fals
   const safeImages = images.length > 0 ? images : ['']
   const [activeIndex, setActiveIndex] = useState(0)
   const activeImage = safeImages[activeIndex] ?? safeImages[0]
+  const { t } = useLocale()
 
   return (
     <div className="flex flex-col lg:flex-row gap-4">
@@ -36,7 +38,7 @@ export default function ProductGallery({ images, productName, hasDiscount = fals
                 />
               ) : (
                 <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-[#7a6247]">
-                  No image
+                  {t('fbt.noImage')}
                 </span>
               )}
             </button>
@@ -53,12 +55,12 @@ export default function ProductGallery({ images, productName, hasDiscount = fals
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-sm font-bold text-[#7a6247]">
-            No product image
+            {t('fbt.noImage')}
           </div>
         )}
         {hasDiscount && (
           <span className="absolute left-5 top-5 rounded-full bg-[#FE7501] px-4 py-2 text-xs font-black uppercase text-white shadow-lg">
-            Sale
+            {t('product.sale')}
           </span>
         )}
       </div>

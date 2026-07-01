@@ -78,7 +78,7 @@ export default function ProductDescriptionReviews({ product }: Props) {
         <h2 className="text-2xl sm:text-3xl font-bold text-[#171717]">{t('reviews.description')}</h2>
         {product.description ? (
           <p className="mt-4 text-base font-semibold leading-8 text-[#5f4b36]">
-            {product.description}
+            {locale === 'ar' ? product.descriptionAr ?? product.description : product.description}
           </p>
         ) : (
           <p className="mt-4 text-base font-semibold text-[#7a6247]">
