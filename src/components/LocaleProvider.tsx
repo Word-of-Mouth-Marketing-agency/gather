@@ -1,9 +1,9 @@
 'use client'
 
-import { createContext, useContext, useMemo, type ReactNode } from 'react'
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
 import type { Locale } from '@/lib/translations'
 import { t as translate } from '@/lib/translations'
-import { getClientLocale, localeHref } from '@/lib/locale'
+import { localeHref } from '@/lib/locale'
 
 interface LocaleContextValue {
   locale: Locale
@@ -23,9 +23,9 @@ export function useLocale(): LocaleContextValue {
   return useContext(LocaleContext)
 }
 
-export function LocaleProvider({ children }: { children: ReactNode }) {
+export function LocaleProvider({ children, initialLocale = 'en' }: { children: ReactNode; initialLocale?: Locale }) {
+  const [locale] = useState<Locale>(initialLocale)
   const value = useMemo(() => {
-    const locale = getClientLocale()
     const isRTL = locale === 'ar'
     return {
       locale,
@@ -33,7 +33,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       href: (path: string) => localeHref(path, locale),
       t: (key: string, values?: Record<string, string | number>) => translate(key, locale, values),
     }
-  }, [])
+  }, [locale])
 
   return (
     <LocaleContext.Provider value={value}>

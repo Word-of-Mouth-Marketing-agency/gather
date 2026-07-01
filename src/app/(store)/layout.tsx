@@ -5,10 +5,12 @@ import PreFooterSignupCTA from '@/components/layout/PreFooterSignupCTA'
 import RabbitAssistant from '@/components/RabbitAssistant'
 import RabbitPageTransition from '@/components/layout/RabbitPageTransition'
 import { LocaleProvider } from '@/components/LocaleProvider'
+import { getServerLocale } from '@/lib/locale-server'
 
-export default function StoreLayout({ children }: { children: React.ReactNode }) {
+export default async function StoreLayout({ children }: { children: React.ReactNode }) {
+  const initialLocale = await getServerLocale()
   return (
-    <LocaleProvider>
+    <LocaleProvider initialLocale={initialLocale}>
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <div className="flex-1">{children}</div>
