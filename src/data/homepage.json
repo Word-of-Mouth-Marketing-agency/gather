@@ -6,7 +6,8 @@
       "mobileSrc": "/assets/gather/mobile-banner1.webp",
       "alt": "Premium gifts for every occasion",
       "sortOrder": 1,
-      "isActive": true
+      "isActive": true,
+      "srcAr": "/uploads/1782907071231-0dohu.jpg"
     },
     {
       "id": "slide-2",
@@ -14,7 +15,8 @@
       "mobileSrc": "/assets/gather/mobile-banner2.webp",
       "alt": "Fast delivery across Cairo",
       "sortOrder": 2,
-      "isActive": true
+      "isActive": true,
+      "srcAr": "/uploads/1782907082608-0pu7y.jpg"
     },
     {
       "id": "slide-3",
@@ -22,7 +24,8 @@
       "mobileSrc": "/assets/gather/mobile-banner3.webp",
       "alt": "Celebrate with Gather",
       "sortOrder": 3,
-      "isActive": true
+      "isActive": true,
+      "srcAr": "/uploads/1782907092273-4evz2.jpg"
     }
   ],
   "heroText": {
@@ -63,23 +66,13 @@
       "sortOrder": 3
     }
   ],
-  "updatedAt": "2026-06-29T00:00:00Z",
   "ar": {
-    "heroText": {
-      "brandLine": "چزر",
-      "headline": "تجمعنا اللحظات الحلوة",
-      "subtitle": "كل ما تحتاجه مناسبتك.",
-      "ctaPrimaryLabel": "تسوق الآن",
-      "ctaPrimaryUrl": "#featured-gifts",
-      "ctaSecondaryLabel": "تسوق حسب المناسبة",
-      "ctaSecondaryUrl": "#shop-by-occasion"
-    },
     "aboutGather": {
       "title": "عن چزر",
-      "subtitle": "نصمم البهجة لكل مناسبة، ونوصلها لباب بيتك. اجعل كل لحظة تستحق.",
-      "body": "من كيك أعياد الميلاد إلى البالونات، والوجبات الخفيفة إلى الديكورات — اطلب كل ما تحتاجه لأي مناسبة، ووصله لباب بيتك.",
+      "subtitle": "نصمم البهجة لكل مناسبة، ونوصلها لباب بيتك",
+      "body": "من كيك أعياد الميلاد إلى البالونات، والوجبات الخفيفة وديكورات الحفلات — اطلب كل اللي تحتاجه لأي مناسبة وهتوصلك لحد باب البيت",
       "ctaText": "اعرف عنا",
-      "ctaUrl": "/about",
+      "ctaUrl": "/ar/about",
       "leftImage": "/assets/gather/about/balloon.gif",
       "rightImage": "/assets/gather/about/cake.gif"
     },
@@ -102,6 +95,16 @@
         "description": "دفع سلس مع خيارات متعددة. أمانك هو أولويتنا.",
         "sortOrder": 3
       }
-    ]
-  }
+    ],
+    "heroText": {
+      "brandLine": "چــــــــــزر",
+      "headline": "تجمعنا اللحظات الحلوة",
+      "subtitle": "كل ما تحتاجه مناسبتك.",
+      "ctaPrimaryLabel": "تسوق الان",
+      "ctaPrimaryUrl": "#featured-gifts",
+      "ctaSecondaryLabel": "تسوق حسب المناسبة",
+      "ctaSecondaryUrl": "#shop-by-occasion"
+    }
+  },
+  "updatedAt": "2026-07-01T12:02:14.172Z"
 }

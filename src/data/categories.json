@@ -39,13 +39,14 @@
     "id": "cat-cakes-pastry",
     "slug": "cakes-pastry",
     "name": "Cakes/Pastry",
-    "nameAr": "كيك ومعجنات",
+    "nameAr": "تورت وكيكات",
     "description": "Delicious cakes and pastry",
     "image": "/assets/gather/categories/cakes-pastry.png",
     "type": "category",
     "parentId": null,
     "sortOrder": 4,
-    "isActive": true
+    "isActive": true,
+    "topProductIds": []
   },
   {
     "id": "cat-baked-snacks",
