@@ -19,6 +19,11 @@ export default function HeroSlideshow({ slides, heroText, isRTL = false }: Props
   const [active, setActive] = useState(0)
   const copyRef = useRef<HTMLDivElement>(null)
 
+  const slideSrc = (slide: HeroSlide) => ({
+    desktop: isRTL ? slide.srcAr ?? slide.src : slide.src,
+    mobile: isRTL ? slide.mobileSrcAr ?? slide.mobileSrc : slide.mobileSrc,
+  })
+
   const next = useCallback(() => {
     setActive((prev) => (prev + 1) % (activeSlides.length || 1))
   }, [activeSlides.length])
@@ -66,9 +71,9 @@ export default function HeroSlideshow({ slides, heroText, isRTL = false }: Props
           aria-hidden={i !== active}
         >
           <picture className="block h-full w-full">
-            <source media="(max-width: 639px)" srcSet={slide.mobileSrc} />
+            <source media="(max-width: 639px)" srcSet={slideSrc(slide).mobile} />
             <img
-              src={slide.src}
+              src={slideSrc(slide).desktop}
               alt={slide.alt}
               className="w-full h-full object-contain sm:object-cover"
               fetchPriority={i === 0 ? 'high' : 'low'}

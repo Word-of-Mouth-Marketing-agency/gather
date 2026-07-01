@@ -235,6 +235,8 @@ export interface HeroSlide {
   id: string
   src: string
   mobileSrc: string
+  srcAr?: string
+  mobileSrcAr?: string
   alt: string
   sortOrder: number
   isActive: boolean

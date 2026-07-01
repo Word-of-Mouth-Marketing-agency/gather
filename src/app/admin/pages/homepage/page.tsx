@@ -310,7 +310,7 @@ function HeroSlidesEditor({ slides, onChange }: { slides: HeroSlide[]; onChange:
     )
   }
 
-  const handleUpload = async (file: File, slideId: string, field: 'src' | 'mobileSrc') => {
+  const handleUpload = async (file: File, slideId: string, field: 'src' | 'mobileSrc' | 'srcAr' | 'mobileSrcAr') => {
     const formData = new FormData()
     formData.append('file', file)
     try {
@@ -432,6 +432,54 @@ function HeroSlidesEditor({ slides, onChange }: { slides: HeroSlide[]; onChange:
                   placeholder="Describe the image for screen readers"
                   className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a]"
                 />
+              </div>
+
+              <div className="border-t border-gray-100 pt-4 mt-4">
+                <h3 className="text-sm font-black text-[#ff7a1a] uppercase tracking-wide mb-4">Arabic Images</h3>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-500">Arabic Desktop Image</label>
+                    <span className="text-[10px] text-gray-300 font-medium">Falls back to English desktop if empty</span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={slide.srcAr ?? ''}
+                        onChange={(e) => updateSlide(slide.id, { srcAr: e.target.value || undefined })}
+                        placeholder="/assets/gather/ar-banner.webp"
+                        className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-gray-200 text-sm font-mono focus:outline-none focus:border-[#ff7a1a] truncate"
+                      />
+                      <label className="px-3 py-2 rounded-xl bg-gray-100 text-xs font-bold text-gray-600 cursor-pointer hover:bg-gray-200 transition-colors shrink-0">
+                        Upload
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                          const f = e.target.files?.[0]
+                          if (f) handleUpload(f, slide.id, 'srcAr')
+                        }} />
+                      </label>
+                    </div>
+                    <ImagePreviewBox src={slide.srcAr ?? ''} label="Preview" aspectRatio="video" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-500">Arabic Mobile Image</label>
+                    <span className="text-[10px] text-gray-300 font-medium">Falls back to English mobile if empty</span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={slide.mobileSrcAr ?? ''}
+                        onChange={(e) => updateSlide(slide.id, { mobileSrcAr: e.target.value || undefined })}
+                        placeholder="/assets/gather/ar-mobile-banner.webp"
+                        className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-gray-200 text-sm font-mono focus:outline-none focus:border-[#ff7a1a] truncate"
+                      />
+                      <label className="px-3 py-2 rounded-xl bg-gray-100 text-xs font-bold text-gray-600 cursor-pointer hover:bg-gray-200 transition-colors shrink-0">
+                        Upload
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                          const f = e.target.files?.[0]
+                          if (f) handleUpload(f, slide.id, 'mobileSrcAr')
+                        }} />
+                      </label>
+                    </div>
+                    <ImagePreviewBox src={slide.mobileSrcAr ?? ''} label="Preview" aspectRatio="portrait" />
+                  </div>
+                </div>
               </div>
             </div>
           ))}
