@@ -15,13 +15,14 @@
     "id": "cat-costumes",
     "slug": "costumes",
     "name": "Costumes",
-    "nameAr": "أزياء تنكرية",
+    "nameAr": "ملابس تنكرية",
     "description": "Fun costumes for every celebration",
     "image": "/assets/gather/categories/costumes.png",
     "type": "category",
     "parentId": null,
     "sortOrder": 2,
-    "isActive": true
+    "isActive": true,
+    "topProductIds": []
   },
   {
     "id": "cat-chocolate",
@@ -232,13 +233,14 @@
     "id": "occ-easter",
     "slug": "easter",
     "name": "Easter",
-    "nameAr": "عيد القيامة",
+    "nameAr": "شم النسيم",
     "description": "Spring celebration gifts",
     "image": "/assets/gather/occasions/easter.webp",
     "type": "occasion",
     "parentId": null,
     "sortOrder": 10,
-    "isActive": true
+    "isActive": true,
+    "topProductIds": []
   },
   {
     "id": "occ-adha",
