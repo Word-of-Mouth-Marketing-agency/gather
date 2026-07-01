@@ -447,7 +447,7 @@ const ar: TranslationMap = {
   'nav.followGather': 'تابع چزر',
 
   // ─── Footer ───
-  'footer.tagline': 'كل ما تحتاجه لمناسبتك.',
+  'footer.tagline': 'كل ما تحتاجه لحظاتك الحلوة.',
   'footer.quickLinks': 'روابط سريعة',
   'footer.home': 'الرئيسية',
   'footer.myAccount': 'حسابي',

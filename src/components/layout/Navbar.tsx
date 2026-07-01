@@ -1,11 +1,24 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, startTransition } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import Image from 'next/image'
 import CartIcon from '@/components/ui/CartIcon'
 import { clearCustomerSession, useCustomerSession } from '@/lib/customer-auth'
 import { useLocale } from '@/components/LocaleProvider'
+import type { Product } from '@/types'
+
+interface SearchResult {
+  id: string
+  slug: string
+  name: string
+  nameAr: string | null
+  price: number
+  salePrice: number | null
+  image: string | null
+  currency: string
+}
 
 const navLinks = [
   { href: '/', label: 'Home', tKey: 'nav.home' as const },
@@ -64,6 +77,9 @@ export default function Navbar() {
   const router = useRouter()
   const session = useCustomerSession()
   const { locale, href, t } = useLocale()
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const resultsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (searchOpen) searchRef.current?.focus()
@@ -79,6 +95,56 @@ export default function Navbar() {
       .catch(() => {})
     return () => { cancelled = true }
   }, [session])
+
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      startTransition(() => {
+        setSearchResults([])
+        setIsSearching(false)
+      })
+      return
+    }
+
+    startTransition(() => setIsSearching(true))
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/search/products?q=${encodeURIComponent(searchQuery.trim())}`)
+        if (res.ok) {
+          const data = await res.json()
+          setSearchResults(data)
+        }
+      } catch { /* ignore */ }
+      startTransition(() => setIsSearching(false))
+    }, 200)
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
+  useEffect(() => {
+    if (!searchOpen && !mobileOpen) return
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSearchOpen(false)
+        setSearchResults([])
+        setSearchQuery('')
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [searchOpen, mobileOpen])
+
+  useEffect(() => {
+    if (!searchOpen && searchResults.length === 0) return
+    const handleClick = (e: MouseEvent) => {
+      if (resultsRef.current && !resultsRef.current.contains(e.target as Node)) {
+        if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+          startTransition(() => setSearchResults([]))
+        }
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [searchOpen, searchResults.length])
 
   useEffect(() => {
     if (!mobileOpen) return
@@ -100,14 +166,22 @@ export default function Navbar() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     const q = searchQuery.trim()
-    if (q) router.push(`/search?q=${encodeURIComponent(q)}`)
+    if (q) router.push(href(`/search?q=${encodeURIComponent(q)}`))
     setSearchOpen(false)
+    setSearchResults([])
     setSearchQuery('')
   }
 
   const handleMobileSearch = (e: React.FormEvent) => {
     handleSearch(e)
     closeMobile()
+  }
+
+  const goToProduct = (slug: string) => {
+    setSearchOpen(false)
+    setSearchResults([])
+    setSearchQuery('')
+    router.push(href(`/products/${slug}`))
   }
 
   const closeMobile = () => setMobileOpen(false)
@@ -271,6 +345,59 @@ export default function Navbar() {
               </button>
             </form>
 
+            {searchQuery.trim().length >= 2 && (
+              <div className="mb-5 space-y-1">
+                {isSearching && (
+                  <p className="text-center text-xs text-gray-400 py-2">{locale === 'ar' ? 'جاري البحث...' : 'Searching...'}</p>
+                )}
+                {!isSearching && searchResults.length === 0 && (
+                  <p className="text-center text-xs text-gray-400 py-2">{locale === 'ar' ? 'لا توجد منتجات' : 'No products found'}</p>
+                )}
+                {searchResults.map((result) => (
+                  <button
+                    key={result.id}
+                    onClick={() => {
+                      setSearchOpen(false)
+                      setSearchResults([])
+                      setSearchQuery('')
+                      closeMobile()
+                      router.push(href(`/products/${result.slug}`))
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                  >
+                    <div className="relative w-10 h-10 rounded-lg bg-[#fffaf3] overflow-hidden shrink-0">
+                      {result.image ? (
+                        <Image src={result.image} alt="" fill className="object-contain p-1" sizes="40px" />
+                      ) : (
+                        <span className="absolute inset-0 flex items-center justify-center text-base">🎁</span>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-[#171717] truncate">
+                        {locale === 'ar' && result.nameAr ? result.nameAr : result.name}
+                      </p>
+                      <p className="text-xs font-semibold text-[#ff7a1a]">{result.salePrice ?? result.price} {result.currency}</p>
+                    </div>
+                  </button>
+                ))}
+                {!isSearching && searchResults.length > 0 && (
+                  <button
+                    onClick={() => {
+                      const q = searchQuery.trim()
+                      if (q) router.push(href(`/search?q=${encodeURIComponent(q)}`))
+                      setSearchOpen(false)
+                      setSearchResults([])
+                      setSearchQuery('')
+                      closeMobile()
+                    }}
+                    className="w-full text-center text-xs font-bold text-[#ff7a1a] py-2 hover:underline"
+                  >
+                    {locale === 'ar' ? 'عرض كل النتائج' : 'View all results'}
+                  </button>
+                )}
+              </div>
+            )}
+
             <nav className="flex flex-col gap-2">
               {navLinks.map((link) => (
                 <Link
@@ -364,30 +491,82 @@ export default function Navbar() {
 
       {/* Search overlay */}
       {searchOpen && (
-        <div className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-lg px-4 sm:px-6 lg:px-8 py-4 z-50">
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto flex gap-2">
-            <input
-              ref={searchRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('nav.searchPlaceholder')}
-              className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff7a1a]/30 focus:border-[#ff7a1a]"
-            />
-            <button
-              type="submit"
-              className="px-5 py-2.5 rounded-xl bg-[#ff7a1a] text-white text-sm font-semibold hover:bg-[#e0660f] transition-colors"
-            >
-              {t('nav.search')}
-            </button>
-            <button
-              type="button"
-              onClick={() => { setSearchOpen(false); setSearchQuery('') }}
-              className="px-3 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 transition-colors text-sm"
-            >
-              {t('nav.cancel')}
-            </button>
-          </form>
+        <div className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-lg z-50">
+          <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2">
+            <form onSubmit={handleSearch} className="flex gap-2">
+              <input
+                ref={searchRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('nav.searchPlaceholder')}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff7a1a]/30 focus:border-[#ff7a1a]"
+              />
+              <button
+                type="submit"
+                className="px-5 py-2.5 rounded-xl bg-[#ff7a1a] text-white text-sm font-semibold hover:bg-[#e0660f] transition-colors"
+              >
+                {t('nav.search')}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setSearchOpen(false); setSearchResults([]); setSearchQuery('') }}
+                className="px-3 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 transition-colors text-sm"
+              >
+                {t('nav.cancel')}
+              </button>
+            </form>
+          </div>
+
+          {searchResults.length > 0 && (
+            <div ref={resultsRef} className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+              <div className="border-t border-gray-100 pt-3 space-y-1">
+                {searchResults.map((result) => (
+                  <button
+                    key={result.id}
+                    onClick={() => goToProduct(result.slug)}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                  >
+                    <div className="relative w-12 h-12 rounded-lg bg-[#fffaf3] overflow-hidden shrink-0">
+                      {result.image ? (
+                        <Image src={result.image} alt="" fill className="object-contain p-1" sizes="48px" />
+                      ) : (
+                        <span className="absolute inset-0 flex items-center justify-center text-lg">🎁</span>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-[#171717] truncate">
+                        {locale === 'ar' && result.nameAr ? result.nameAr : result.name}
+                      </p>
+                      <p className="text-xs font-semibold text-[#ff7a1a]">
+                        {result.salePrice ?? result.price} {result.currency}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+                <button
+                  onClick={() => {
+                    const q = searchQuery.trim()
+                    if (q) router.push(href(`/search?q=${encodeURIComponent(q)}`))
+                    setSearchOpen(false)
+                    setSearchResults([])
+                    setSearchQuery('')
+                  }}
+                  className="w-full text-center text-xs font-bold text-[#ff7a1a] py-2 hover:underline"
+                >
+                  {locale === 'ar' ? 'عرض كل النتائج' : 'View all results'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {searchQuery.trim().length >= 2 && searchResults.length === 0 && !isSearching && (
+            <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+              <div className="border-t border-gray-100 pt-3 text-center text-sm text-gray-400 py-4">
+                {locale === 'ar' ? 'لا توجد منتجات' : 'No products found'}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </header>
