@@ -55,7 +55,7 @@ function CartUpsellCard({ product }: { product: Product }) {
   }
 
   return (
-    <article className="flex items-center gap-3 rounded-[18px] border border-[#f1e2d3] bg-white p-3 shadow-[0_8px_22px_rgba(0,0,0,0.04)] transition-shadow hover:shadow-md">
+    <article className="flex items-start gap-3 rounded-[18px] border border-[#f1e2d3] bg-white p-3 shadow-[0_8px_22px_rgba(0,0,0,0.04)] transition-shadow hover:shadow-md">
       <Link
         href={href(`/products/${product.slug}`)}
         className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[14px] bg-[#fffaf3]"
@@ -76,32 +76,31 @@ function CartUpsellCard({ product }: { product: Product }) {
         )}
       </Link>
 
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 flex flex-col gap-2">
         <Link
           href={href(`/products/${product.slug}`)}
           className="line-clamp-2 text-sm font-bold leading-snug text-[#171717] hover:text-[#ff7a1a]"
         >
           {name}
         </Link>
-        <p className="mt-1 text-sm font-black text-[#ff7a1a]">
+        <p className="text-sm font-black text-[#ff7a1a]">
           {formatPrice(getDisplayPrice(product), product.currency)}
         </p>
+        <button
+          onClick={handleAdd}
+          disabled={adding || product.stock === 0}
+          className={`h-9 w-full rounded-full px-4 text-xs font-black transition-colors ${
+            added
+              ? 'bg-green-500 text-white'
+              : product.stock === 0
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-[#ff7a1a] text-white hover:bg-[#fe6c00]'
+          }`}
+          aria-label={`Add ${name} to cart`}
+        >
+          {added ? t('cart.added') : adding ? '...' : product.stock === 0 ? t('product.outOfStock') : t('product.addToCart')}
+        </button>
       </div>
-
-      <button
-        onClick={handleAdd}
-        disabled={adding || product.stock === 0}
-        className={`h-9 shrink-0 rounded-full px-4 text-xs font-black transition-colors ${
-          added
-            ? 'bg-green-500 text-white'
-            : product.stock === 0
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            : 'bg-[#ff7a1a] text-white hover:bg-[#fe6c00]'
-        }`}
-        aria-label={`Add ${name} to cart`}
-      >
-        {added ? t('cart.added') : adding ? '...' : product.stock === 0 ? t('product.outOfStock') : t('product.addToCart')}
-      </button>
     </article>
   )
 }
