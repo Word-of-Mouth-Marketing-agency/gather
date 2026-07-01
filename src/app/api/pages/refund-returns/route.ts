@@ -20,7 +20,9 @@ export async function PUT(request: Request) {
 
     const updated: PolicyPageContent = {
       pageTitle: body.pageTitle ?? current.pageTitle,
+      titleAr: body.titleAr ?? current.titleAr,
       content: body.content ?? current.content,
+      contentAr: body.contentAr ?? current.contentAr,
       updatedAt: new Date().toISOString(),
     }
 

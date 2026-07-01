@@ -23,6 +23,7 @@ export async function PUT(request: Request) {
       section1: body.section1 ?? current.section1,
       section2: body.section2 ?? current.section2,
       section2ListItems: Array.isArray(body.section2ListItems) ? body.section2ListItems : current.section2ListItems,
+      ar: body.ar ?? current.ar,
       updatedAt: new Date().toISOString(),
     }
 

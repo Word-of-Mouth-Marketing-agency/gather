@@ -26,6 +26,7 @@ export async function PUT(request: Request) {
       recipientEmail: body.recipientEmail ?? current.recipientEmail,
       whatsappNumber: body.whatsappNumber ?? current.whatsappNumber,
       socialLinks: body.socialLinks ?? current.socialLinks,
+      ar: body.ar ?? current.ar,
       updatedAt: new Date().toISOString(),
     }
 
