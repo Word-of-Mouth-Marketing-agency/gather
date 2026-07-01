@@ -47,6 +47,7 @@ export default async function HomePage() {
             ctaUrl: aboutGather.ctaUrl,
             leftImage: aboutGather.leftImage,
             rightImage: aboutGather.rightImage,
+            locale,
           },
         }
       }
@@ -56,6 +57,7 @@ export default async function HomePage() {
           props: {
             ...s.props,
             title: t('home.whyGather', locale),
+            subtitle: undefined,
             cards: whyGatherCards,
           },
         }

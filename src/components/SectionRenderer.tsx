@@ -105,6 +105,7 @@ function SectionSwitch({ section, locale }: { section: Section; locale?: string 
       return (
         <AboutGatherSection
           {...(section.props as React.ComponentProps<typeof AboutGatherSection>)}
+          locale={locale}
         />
       )
 

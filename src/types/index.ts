@@ -182,6 +182,7 @@ export interface AboutGatherSectionProps {
   ctaUrl: string
   leftImage: string
   rightImage: string
+  locale?: string
 }
 
 export interface MomentsSectionProps {
