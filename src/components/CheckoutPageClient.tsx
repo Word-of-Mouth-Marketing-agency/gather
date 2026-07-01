@@ -232,7 +232,7 @@ export default function CheckoutPageClient() {
       ]
 
       const acceptedPoliciesAt = new Date().toISOString()
-      await fetch('/api/orders', {
+      const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -261,11 +261,18 @@ export default function CheckoutPageClient() {
           acceptedPoliciesAt,
         }),
       })
-    } catch { /* ignore */ }
 
-    clearCart()
-    window.dispatchEvent(new Event('gather:cart-updated'))
-    router.push('/checkout/success')
+      if (!res.ok) {
+        setSubmitting(false)
+        return
+      }
+
+      clearCart()
+      window.dispatchEvent(new Event('gather:cart-updated'))
+      router.push(href('/checkout/success'))
+    } catch {
+      setSubmitting(false)
+    }
   }
 
   if (!mounted) {
