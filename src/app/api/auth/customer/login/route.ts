@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { customerIsActive, verifyCustomerPassword } from '@/lib/customer-data'
+import { setCustomerSessionCookie } from '@/lib/customer-session'
 
 export async function POST(request: Request) {
   try {
@@ -17,6 +18,8 @@ export async function POST(request: Request) {
     if (!customerIsActive(customer)) {
       return NextResponse.json({ error: 'This account has been disabled' }, { status: 403 })
     }
+
+    await setCustomerSessionCookie({ id: customer.id, email: customer.email, name: customer.name })
 
     return NextResponse.json({
       id: customer.id,

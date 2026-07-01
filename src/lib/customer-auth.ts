@@ -55,6 +55,9 @@ export function clearCustomerSession(): void {
   cachedRaw = null
   cachedSession = null
   window.dispatchEvent(new Event('storage'))
+  try {
+    fetch('/api/auth/customer/logout', { method: 'POST' })
+  } catch { /* ignore network errors */ }
 }
 
 export function useCustomerSession(): CustomerSession | null {

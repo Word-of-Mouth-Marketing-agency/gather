@@ -1,22 +1,27 @@
 import { NextResponse } from 'next/server'
 import { getCustomerAddresses, addCustomerAddress, updateCustomerAddress, deleteCustomerAddress } from '@/lib/customer-data'
+import { getCustomerSessionCookie } from '@/lib/customer-session'
+
+async function requireCustomerId(): Promise<NextResponse | string> {
+  const session = await getCustomerSessionCookie()
+  if (!session) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+  }
+  return session.id
+}
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const customerId = searchParams.get('customerId')
-  if (!customerId) {
-    return NextResponse.json({ error: 'Customer ID required' }, { status: 400 })
-  }
+  const customerId = await requireCustomerId()
+  if (typeof customerId !== 'string') return customerId
   const addresses = getCustomerAddresses(customerId)
   return NextResponse.json(addresses)
 }
 
 export async function POST(request: Request) {
+  const customerId = await requireCustomerId()
+  if (typeof customerId !== 'string') return customerId
   try {
-    const { customerId, ...data } = await request.json()
-    if (!customerId) {
-      return NextResponse.json({ error: 'Customer ID required' }, { status: 400 })
-    }
+    const data = await request.json()
     const address = addCustomerAddress(customerId, data)
     if (!address) {
       return NextResponse.json({ error: 'Customer not found' }, { status: 404 })
@@ -28,10 +33,12 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  const customerId = await requireCustomerId()
+  if (typeof customerId !== 'string') return customerId
   try {
-    const { customerId, addressId, ...data } = await request.json()
-    if (!customerId || !addressId) {
-      return NextResponse.json({ error: 'Customer ID and Address ID required' }, { status: 400 })
+    const { addressId, ...data } = await request.json()
+    if (!addressId) {
+      return NextResponse.json({ error: 'Address ID required' }, { status: 400 })
     }
     const updated = updateCustomerAddress(customerId, addressId, data)
     if (!updated) {
@@ -44,12 +51,13 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const customerId = await requireCustomerId()
+  if (typeof customerId !== 'string') return customerId
   try {
     const { searchParams } = new URL(request.url)
-    const customerId = searchParams.get('customerId')
     const addressId = searchParams.get('addressId')
-    if (!customerId || !addressId) {
-      return NextResponse.json({ error: 'Customer ID and Address ID required' }, { status: 400 })
+    if (!addressId) {
+      return NextResponse.json({ error: 'Address ID required' }, { status: 400 })
     }
     const deleted = deleteCustomerAddress(customerId, addressId)
     if (!deleted) {

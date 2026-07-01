@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { findCustomerByEmail, createCustomer } from '@/lib/customer-data'
+import { setCustomerSessionCookie } from '@/lib/customer-session'
 
 export async function POST(request: Request) {
   try {
@@ -23,6 +24,8 @@ export async function POST(request: Request) {
     }
 
     const customer = createCustomer({ name, email, phone, password, acceptedDataPolicy, acceptedTermsAndConditions, acceptedCustomerPoliciesAt })
+
+    await setCustomerSessionCookie({ id: customer.id, email: customer.email, name: customer.name })
 
     return NextResponse.json({
       id: customer.id,
