@@ -35,7 +35,7 @@ export default function BundleCard({ bundle }: Props) {
           </span>
 
           <h3 className="text-xl sm:text-2xl font-bold text-[#171717]">{locale === 'ar' ? bundle.nameAr ?? bundle.name : bundle.name}</h3>
-          <p className="mt-1 text-sm text-[#7a6247]">{bundle.description}</p>
+          <p className="mt-1 text-sm text-[#7a6247]">{locale === 'ar' ? bundle.descriptionAr ?? bundle.description ?? '' : bundle.description}</p>
 
           <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3">
             {products.map((product, i) => (
@@ -51,14 +51,14 @@ export default function BundleCard({ bundle }: Props) {
                     {product.images[0] ? (
                       <img
                         src={product.images[0]}
-                        alt={product.name}
+                        alt={locale === 'ar' ? product.nameAr ?? product.name : product.name}
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <span>🎁</span>
                     )}
                   </span>
-                  <span className="truncate max-w-[120px] sm:max-w-[160px]">{product.name}</span>
+                  <span className="truncate max-w-[120px] sm:max-w-[160px]">{locale === 'ar' ? product.nameAr ?? product.name : product.name}</span>
                 </Link>
               </span>
             ))}

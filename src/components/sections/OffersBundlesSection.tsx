@@ -79,17 +79,21 @@ export default function OffersBundlesSection({ title, subtitle }: OffersGridSect
             <div className="flex gap-2 shrink-0">
               <button
                 onClick={prev}
-                className="w-10 h-10 rounded-full bg-white border border-[#f1e2d3] flex items-center justify-center text-lg text-[#7a6247] hover:text-[#ff7a1a] hover:border-[#ff7a1a] transition-colors"
+                className="w-10 h-10 rounded-full bg-white border border-[#f1e2d3] flex items-center justify-center text-[#7a6247] hover:text-[#ff7a1a] hover:border-[#ff7a1a] transition-colors"
                 aria-label="Previous offer"
               >
-                {isRTL ? '›' : '‹'}
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d={isRTL ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'} />
+                </svg>
               </button>
               <button
                 onClick={next}
-                className="w-10 h-10 rounded-full bg-white border border-[#f1e2d3] flex items-center justify-center text-lg text-[#7a6247] hover:text-[#ff7a1a] hover:border-[#ff7a1a] transition-colors"
+                className="w-10 h-10 rounded-full bg-white border border-[#f1e2d3] flex items-center justify-center text-[#7a6247] hover:text-[#ff7a1a] hover:border-[#ff7a1a] transition-colors"
                 aria-label="Next offer"
               >
-                {isRTL ? '‹' : '›'}
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d={isRTL ? 'M15 19l-7-7 7-7' : 'M9 5l7 7-7 7'} />
+                </svg>
               </button>
             </div>
           )}

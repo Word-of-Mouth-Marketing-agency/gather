@@ -11,7 +11,7 @@ interface Props {
 
 export default function ShareMomentModal({ open, onClose }: Props) {
   const session = useCustomerSession()
-  const { locale, t } = useLocale()
+  const { locale, isRTL, t } = useLocale()
 
   const occasionOptions = locale === 'ar' ? [
     { value: 'Birthday', label: 'عيد ميلاد' },
@@ -191,14 +191,16 @@ export default function ShareMomentModal({ open, onClose }: Props) {
       aria-modal="true"
           aria-label={t('moment.title')}
     >
-      <div
+        <div
         ref={dialogRef}
         tabIndex={-1}
         className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto"
       >
         <button
           onClick={() => { onClose(); reset() }}
-          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors"
+          className={`absolute top-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors ${
+            isRTL ? 'left-4' : 'right-4'
+          }`}
           aria-label={t('common.closeModal')}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
