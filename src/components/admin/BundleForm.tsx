@@ -19,6 +19,7 @@ export interface BundleFormData {
   offerPrice: number
   currency: string
   buttonText: string
+  buttonTextAr: string
   isActive: boolean
   startsAt?: string
   endsAt?: string
@@ -39,6 +40,7 @@ const EMPTY: BundleFormData = {
   offerPrice: 0,
   currency: 'EGP',
   buttonText: 'Buy Offer',
+  buttonTextAr: '',
   isActive: true,
   startsAt: '',
   endsAt: '',
@@ -476,15 +478,14 @@ export default function BundleForm({ initialData, bundleId }: Props) {
             />
           </div>
           <div>
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Currency</label>
-            <select
-              value={form.currency}
-              onChange={(e) => setField('currency', e.target.value)}
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Arabic Button Text</label>
+            <input
+              value={form.buttonTextAr || ''}
+              onChange={(e) => setField('buttonTextAr', e.target.value)}
               className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-            >
-              <option value="EGP">EGP</option>
-              <option value="USD">USD</option>
-            </select>
+              dir="auto"
+              placeholder="اشتري العرض"
+            />
           </div>
         </div>
       </div>

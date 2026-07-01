@@ -453,6 +453,7 @@ export interface Bundle {
   offerPrice: number
   currency: string
   buttonText: string
+  buttonTextAr?: string
   isActive: boolean
   startsAt?: string
   endsAt?: string

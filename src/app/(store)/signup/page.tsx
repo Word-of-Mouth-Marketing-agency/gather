@@ -66,7 +66,7 @@ export default function SignupPage() {
       }
 
       setCustomerSession(data)
-      router.push('/my-account')
+      router.push(href('/my-account'))
       router.refresh()
     } catch {
       setError(t('error.generic'))

@@ -50,6 +50,7 @@ export default function EditBundlePage() {
     offerPrice: bundle.offerPrice,
     currency: bundle.currency,
     buttonText: bundle.buttonText || 'Buy Offer',
+    buttonTextAr: bundle.buttonTextAr || '',
     isActive: bundle.isActive,
     startsAt: bundle.startsAt || '',
     endsAt: bundle.endsAt || '',

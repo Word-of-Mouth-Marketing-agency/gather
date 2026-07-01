@@ -93,7 +93,7 @@ export default function BundleCard({ bundle }: Props) {
                 : 'bg-[#ff7a1a] text-white hover:-translate-y-0.5 hover:opacity-90 active:translate-y-0'
             }`}
           >
-            {added ? t('bundle.addedToCart') : canBuy ? bundle.buttonText || t('bundle.buyOffer') : t('bundle.offerUnavailable')}
+            {added ? t('bundle.addedToCart') : canBuy ? (locale === 'ar' ? bundle.buttonTextAr ?? bundle.buttonText ?? t('bundle.buyOffer') : bundle.buttonText || t('bundle.buyOffer')) : t('bundle.offerUnavailable')}
           </button>
         </div>
       </div>
