@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: isAr ? 'سياسة الخصوصية' : 'Privacy Policy',
     description: isAr
-      ? 'سياسة خصوصية چزر — كيف نجمع ونستخدم ونحمي معلوماتك الشخصية.'
+      ? 'سياسة خصوصية چزر - كيف نجمع ونستخدم ونحمي معلوماتك الشخصية.'
       : 'Gather privacy policy — how we collect, use, and protect your personal information.',
   }
 }
@@ -29,7 +29,10 @@ export default async function PrivacyPolicyPage() {
     <>
       <PageTitleSection title={pageTitle} />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-[#7a6247] text-sm leading-relaxed space-y-4">
+        <div
+          dir={isAr ? 'rtl' : 'ltr'}
+          className={`text-[#7a6247] text-sm leading-relaxed space-y-4 ${isAr ? 'text-right' : ''}`}
+        >
           <PolicyContentRenderer content={bodyContent} />
         </div>
       </main>

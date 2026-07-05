@@ -10,9 +10,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale()
   const isAr = locale === 'ar'
   return {
-    title: isAr ? 'سياسة الاسترجاع والاستبدال' : 'Refund and Returns Policy',
+    title: isAr ? 'سياسة الإلغاء والاسترجاع' : 'Refund and Returns Policy',
     description: isAr
-      ? 'سياسة استرجاع واستبدال چزر — إلغاء الطلب، الاسترجاع، المنتجات التالفة، والمبالغ المستردة.'
+      ? 'سياسة الإلغاء والاسترجاع في چزر - إلغاء الطلب، الاسترجاع، الاستبدال، واسترداد المبالغ المدفوعة.'
       : 'Gather refund and returns policy — order cancellation, returns, damaged items, and refunds.',
   }
 }
@@ -29,7 +29,10 @@ export default async function RefundReturnsPage() {
     <>
       <PageTitleSection title={pageTitle} />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-[#7a6247] text-sm leading-relaxed space-y-4">
+        <div
+          dir={isAr ? 'rtl' : 'ltr'}
+          className={`text-[#7a6247] text-sm leading-relaxed space-y-4 ${isAr ? 'text-right' : ''}`}
+        >
           <PolicyContentRenderer content={bodyContent} />
         </div>
       </main>
