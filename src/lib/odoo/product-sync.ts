@@ -6,6 +6,8 @@ const PRODUCTS_FILE = 'products.json'
 const CATEGORIES_FILE = 'categories.json'
 
 export interface ProductSyncResult {
+  total: number
+  withSku: number
   created: number
   updated: number
   skippedMissingSku: number
@@ -85,7 +87,14 @@ export async function syncProductsToOdoo(): Promise<ProductSyncResult> {
     )
   }
 
+  const allProducts = loadProducts()
+  const allCategories = loadCategories()
+
+  const withSku = allProducts.filter((p) => p.sku?.trim()).length
+
   const result: ProductSyncResult = {
+    total: allProducts.length,
+    withSku,
     created: 0,
     updated: 0,
     skippedMissingSku: 0,
@@ -95,9 +104,6 @@ export async function syncProductsToOdoo(): Promise<ProductSyncResult> {
     errors: {},
     timestamp: now(),
   }
-
-  const allProducts = loadProducts()
-  const allCategories = loadCategories()
 
   for (const product of allProducts) {
     try {
@@ -179,11 +185,14 @@ async function syncSingleProduct(
   }
 
   let odooProductId: number | undefined
+  let staleMapping = false
 
   if (product.odooProductId) {
     const existing = await odooSearchRead('product.product', [['id', '=', product.odooProductId]], ['id', 'product_tmpl_id'], 1)
     if (existing.length > 0) {
       odooProductId = existing[0].id as number
+    } else {
+      staleMapping = true
     }
   }
 
@@ -191,6 +200,15 @@ async function syncSingleProduct(
     const bySku = await odooSearchRead('product.product', [['default_code', '=', sku]], ['id', 'product_tmpl_id'], 1)
     if (bySku.length > 0) {
       odooProductId = bySku[0].id as number
+      if (staleMapping) {
+        result.warnings.push(
+          `Product "${product.name}" (sku=${sku}): local odooProductId ${product.odooProductId} is stale, recovered via SKU to Odoo ID ${odooProductId}`,
+        )
+      }
+    } else if (staleMapping) {
+      result.warnings.push(
+        `Product "${product.name}" (sku=${sku}): local odooProductId ${product.odooProductId} is stale, SKU not found in Odoo — will create`,
+      )
     }
   }
 

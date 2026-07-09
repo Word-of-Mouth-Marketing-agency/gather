@@ -7,6 +7,8 @@ import type { Product } from '@/types'
 import { getActiveProductPrice, isProductDiscountActive } from '@/lib/scheduled-discounts'
 
 interface SyncResult {
+  total: number
+  withSku: number
   created: number
   updated: number
   skippedMissingSku: number
@@ -65,14 +67,16 @@ export default function AdminProductsPage() {
       } else {
         const err = await res.json()
         setSyncResult({
-          created: 0, updated: 0, skippedMissingSku: 0, failed: 0, missingCategoryMapping: 0,
+          total: 0, withSku: 0, created: 0, updated: 0, skippedMissingSku: 0, failed: 0,
+          missingCategoryMapping: 0,
           warnings: [err.error ?? 'Sync request failed'],
           errors: {},
         })
       }
     } catch {
       setSyncResult({
-        created: 0, updated: 0, skippedMissingSku: 0, failed: 0, missingCategoryMapping: 0,
+        total: 0, withSku: 0, created: 0, updated: 0, skippedMissingSku: 0, failed: 0,
+        missingCategoryMapping: 0,
         warnings: ['Network error — could not reach the sync endpoint'],
         errors: {},
       })
@@ -113,12 +117,18 @@ export default function AdminProductsPage() {
               : 'bg-green-50 border-green-200 text-green-800'
         }`}>
           <div className="flex items-center gap-4 flex-wrap">
+            <span className="text-xs text-gray-500">
+              {syncResult.total} total, {syncResult.withSku} with SKU
+            </span>
             {syncResult.created > 0 && <span>Created: <strong>{syncResult.created}</strong></span>}
             {syncResult.updated > 0 && <span>Updated: <strong>{syncResult.updated}</strong></span>}
             {syncResult.skippedMissingSku > 0 && <span>Skipped (no SKU): <strong>{syncResult.skippedMissingSku}</strong></span>}
             {syncResult.missingCategoryMapping > 0 && <span>Missing category: <strong className="text-red-600">{syncResult.missingCategoryMapping}</strong></span>}
             {syncResult.failed > 0 && <span>Failed: <strong className="text-red-600">{syncResult.failed}</strong></span>}
-            {syncResult.created === 0 && syncResult.updated === 0 && syncResult.failed === 0 && (
+            {syncResult.total > 0 && syncResult.withSku === 0 && (
+              <span>No products with SKU — add SKUs before syncing.</span>
+            )}
+            {syncResult.total === 0 && (
               <span>No products to sync.</span>
             )}
           </div>
