@@ -29,6 +29,11 @@ export interface Product {
   frequentlyBoughtTogetherIds?: string[]
   featured: boolean
   createdAt: string
+  sku?: string
+  odooProductId?: number
+  syncStatus?: 'not_synced' | 'synced' | 'sync_failed'
+  syncError?: string
+  lastSyncedAt?: string
 }
 
 export interface ProductReview {

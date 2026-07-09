@@ -6,11 +6,23 @@ import Image from 'next/image'
 import type { Product } from '@/types'
 import { getActiveProductPrice, isProductDiscountActive } from '@/lib/scheduled-discounts'
 
+interface SyncResult {
+  created: number
+  updated: number
+  skippedMissingSku: number
+  failed: number
+  missingCategoryMapping: number
+  warnings: string[]
+  errors: Record<string, string>
+}
+
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [syncing, setSyncing] = useState(false)
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null)
 
   async function load() {
     try {
@@ -41,6 +53,33 @@ export default function AdminProductsPage() {
     }
   }
 
+  async function handleSyncOdoo() {
+    setSyncing(true)
+    setSyncResult(null)
+    try {
+      const res = await fetch('/api/admin/products/sync-odoo', { method: 'POST' })
+      if (res.ok) {
+        const data = await res.json()
+        setSyncResult(data)
+        await load()
+      } else {
+        const err = await res.json()
+        setSyncResult({
+          created: 0, updated: 0, skippedMissingSku: 0, failed: 0, missingCategoryMapping: 0,
+          warnings: [err.error ?? 'Sync request failed'],
+          errors: {},
+        })
+      }
+    } catch {
+      setSyncResult({
+        created: 0, updated: 0, skippedMissingSku: 0, failed: 0, missingCategoryMapping: 0,
+        warnings: ['Network error — could not reach the sync endpoint'],
+        errors: {},
+      })
+    }
+    setSyncing(false)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
@@ -48,13 +87,58 @@ export default function AdminProductsPage() {
           <h1 className="text-2xl font-black text-gray-900">Products</h1>
           <p className="text-sm text-gray-400 mt-0.5">{products.length} total products</p>
         </div>
-        <Link href="/admin/products/new" className="gather-btn-primary text-sm py-2.5 px-5 shadow-md inline-flex items-center gap-1.5">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-          New Product
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSyncOdoo}
+            disabled={syncing}
+            className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          >
+            {syncing ? 'Syncing...' : 'Sync Products to Odoo'}
+          </button>
+          <Link href="/admin/products/new" className="gather-btn-primary text-sm py-2.5 px-5 shadow-md inline-flex items-center gap-1.5">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            New Product
+          </Link>
+        </div>
       </div>
+
+      {syncResult && (
+        <div className={`rounded-2xl border p-4 text-sm ${
+          syncResult.failed > 0 || syncResult.missingCategoryMapping > 0
+            ? 'bg-red-50 border-red-200 text-red-800'
+            : syncResult.warnings.length > 0
+              ? 'bg-amber-50 border-amber-200 text-amber-800'
+              : 'bg-green-50 border-green-200 text-green-800'
+        }`}>
+          <div className="flex items-center gap-4 flex-wrap">
+            {syncResult.created > 0 && <span>Created: <strong>{syncResult.created}</strong></span>}
+            {syncResult.updated > 0 && <span>Updated: <strong>{syncResult.updated}</strong></span>}
+            {syncResult.skippedMissingSku > 0 && <span>Skipped (no SKU): <strong>{syncResult.skippedMissingSku}</strong></span>}
+            {syncResult.missingCategoryMapping > 0 && <span>Missing category: <strong className="text-red-600">{syncResult.missingCategoryMapping}</strong></span>}
+            {syncResult.failed > 0 && <span>Failed: <strong className="text-red-600">{syncResult.failed}</strong></span>}
+            {syncResult.created === 0 && syncResult.updated === 0 && syncResult.failed === 0 && (
+              <span>No products to sync.</span>
+            )}
+          </div>
+          {syncResult.warnings.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {syncResult.warnings.map((w, i) => <li key={i} className="text-xs opacity-80">{w}</li>)}
+            </ul>
+          )}
+          {Object.keys(syncResult.errors).length > 0 && (
+            <details className="mt-2">
+              <summary className="text-xs font-semibold cursor-pointer">Error details</summary>
+              <ul className="mt-1 space-y-1">
+                {Object.entries(syncResult.errors).map(([id, msg]) => (
+                  <li key={id} className="text-xs opacity-80">{id}: {msg}</li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
 
       <div className="relative">
         <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
