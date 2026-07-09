@@ -1,9 +1,12 @@
+import fs from 'fs'
+import path from 'path'
 import type { Product, Category } from '@/types'
 import { readJson, writeJson } from '@/lib/db'
 import { getOdooConfig, odooSearchRead, odooCreate, odooWrite } from './json-rpc'
 
 const PRODUCTS_FILE = 'products.json'
 const CATEGORIES_FILE = 'categories.json'
+const PUBLIC_DIR = path.join(process.cwd(), 'public')
 
 export interface ProductSyncResult {
   total: number
@@ -48,6 +51,27 @@ function resolveDescription(product: Product): string {
   if (product.shortDescription?.trim()) return product.shortDescription.trim()
   if (product.description?.trim()) return product.description.trim()
   return ''
+}
+
+function resolveMainImage(images: string[], warnings: string[], label: string): string | undefined {
+  const first = images[0]
+  if (!first) return undefined
+
+  if (first.startsWith('http://') || first.startsWith('https://')) {
+    warnings.push(`${label}: skipping external URL "${first}" — only local images are synced`)
+    return undefined
+  }
+
+  const relative = first.startsWith('/') ? first.slice(1) : first
+  const filePath = path.join(PUBLIC_DIR, relative)
+
+  try {
+    const buffer = fs.readFileSync(filePath)
+    return buffer.toString('base64')
+  } catch {
+    warnings.push(`${label}: could not read image at "${first}" (resolved to ${filePath}) — syncing without image`)
+    return undefined
+  }
 }
 
 async function resolveOdooCategory(
@@ -212,6 +236,8 @@ async function syncSingleProduct(
     }
   }
 
+  const imageBase64 = resolveMainImage(product.images, result.warnings, `Product "${product.name}" (sku=${sku})`)
+
   if (odooProductId) {
     const existing = await odooSearchRead('product.product', [['id', '=', odooProductId]], ['product_tmpl_id'], 1)
     const templateId = existing[0]?.product_tmpl_id as [number, string] | undefined
@@ -220,7 +246,7 @@ async function syncSingleProduct(
 
     if (templateId) {
       const tmplId = Array.isArray(templateId) ? templateId[0] : templateId
-      await odooWrite('product.template', tmplId as number, {
+      const templateValues: Record<string, unknown> = {
         name: product.name,
         list_price: price,
         description_sale: descriptionSale || false,
@@ -229,10 +255,14 @@ async function syncSingleProduct(
         x_slug: product.slug,
         sale_ok: true,
         purchase_ok: true,
-      })
+      }
+      if (imageBase64) {
+        templateValues.image_1920 = imageBase64
+      }
+      await odooWrite('product.template', tmplId as number, templateValues)
     }
   } else {
-    const newProductId = await odooCreate('product.product', {
+    const createValues: Record<string, unknown> = {
       default_code: sku,
       name: product.name,
       list_price: price,
@@ -242,7 +272,11 @@ async function syncSingleProduct(
       x_slug: product.slug,
       sale_ok: true,
       purchase_ok: true,
-    })
+    }
+    if (imageBase64) {
+      createValues.image_1920 = imageBase64
+    }
+    const newProductId = await odooCreate('product.product', createValues)
     odooProductId = newProductId
   }
 
