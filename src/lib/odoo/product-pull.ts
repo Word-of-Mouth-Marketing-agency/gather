@@ -148,3 +148,58 @@ export async function pullProductsFromOdoo(): Promise<ProductPullResult> {
 
   return result
 }
+
+export async function pullSingleProductFromOdoo(params: { sku?: string; odooProductId?: number }): Promise<void> {
+  const config = getOdooConfig()
+  if (!config) return
+
+  try {
+    const allProducts = loadProducts()
+    let product = params.sku
+      ? allProducts.find((p) => p.sku?.trim().toUpperCase() === params.sku!.trim().toUpperCase())
+      : undefined
+    if (!product && params.odooProductId) {
+      product = allProducts.find((p) => p.odooProductId === params.odooProductId)
+    }
+    if (!product) return
+
+    const allCategories = loadCategories()
+    const odooProductId = await resolveOdooProductId(product)
+    if (!odooProductId) return
+
+    const odooData = await odooSearchRead<Record<string, unknown>>(
+      'product.product', [['id', '=', odooProductId]], [
+        'default_code', 'name', 'list_price', 'description_sale', 'qty_available', 'categ_id',
+      ], 1,
+    )
+    if (odooData.length === 0) return
+
+    const odoo = odooData[0] as { id: number; default_code: string; name: string; list_price: number; description_sale: string | false; qty_available: number; categ_id: unknown }
+    const qty = Math.max(0, Math.floor(odoo.qty_available))
+    const odooCategId = Array.isArray(odoo.categ_id) ? (odoo.categ_id as [number, string])[0] : undefined
+    const pulledCatId = mapCategoryId(odooCategId, allCategories)
+    const updates: Partial<Product> = {
+      name: odoo.name,
+      price: odoo.list_price,
+      shortDescription: odoo.description_sale || product.shortDescription || '',
+      stock: qty,
+      stockStatus: qty > 0 ? 'in_stock' : 'out_of_stock',
+      syncStatus: 'synced',
+      syncError: undefined,
+      lastSyncedAt: now(),
+      odooProductId,
+    }
+    if (pulledCatId && !product.categoryIds.includes(pulledCatId)) {
+      updates.categoryIds = [...product.categoryIds, pulledCatId]
+    }
+
+    const all = loadProducts()
+    const idx = all.findIndex((p) => p.id === product!.id)
+    if (idx >= 0) {
+      all[idx] = { ...all[idx], ...updates }
+      saveProducts(all)
+    }
+  } catch {
+    // Webhook pull failure silently falls back to admin/cron pull
+  }
+}
