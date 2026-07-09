@@ -45,16 +45,29 @@ async function authenticate(config: OdooConfig): Promise<number> {
   return uidCache
 }
 
+const DOMAIN_PREFIXES = new Set(['|', '&', '!'])
+
 function requireDomain(domain: unknown, label: string): void {
   if (!Array.isArray(domain)) {
     throw new Error(`Odoo ${label}: domain must be an array, got ${typeof domain}`)
   }
-  if (domain.length > 0 && !Array.isArray(domain[0])) {
-    throw new Error(
-      `Odoo ${label}: domain must be an array of conditions (e.g. [["field", "=", value]]), ` +
-      `got flat array [${domain.join(', ')}]. Each condition must be a nested array.`,
-    )
+  if (domain.length === 0) return
+  if (Array.isArray(domain[0])) return
+  if (domain.length >= 2 && DOMAIN_PREFIXES.has(domain[0] as string)) {
+    for (let i = 1; i < domain.length; i++) {
+      if (!Array.isArray(domain[i])) {
+        throw new Error(
+          `Odoo ${label}: domain with prefix operator "${domain[0]}" requires nested condition arrays, ` +
+          `got flat element at index ${i}: ${String(domain[i])}`,
+        )
+      }
+    }
+    return
   }
+  throw new Error(
+    `Odoo ${label}: domain must be an array of conditions (e.g. [["field", "=", value]]), ` +
+    `got flat array [${domain.join(', ')}]. Each condition must be a nested array.`,
+  )
 }
 
 export async function odooExecuteKw<T = unknown>(
