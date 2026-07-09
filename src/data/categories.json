@@ -122,6 +122,18 @@
     "isActive": true
   },
   {
+    "id": "cat-gift-boxes",
+    "slug": "gift-boxes",
+    "name": "Gift Boxes",
+    "nameAr": "صناديق الهدايا",
+    "description": "Curated gift boxes and sets for every occasion",
+    "image": "",
+    "type": "category",
+    "parentId": null,
+    "sortOrder": 11,
+    "isActive": true
+  },
+  {
     "id": "occ-birthday",
     "slug": "birthday",
     "name": "Birthday",
