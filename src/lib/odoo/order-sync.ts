@@ -21,6 +21,19 @@ function now(): string {
   return new Date().toISOString()
 }
 
+function toOdooDatetime(iso: string | undefined): string {
+  if (!iso) {
+    const d = new Date()
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`
+  }
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
+  }
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`
+}
+
 function loadOrders(): Order[] {
   return readJson<Order[]>(ORDERS_FILE)
 }
@@ -236,7 +249,7 @@ async function syncSingleOrder(
   const newOrderId = await odooCreate('sale.order', {
     client_order_ref: order.id,
     partner_id: partnerId,
-    date_order: order.createdAt,
+    date_order: toOdooDatetime(order.createdAt),
     order_line: orderLines,
     note: noteParts.join('\n'),
     x_nextjs_id: order.id,
