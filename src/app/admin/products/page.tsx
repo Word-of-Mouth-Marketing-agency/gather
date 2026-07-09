@@ -38,6 +38,8 @@ export default function AdminProductsPage() {
   const [syncResult, setSyncResult] = useState<SyncResult | null>(null)
   const [stockSyncing, setStockSyncing] = useState(false)
   const [stockSyncResult, setStockSyncResult] = useState<StockSyncResult | null>(null)
+  const [pullSyncing, setPullSyncing] = useState(false)
+  const [pullResult, setPullResult] = useState<StockSyncResult | null>(null)
 
   async function load() {
     try {
@@ -126,6 +128,35 @@ export default function AdminProductsPage() {
     setStockSyncing(false)
   }
 
+  async function handlePullOdoo() {
+    setPullSyncing(true)
+    setPullResult(null)
+    try {
+      const res = await fetch('/api/admin/products/pull-odoo', { method: 'POST' })
+      if (res.ok) {
+        const data = await res.json()
+        setPullResult(data)
+        await load()
+      } else {
+        const err = await res.json()
+        setPullResult({
+          total: 0, withSku: 0, updated: 0, skippedMissingSku: 0, failed: 0,
+          warnings: [err.error ?? 'Pull request failed'],
+          errors: {},
+          timestamp: new Date().toISOString(),
+        })
+      }
+    } catch {
+      setPullResult({
+        total: 0, withSku: 0, updated: 0, skippedMissingSku: 0, failed: 0,
+        warnings: ['Network error — could not reach the pull endpoint'],
+        errors: {},
+        timestamp: new Date().toISOString(),
+      })
+    }
+    setPullSyncing(false)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
@@ -147,6 +178,13 @@ export default function AdminProductsPage() {
             className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
           >
             {stockSyncing ? 'Pulling stock...' : 'Sync Stock from Odoo'}
+          </button>
+          <button
+            onClick={handlePullOdoo}
+            disabled={pullSyncing}
+            className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          >
+            {pullSyncing ? 'Pulling...' : 'Pull Products from Odoo'}
           </button>
           <Link href="/admin/products/new" className="gather-btn-primary text-sm py-2.5 px-5 shadow-md inline-flex items-center gap-1.5">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -231,6 +269,46 @@ export default function AdminProductsPage() {
               <summary className="text-xs font-semibold cursor-pointer">Error details</summary>
               <ul className="mt-1 space-y-1">
                 {Object.entries(stockSyncResult.errors).map(([id, msg]) => (
+                  <li key={id} className="text-xs opacity-80">{id}: {msg}</li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
+
+      {pullResult && (
+        <div className={`rounded-2xl border p-4 text-sm ${
+          pullResult.failed > 0
+            ? 'bg-red-50 border-red-200 text-red-800'
+            : pullResult.warnings.length > 0
+              ? 'bg-amber-50 border-amber-200 text-amber-800'
+              : 'bg-green-50 border-green-200 text-green-800'
+        }`}>
+          <div className="flex items-center gap-4 flex-wrap">
+            <span className="text-xs text-gray-500">
+              {pullResult.total} total, {pullResult.withSku} with SKU
+            </span>
+            {pullResult.updated > 0 && <span>Updated: <strong>{pullResult.updated}</strong></span>}
+            {pullResult.skippedMissingSku > 0 && <span>Skipped (no SKU): <strong>{pullResult.skippedMissingSku}</strong></span>}
+            {pullResult.failed > 0 && <span>Failed: <strong className="text-red-600">{pullResult.failed}</strong></span>}
+            {pullResult.total > 0 && pullResult.withSku === 0 && (
+              <span>No products with SKU — pull requires SKUs.</span>
+            )}
+            {pullResult.total === 0 && (
+              <span>No products to pull.</span>
+            )}
+          </div>
+          {pullResult.warnings.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {pullResult.warnings.map((w, i) => <li key={i} className="text-xs opacity-80">{w}</li>)}
+            </ul>
+          )}
+          {Object.keys(pullResult.errors).length > 0 && (
+            <details className="mt-2">
+              <summary className="text-xs font-semibold cursor-pointer">Error details</summary>
+              <ul className="mt-1 space-y-1">
+                {Object.entries(pullResult.errors).map(([id, msg]) => (
                   <li key={id} className="text-xs opacity-80">{id}: {msg}</li>
                 ))}
               </ul>
