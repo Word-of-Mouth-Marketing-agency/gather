@@ -103,16 +103,16 @@ export async function pullProductsFromOdoo(): Promise<ProductPullResult> {
         throw new Error(`Odoo product ${odooProductId} disappeared during pull`)
       }
 
-      const odoo = odooData[0] as { id: number; default_code: string; name: string; list_price: number; description_sale: string | false; qty_available: number; categ_id: unknown }
-      const qty = Math.max(0, Math.floor(odoo.qty_available))
+      const odoo = odooData[0] as Record<string, unknown>
+      const qty = Math.max(0, Math.floor(Number(odoo.qty_available) || 0))
       const stockStatus = qty > 0 ? 'in_stock' : 'out_of_stock'
 
-      const odooCategId = Array.isArray(odoo.categ_id) ? (odoo.categ_id as [number, string])[0] : undefined
+      const odooCategId = Array.isArray(odoo.categ_id) ? (odoo.categ_id as unknown as [number, string])[0] : undefined
       const pulledCatId = mapCategoryId(odooCategId, allCategories)
       const updates: Partial<Product> = {
-        name: odoo.name,
-        price: odoo.list_price,
-        shortDescription: odoo.description_sale || product.shortDescription || '',
+        name: normalizeOdooText(odoo.name),
+        price: typeof odoo.list_price === 'number' ? odoo.list_price : product.price,
+        shortDescription: normalizeOdooText(odoo.description_sale) || product.shortDescription || '',
         stock: qty,
         stockStatus,
         syncStatus: 'synced',
@@ -149,6 +149,14 @@ export async function pullProductsFromOdoo(): Promise<ProductPullResult> {
   return result
 }
 
+function normalizeOdooText(val: unknown): string {
+  if (typeof val === 'string') return val
+  if (val && typeof val === 'object' && 'en_US' in (val as Record<string, unknown>)) {
+    return String((val as Record<string, unknown>).en_US || '')
+  }
+  return String(val || '')
+}
+
 export async function pullSingleProductFromOdoo(params: { sku?: string; odooProductId?: number }): Promise<void> {
   const config = getOdooConfig()
   if (!config) return
@@ -174,14 +182,14 @@ export async function pullSingleProductFromOdoo(params: { sku?: string; odooProd
     )
     if (odooData.length === 0) return
 
-    const odoo = odooData[0] as { id: number; default_code: string; name: string; list_price: number; description_sale: string | false; qty_available: number; categ_id: unknown }
-    const qty = Math.max(0, Math.floor(odoo.qty_available))
-    const odooCategId = Array.isArray(odoo.categ_id) ? (odoo.categ_id as [number, string])[0] : undefined
+    const odoo = odooData[0] as Record<string, unknown>
+    const qty = Math.max(0, Math.floor(Number(odoo.qty_available) || 0))
+    const odooCategId = Array.isArray(odoo.categ_id) ? (odoo.categ_id as unknown as [number, string])[0] : undefined
     const pulledCatId = mapCategoryId(odooCategId, allCategories)
     const updates: Partial<Product> = {
-      name: odoo.name,
-      price: odoo.list_price,
-      shortDescription: odoo.description_sale || product.shortDescription || '',
+      name: normalizeOdooText(odoo.name),
+      price: typeof odoo.list_price === 'number' ? odoo.list_price : product.price,
+      shortDescription: normalizeOdooText(odoo.description_sale) || product.shortDescription || '',
       stock: qty,
       stockStatus: qty > 0 ? 'in_stock' : 'out_of_stock',
       syncStatus: 'synced',
