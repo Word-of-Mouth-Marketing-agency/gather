@@ -75,6 +75,10 @@ export interface Category {
   isActive: boolean
   topProductIds?: string[]
   order?: number
+  odooCategoryId?: number
+  syncStatus?: 'not_synced' | 'synced' | 'sync_failed'
+  syncError?: string
+  lastSyncedAt?: string
 }
 
 // ─── Page Sections ─────────────────────────────────────────────────────────────

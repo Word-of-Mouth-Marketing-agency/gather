@@ -3,6 +3,15 @@
 import { useState, useEffect, useRef, startTransition } from 'react'
 import type { Category, Product } from '@/types'
 
+interface SyncResult {
+  created: number
+  updated: number
+  skippedOccasions: number
+  failed: number
+  warnings: string[]
+  errors: Record<string, string>
+}
+
 type CategoryForm = Omit<Category, 'id'>
 
 const EMPTY_FORM: CategoryForm = {
@@ -34,6 +43,8 @@ export default function AdminCategoriesPage() {
   const [uploading, setUploading] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [productSearch, setProductSearch] = useState('')
+  const [syncing, setSyncing] = useState(false)
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   async function load() {
@@ -195,6 +206,39 @@ export default function AdminCategoriesPage() {
     }
   }
 
+  async function handleSyncOdoo() {
+    setSyncing(true)
+    setSyncResult(null)
+    try {
+      const res = await fetch('/api/admin/categories/sync-odoo', { method: 'POST' })
+      if (res.ok) {
+        const data = await res.json()
+        setSyncResult(data)
+        await load()
+      } else {
+        const err = await res.json()
+        setSyncResult({
+          created: 0,
+          updated: 0,
+          skippedOccasions: 0,
+          failed: 0,
+          warnings: [err.error ?? 'Sync request failed'],
+          errors: {},
+        })
+      }
+    } catch {
+      setSyncResult({
+        created: 0,
+        updated: 0,
+        skippedOccasions: 0,
+        failed: 0,
+        warnings: ['Network error — could not reach the sync endpoint'],
+        errors: {},
+      })
+    }
+    setSyncing(false)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
@@ -202,10 +246,54 @@ export default function AdminCategoriesPage() {
           <h1 className="text-2xl font-black text-gray-900">Categories</h1>
           <p className="text-sm text-gray-400 mt-0.5">{items.length} total</p>
         </div>
-        <button onClick={openNew} className="gather-btn-primary text-sm py-2.5 px-5 shadow-md">
-          + New {activeTab === 'category' ? 'Category' : 'Occasion'}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSyncOdoo}
+            disabled={syncing}
+            className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          >
+            {syncing ? 'Syncing...' : 'Sync Categories to Odoo'}
+          </button>
+          <button onClick={openNew} className="gather-btn-primary text-sm py-2.5 px-5 shadow-md">
+            + New {activeTab === 'category' ? 'Category' : 'Occasion'}
+          </button>
+        </div>
       </div>
+
+      {syncResult && (
+        <div className={`rounded-2xl border p-4 text-sm ${
+          syncResult.failed > 0
+            ? 'bg-red-50 border-red-200 text-red-800'
+            : syncResult.warnings.length > 0
+              ? 'bg-amber-50 border-amber-200 text-amber-800'
+              : 'bg-green-50 border-green-200 text-green-800'
+        }`}>
+          <div className="flex items-center gap-4 flex-wrap">
+            {syncResult.created > 0 && <span>Created: <strong>{syncResult.created}</strong></span>}
+            {syncResult.updated > 0 && <span>Updated: <strong>{syncResult.updated}</strong></span>}
+            {syncResult.skippedOccasions > 0 && <span>Skipped (occasions): <strong>{syncResult.skippedOccasions}</strong></span>}
+            {syncResult.failed > 0 && <span>Failed: <strong className="text-red-600">{syncResult.failed}</strong></span>}
+            {syncResult.created === 0 && syncResult.updated === 0 && syncResult.failed === 0 && (
+              <span>No categories to sync.</span>
+            )}
+          </div>
+          {syncResult.warnings.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {syncResult.warnings.map((w, i) => <li key={i} className="text-xs opacity-80">{w}</li>)}
+            </ul>
+          )}
+          {Object.keys(syncResult.errors).length > 0 && (
+            <details className="mt-2">
+              <summary className="text-xs font-semibold cursor-pointer">Error details</summary>
+              <ul className="mt-1 space-y-1">
+                {Object.entries(syncResult.errors).map(([id, msg]) => (
+                  <li key={id} className="text-xs opacity-80">{id}: {msg}</li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit">

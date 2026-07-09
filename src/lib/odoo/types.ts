@@ -8,6 +8,11 @@
 
 import type { OdooProduct, OdooOrder, OdooSyncResult } from '@/types'
 
+export interface OdooOrmResult {
+  id: number
+  [key: string]: unknown
+}
+
 export interface OdooConfig {
   url: string
   db: string
