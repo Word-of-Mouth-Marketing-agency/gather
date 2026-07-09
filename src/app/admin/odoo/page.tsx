@@ -3,7 +3,7 @@
 import { useState, useEffect, startTransition } from 'react'
 
 interface Diagnostics {
-  connection: { ok: boolean; url: string | null; db: string | null; error?: string; uid?: number }
+  connection: { ok: boolean; url: string | null; hostname: string | null; db: string | null; error?: string; uid?: number; checkoutAutoSyncEnabled: boolean; allowedHosts: string[] }
   requiredFields: {
     allOk: boolean
     models: Record<string, { allOk: boolean; fields: Array<{ field: string; exists: boolean }> }>
@@ -90,10 +90,24 @@ export default function OdooDiagnosticsPage() {
           {data.connection.ok ? (
             <>
               <p className="text-sm text-gray-700">Connected as UID {data.connection.uid}</p>
-              <p className="text-xs text-gray-400 mt-1">{data.connection.url} / {data.connection.db}</p>
+              <p className="text-xs text-gray-400 mt-1">{data.connection.hostname} / {data.connection.db}</p>
+              <div className="mt-2 pt-2 border-t border-gray-100 space-y-1">
+                <p className="text-xs text-gray-500">
+                  Checkout auto-sync: <span className={data.connection.checkoutAutoSyncEnabled ? 'text-green-600 font-semibold' : 'text-gray-400'}>{data.connection.checkoutAutoSyncEnabled ? 'Enabled' : 'Disabled'}</span>
+                </p>
+                <p className="text-xs text-gray-500">Allowed hosts: {data.connection.allowedHosts.join(', ')}</p>
+              </div>
             </>
           ) : (
-            <p className="text-sm text-red-600">{data.connection.error}</p>
+            <>
+              <p className="text-sm text-red-600">{data.connection.error}</p>
+              <div className="mt-2 space-y-1">
+                <p className="text-xs text-gray-500">
+                  Checkout auto-sync: <span className={data.connection.checkoutAutoSyncEnabled ? 'text-green-600 font-semibold' : 'text-gray-400'}>{data.connection.checkoutAutoSyncEnabled ? 'Enabled' : 'Disabled'}</span>
+                </p>
+                <p className="text-xs text-gray-500">Allowed hosts: {data.connection.allowedHosts.join(', ')}</p>
+              </div>
+            </>
           )}
         </Card>
 

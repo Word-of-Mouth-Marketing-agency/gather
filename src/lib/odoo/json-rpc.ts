@@ -17,14 +17,22 @@ function sanitizeOdooError(body: { error?: { message?: string; data?: { message?
   return fallback
 }
 
-function isLocalOdooUrl(url: string): boolean {
+export function getAllowedOdooHosts(): string[] {
+  const raw = process.env.ALLOWED_ODOO_HOSTS || 'localhost,127.0.0.1,::1,host.docker.internal'
+  return raw.split(',').map((h) => h.trim()).filter(Boolean)
+}
+
+function isAllowedOdooUrl(url: string): boolean {
   try {
     const parsed = new URL(url)
-    const host = parsed.hostname
-    return host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === 'host.docker.internal'
+    return getAllowedOdooHosts().includes(parsed.hostname)
   } catch {
     return false
   }
+}
+
+export function isOdooSyncEnabled(): boolean {
+  return process.env.ODOO_SYNC_ENABLED === 'true'
 }
 
 export function getOdooConfig(): OdooConfig | null {
@@ -34,9 +42,9 @@ export function getOdooConfig(): OdooConfig | null {
   const password = process.env.ODOO_PASSWORD ?? process.env.ODOO_API_KEY
   if (!rawUrl || !db || !username || !password) return null
   const url = rawUrl.replace(/\/+$/, '')
-  if (!isLocalOdooUrl(url)) {
+  if (!isAllowedOdooUrl(url)) {
     throw new Error(
-      `Odoo URL "${rawUrl}" is not a local host. Only local Odoo instances (localhost, 127.0.0.1, ::1) are allowed.`,
+      `Odoo URL "${rawUrl}" host is not allowed. Set ALLOWED_ODOO_HOSTS to include "${new URL(url).hostname}".`,
     )
   }
   return { url, db, username, password }

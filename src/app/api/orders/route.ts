@@ -5,6 +5,7 @@ import { getShippingFeeForCity } from '@/lib/shipping-fees'
 import { upsertCustomerFromCheckout } from '@/lib/customer-data'
 import { getCustomerSessionCookie } from '@/lib/customer-session'
 import { syncOrderAfterCheckout } from '@/lib/odoo/order-sync'
+import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -56,7 +57,9 @@ export async function POST(request: Request) {
       },
     })
 
-    syncOrderAfterCheckout(order.id)
+    if (isOdooSyncEnabled()) {
+      syncOrderAfterCheckout(order.id)
+    }
 
     const safeOrder = {
       ...order,

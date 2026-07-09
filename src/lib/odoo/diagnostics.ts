@@ -1,4 +1,4 @@
-import { getOdooConfig, odooSearchRead, odooExecuteKw } from './json-rpc'
+import { getOdooConfig, odooSearchRead, odooExecuteKw, isOdooSyncEnabled, getAllowedOdooHosts } from './json-rpc'
 import { readJson } from '@/lib/db'
 import type { Category, Product } from '@/types'
 import type { Order } from '@/lib/orders'
@@ -18,9 +18,12 @@ interface FieldStatus {
 interface ConnectionStatus {
   ok: boolean
   url: string | null
+  hostname: string | null
   db: string | null
   error?: string
   uid?: number
+  checkoutAutoSyncEnabled: boolean
+  allowedHosts: string[]
 }
 
 interface RequiredFieldsStatus {
@@ -76,11 +79,15 @@ export interface DiagnosticsResult {
 
 export async function getOdooDiagnostics(): Promise<DiagnosticsResult> {
   const config = getOdooConfig()
+  const hostname = config?.url ? new URL(config.url).hostname : null
   const result: DiagnosticsResult = {
     connection: {
       ok: false,
       url: config?.url ?? null,
+      hostname,
       db: config?.db ?? null,
+      checkoutAutoSyncEnabled: isOdooSyncEnabled(),
+      allowedHosts: getAllowedOdooHosts(),
     },
     requiredFields: { allOk: false, models: {} },
     categories: { total: 0, synced: 0, failed: 0, skippedOccasions: 0 },
@@ -155,13 +162,27 @@ export async function getOdooDiagnostics(): Promise<DiagnosticsResult> {
 
 async function checkConnection(config: ReturnType<typeof getOdooConfig>): Promise<ConnectionStatus> {
   if (!config) {
-    return { ok: false, url: null, db: null, error: 'ODOO_URL, ODOO_DB, ODOO_USERNAME, or ODOO_PASSWORD not set' }
+    return {
+      ok: false, url: null, hostname: null, db: null,
+      checkoutAutoSyncEnabled: isOdooSyncEnabled(),
+      allowedHosts: getAllowedOdooHosts(),
+      error: 'ODOO_URL, ODOO_DB, ODOO_USERNAME, or ODOO_PASSWORD not set',
+    }
   }
   try {
     const uid = await odooExecuteKw<number>('res.partner', 'check_access_rights', ['read'], { raise_exception: false })
-    return { ok: true, url: config.url, db: config.db, uid }
+    return {
+      ok: true, url: config.url, hostname: new URL(config.url).hostname, db: config.db, uid,
+      checkoutAutoSyncEnabled: isOdooSyncEnabled(),
+      allowedHosts: getAllowedOdooHosts(),
+    }
   } catch (err) {
-    return { ok: false, url: config.url, db: config.db, error: err instanceof Error ? err.message : String(err) }
+    return {
+      ok: false, url: config.url, hostname: new URL(config.url).hostname, db: config.db,
+      checkoutAutoSyncEnabled: isOdooSyncEnabled(),
+      allowedHosts: getAllowedOdooHosts(),
+      error: err instanceof Error ? err.message : String(err),
+    }
   }
 }
 
