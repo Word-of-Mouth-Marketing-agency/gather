@@ -274,3 +274,34 @@ async function syncSingleOrder(
 
   result.created += 1
 }
+
+export async function syncOrderAfterCheckout(orderId: string): Promise<void> {
+  const config = getOdooConfig()
+  if (!config) return
+
+  try {
+    const allOrders = loadOrders()
+    const order = allOrders.find((o) => o.id === orderId)
+    if (!order) return
+
+    const fakeResult: OrderSyncResult = {
+      created: 0, alreadySynced: 0, failed: 0, warnings: [], errors: {}, timestamp: now(),
+    }
+    const products = loadProducts()
+
+    await syncSingleOrder(order, products, fakeResult)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    const all = loadOrders()
+    const idx = all.findIndex((o) => o.id === orderId)
+    if (idx >= 0) {
+      all[idx] = {
+        ...all[idx],
+        syncStatus: 'sync_failed',
+        syncError: message.slice(0, 500),
+        lastSyncedAt: now(),
+      }
+      saveOrders(all)
+    }
+  }
+}

@@ -4,6 +4,7 @@ import { getAllOrders, createOrder, updateOrderStatus } from '@/lib/orders'
 import { getShippingFeeForCity } from '@/lib/shipping-fees'
 import { upsertCustomerFromCheckout } from '@/lib/customer-data'
 import { getCustomerSessionCookie } from '@/lib/customer-session'
+import { syncOrderAfterCheckout } from '@/lib/odoo/order-sync'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -54,7 +55,16 @@ export async function POST(request: Request) {
         shippingFee,
       },
     })
-    return NextResponse.json(order, { status: 201 })
+
+    syncOrderAfterCheckout(order.id)
+
+    const safeOrder = {
+      ...order,
+      syncStatus: undefined,
+      syncError: undefined,
+      lastSyncedAt: undefined,
+    }
+    return NextResponse.json(safeOrder, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Invalid data' }, { status: 400 })
   }

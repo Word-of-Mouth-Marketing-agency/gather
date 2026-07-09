@@ -25,6 +25,12 @@ function statusLabel(status: string) {
   return STATUS_OPTIONS.find((option) => option.value === status)?.label ?? status
 }
 
+function syncBadge(order: Order) {
+  if (order.syncStatus === 'synced') return <span className="text-xs text-green-600 font-semibold">Synced</span>
+  if (order.syncStatus === 'sync_failed') return <span className="text-xs text-red-500 font-semibold" title={order.syncError ?? ''}>Sync failed</span>
+  return <span className="text-xs text-gray-400 font-semibold">Not synced</span>
+}
+
 function formatMoney(amount: number | undefined, currency = 'EGP') {
   return `${Number(amount ?? 0).toLocaleString('en-EG')} ${currency}`
 }
@@ -253,9 +259,12 @@ export default function AdminOrdersPage() {
                   </td>
                   <td className="px-5 py-4 font-bold text-gray-900">{formatMoney(order.total, order.currency)}</td>
                   <td className="hidden px-5 py-4 sm:table-cell">
-                    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${statusClasses[order.status] ?? 'bg-gray-100 text-gray-600'}`}>
-                      {statusLabel(order.status)}
-                    </span>
+                    <div className="flex flex-col gap-1">
+                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${statusClasses[order.status] ?? 'bg-gray-100 text-gray-600'}`}>
+                        {statusLabel(order.status)}
+                      </span>
+                      {syncBadge(order)}
+                    </div>
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex justify-end gap-2">
@@ -312,7 +321,10 @@ function OrderDetailsModal({
       <div className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl sm:p-8">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-black text-gray-900">{order.orderNumber}</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-black text-gray-900">{order.orderNumber}</h2>
+              {syncBadge(order)}
+            </div>
             <p className="text-xs text-gray-400">
               Created {new Date(order.createdAt).toLocaleString()}
               {order.updatedAt ? ` - Updated ${new Date(order.updatedAt).toLocaleString()}` : ''}
