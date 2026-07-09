@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { requireAdminApi } from '@/lib/admin-api'
 import { getProductRepository } from '@/lib/repositories'
+import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
+import { syncProductById } from '@/lib/odoo/product-sync'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -22,6 +24,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   const repo = getProductRepository()
   const updated = repo.update(id, data)
   if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  if (isOdooSyncEnabled()) {
+    syncProductById(id)
+  }
   return NextResponse.json(updated)
 }
 

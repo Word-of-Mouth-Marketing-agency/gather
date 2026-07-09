@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { requireAdminApi } from '@/lib/admin-api'
 import { getCategoryRepository } from '@/lib/repositories'
+import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
+import { syncCategoryById } from '@/lib/odoo/category-sync'
 
 export async function GET() {
   const repo = getCategoryRepository()
@@ -15,6 +17,9 @@ export async function POST(request: Request) {
     const data = await request.json()
     const repo = getCategoryRepository()
     const item = repo.create(data)
+    if (isOdooSyncEnabled()) {
+      syncCategoryById(item.id)
+    }
     return NextResponse.json(item, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Invalid data' }, { status: 400 })

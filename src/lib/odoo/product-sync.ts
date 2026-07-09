@@ -295,3 +295,30 @@ async function syncSingleProduct(
     saveProducts(all)
   }
 }
+
+export async function syncProductById(productId: string): Promise<void> {
+  const config = getOdooConfig()
+  if (!config) return
+
+  try {
+    const allProducts = loadProducts()
+    const product = allProducts.find((p) => p.id === productId)
+    if (!product) return
+
+    const allCategories = loadCategories()
+    const fakeResult: ProductSyncResult = {
+      total: 1, withSku: product.sku?.trim() ? 1 : 0,
+      created: 0, updated: 0, skippedMissingSku: 0, failed: 0, missingCategoryMapping: 0,
+      warnings: [], errors: {}, timestamp: now(),
+    }
+    await syncSingleProduct(product, allCategories, fakeResult)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    const all = loadProducts()
+    const idx = all.findIndex((p) => p.id === productId)
+    if (idx >= 0) {
+      all[idx] = { ...all[idx], syncStatus: 'sync_failed', syncError: message.slice(0, 500), lastSyncedAt: now() }
+      saveProducts(all)
+    }
+  }
+}

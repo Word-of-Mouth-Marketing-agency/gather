@@ -538,4 +538,8 @@ export interface Customer {
   passwordResetToken?: string
   passwordResetExpiry?: number
   createdAt: string
+  odooPartnerId?: number
+  syncStatus?: 'not_synced' | 'synced' | 'sync_failed'
+  syncError?: string
+  lastSyncedAt?: string
 }

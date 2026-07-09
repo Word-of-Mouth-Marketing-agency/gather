@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { requireAdminApi } from '@/lib/admin-api'
 import { getCategoryRepository } from '@/lib/repositories'
+import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
+import { syncCategoryById } from '@/lib/odoo/category-sync'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -19,6 +21,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   const repo = getCategoryRepository()
   const updated = repo.update(id, data)
   if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  if (isOdooSyncEnabled()) {
+    syncCategoryById(id)
+  }
   return NextResponse.json(updated)
 }
 

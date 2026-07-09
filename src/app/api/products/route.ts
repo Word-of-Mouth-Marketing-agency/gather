@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { requireAdminApi } from '@/lib/admin-api'
 import { getProductRepository } from '@/lib/repositories'
+import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
+import { syncProductById } from '@/lib/odoo/product-sync'
 
 export async function GET() {
   const repo = getProductRepository()
@@ -18,6 +20,9 @@ export async function POST(request: Request) {
     }
     const repo = getProductRepository()
     const product = repo.create(data)
+    if (isOdooSyncEnabled()) {
+      syncProductById(product.id)
+    }
     return NextResponse.json(product, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Invalid data' }, { status: 400 })

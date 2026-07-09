@@ -5,6 +5,7 @@ import { getShippingFeeForCity } from '@/lib/shipping-fees'
 import { upsertCustomerFromCheckout } from '@/lib/customer-data'
 import { getCustomerSessionCookie } from '@/lib/customer-session'
 import { syncOrderAfterCheckout } from '@/lib/odoo/order-sync'
+import { syncPartnerFromCustomer } from '@/lib/odoo/partner-sync'
 import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
 
 export async function GET(request: Request) {
@@ -58,6 +59,7 @@ export async function POST(request: Request) {
     })
 
     if (isOdooSyncEnabled()) {
+      syncPartnerFromCustomer(customer.id)
       syncOrderAfterCheckout(order.id)
     }
 

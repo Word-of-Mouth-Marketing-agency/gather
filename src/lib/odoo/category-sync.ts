@@ -165,3 +165,33 @@ function resolveParentOdooId(
 
   return undefined
 }
+
+export async function syncCategoryById(categoryId: string): Promise<void> {
+  const config = getOdooConfig()
+  if (!config) return
+
+  try {
+    const allItems = loadCategories()
+    const cat = allItems.find((c) => c.id === categoryId)
+    if (!cat || cat.type !== 'category') return
+
+    const odooMap = new Map<string, number>()
+    const warnings: string[] = []
+    const { odooId } = await syncSingleCategory(cat, allItems, odooMap, warnings)
+
+    const all = loadCategories()
+    const idx = all.findIndex((c) => c.id === categoryId)
+    if (idx >= 0) {
+      all[idx] = { ...all[idx], odooCategoryId: odooId, syncStatus: 'synced', syncError: undefined, lastSyncedAt: now() }
+      saveCategories(all)
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    const all = loadCategories()
+    const idx = all.findIndex((c) => c.id === categoryId)
+    if (idx >= 0) {
+      all[idx] = { ...all[idx], syncStatus: 'sync_failed', syncError: message.slice(0, 500), lastSyncedAt: now() }
+      saveCategories(all)
+    }
+  }
+}
