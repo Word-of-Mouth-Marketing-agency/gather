@@ -3,7 +3,6 @@ import { requireAdminApi } from '@/lib/admin-api'
 import { getProductRepository } from '@/lib/repositories'
 import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
 import { syncProductById } from '@/lib/odoo/product-sync'
-import { pushStockToOdoo } from '@/lib/odoo/stock-push'
 
 export async function GET() {
   const repo = getProductRepository()
@@ -21,13 +20,11 @@ export async function POST(request: Request) {
     }
     const repo = getProductRepository()
     const product = repo.create(data)
+    let syncResult
     if (isOdooSyncEnabled()) {
-      syncProductById(product.id)
-      if (product.stock > 0) {
-        pushStockToOdoo(product.id)
-      }
+      syncResult = await syncProductById(product.id, product.stock > 0)
     }
-    return NextResponse.json(product, { status: 201 })
+    return NextResponse.json({ ...product, odooSync: syncResult }, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Invalid data' }, { status: 400 })
   }

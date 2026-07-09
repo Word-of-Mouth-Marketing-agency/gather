@@ -296,14 +296,22 @@ async function syncSingleProduct(
   }
 }
 
-export async function syncProductById(productId: string): Promise<void> {
+export interface SyncProductResult {
+  odooProductId?: number
+  syncStatus: 'synced' | 'sync_failed' | 'skipped'
+  syncError?: string
+  stockPushStatus?: 'ok' | 'skipped' | 'failed'
+  stockPushError?: string
+}
+
+export async function syncProductById(productId: string, pushStock?: boolean): Promise<SyncProductResult> {
   const config = getOdooConfig()
-  if (!config) return
+  if (!config) return { syncStatus: 'skipped' }
 
   try {
     const allProducts = loadProducts()
     const product = allProducts.find((p) => p.id === productId)
-    if (!product) return
+    if (!product) return { syncStatus: 'skipped' }
 
     const allCategories = loadCategories()
     const fakeResult: ProductSyncResult = {
@@ -312,6 +320,23 @@ export async function syncProductById(productId: string): Promise<void> {
       warnings: [], errors: {}, timestamp: now(),
     }
     await syncSingleProduct(product, allCategories, fakeResult)
+
+    const updated = loadProducts()
+    const idx = updated.findIndex((p) => p.id === productId)
+    const odooProductId = idx >= 0 ? updated[idx].odooProductId : undefined
+
+    let stockPushResult: { stockPushStatus?: string; stockPushError?: string } = {}
+    if (pushStock && odooProductId) {
+      const { pushStockToOdoo } = await import('./stock-push')
+      stockPushResult = await pushStockToOdoo(productId)
+    }
+
+    return {
+      odooProductId,
+      syncStatus: 'synced',
+      stockPushStatus: stockPushResult.stockPushStatus === 'failed' ? 'failed' : stockPushResult.stockPushStatus === 'skipped' ? 'skipped' : 'ok',
+      stockPushError: stockPushResult.stockPushError,
+    }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     const all = loadProducts()
@@ -320,5 +345,6 @@ export async function syncProductById(productId: string): Promise<void> {
       all[idx] = { ...all[idx], syncStatus: 'sync_failed', syncError: message.slice(0, 500), lastSyncedAt: now() }
       saveProducts(all)
     }
+    return { syncStatus: 'sync_failed', syncError: message.slice(0, 500) }
   }
 }

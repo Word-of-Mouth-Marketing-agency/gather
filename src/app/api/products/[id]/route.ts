@@ -3,7 +3,6 @@ import { requireAdminApi } from '@/lib/admin-api'
 import { getProductRepository } from '@/lib/repositories'
 import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
 import { syncProductById } from '@/lib/odoo/product-sync'
-import { pushStockToOdoo } from '@/lib/odoo/stock-push'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -29,13 +28,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   const updated = repo.update(id, data)
   if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
+  let syncResult
   if (isOdooSyncEnabled()) {
-    syncProductById(id)
-    if (stockChanged) {
-      pushStockToOdoo(id)
-    }
+    syncResult = await syncProductById(id, stockChanged)
   }
-  return NextResponse.json(updated)
+  return NextResponse.json({ ...updated, odooSync: syncResult })
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
