@@ -45,6 +45,18 @@ async function authenticate(config: OdooConfig): Promise<number> {
   return uidCache
 }
 
+function requireDomain(domain: unknown, label: string): void {
+  if (!Array.isArray(domain)) {
+    throw new Error(`Odoo ${label}: domain must be an array, got ${typeof domain}`)
+  }
+  if (domain.length > 0 && !Array.isArray(domain[0])) {
+    throw new Error(
+      `Odoo ${label}: domain must be an array of conditions (e.g. [["field", "=", value]]), ` +
+      `got flat array [${domain.join(', ')}]. Each condition must be a nested array.`,
+    )
+  }
+}
+
 export async function odooExecuteKw<T = unknown>(
   model: string,
   method: string,
@@ -65,7 +77,7 @@ export async function odooExecuteKw<T = unknown>(
       params: {
         service: 'object',
         method: 'execute_kw',
-        args: [config.db, uid, config.password, model, method, ...args],
+        args: [config.db, uid, config.password, model, method, args],
         kwargs,
       },
     }),
@@ -83,7 +95,17 @@ export async function odooSearchRead<T = OdooOrmResult>(
   fields: string[],
   limit?: number,
 ): Promise<T[]> {
+  requireDomain(domain, `${model}.search_read`)
   return odooExecuteKw<T[]>(model, 'search_read', [domain], { fields, limit: limit ?? false })
+}
+
+export async function odooSearch(
+  model: string,
+  domain: unknown[],
+  limit?: number,
+): Promise<number[]> {
+  requireDomain(domain, `${model}.search`)
+  return odooExecuteKw<number[]>(model, 'search', [domain], { limit: limit ?? false })
 }
 
 export async function odooCreate(model: string, values: Record<string, unknown>): Promise<number> {
