@@ -3,6 +3,7 @@ import { requireAdminApi } from '@/lib/admin-api'
 import { getProductRepository } from '@/lib/repositories'
 import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
 import { syncProductById } from '@/lib/odoo/product-sync'
+import { pushStockToOdoo } from '@/lib/odoo/stock-push'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -22,10 +23,17 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: 'Discount end date cannot be before start date' }, { status: 400 })
   }
   const repo = getProductRepository()
+  const oldProduct = repo.getById(id)
+  const stockChanged = oldProduct && data.stock !== undefined && data.stock !== oldProduct.stock
+
   const updated = repo.update(id, data)
   if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
   if (isOdooSyncEnabled()) {
     syncProductById(id)
+    if (stockChanged) {
+      pushStockToOdoo(id)
+    }
   }
   return NextResponse.json(updated)
 }
