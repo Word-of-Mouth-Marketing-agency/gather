@@ -84,7 +84,8 @@ export async function odooExecuteKw<T = unknown>(
   })
   const body = await res.json()
   if (body.error) {
-    throw new Error(`Odoo ${model}.${method} failed: ${body.error.message ?? JSON.stringify(body.error)}`)
+    const detail = body.error.data?.message ?? body.error.message ?? JSON.stringify(body.error)
+    throw new Error(`Odoo ${model}.${method} failed: ${detail}`)
   }
   return body.result as T
 }
