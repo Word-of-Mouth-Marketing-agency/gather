@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "odoo:preflight:dry": "node scripts/odoo-preflight-cleanup.mjs",
+    "odoo:preflight:write": "node scripts/odoo-preflight-cleanup.mjs --write"
   },
   "dependencies": {
     "gsap": "^3.15.0",

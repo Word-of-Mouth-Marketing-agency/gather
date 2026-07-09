@@ -21,16 +21,14 @@
     "occasionIds": [
       "occ-birthday"
     ],
-    "stock": 15,
+    "stock": 50,
     "crossSellIds": [
       "prod-7",
       "prod-8"
     ],
     "featured": true,
     "createdAt": "2026-01-01T00:00:00Z",
-    "odooProductId": 1,
-    "syncStatus": "synced",
-    "lastSyncedAt": "2026-07-09T10:38:32.849Z"
+    "stockStatus": "in_stock"
   },
   {
     "id": "prod-6",
@@ -54,16 +52,14 @@
     "occasionIds": [
       "occ-mothers-day"
     ],
-    "stock": 12,
+    "stock": 0,
     "crossSellIds": [
       "prod-2",
       "prod-4"
     ],
     "featured": true,
     "createdAt": "2026-01-06T00:00:00Z",
-    "odooProductId": 2,
-    "syncStatus": "synced",
-    "lastSyncedAt": "2026-07-09T10:38:33.936Z"
+    "stockStatus": "out_of_stock"
   },
   {
     "id": "prod-7",
@@ -90,15 +86,13 @@
       "occ-ramadan",
       "occ-eid"
     ],
-    "stock": 8,
+    "stock": 0,
     "crossSellIds": [
       "prod-3",
       "prod-8"
     ],
     "featured": true,
     "createdAt": "2026-01-07T00:00:00Z",
-    "odooProductId": 3,
-    "syncStatus": "synced",
-    "lastSyncedAt": "2026-07-09T10:38:34.740Z"
+    "stockStatus": "out_of_stock"
   }
 ]

@@ -52,5 +52,8 @@ next-env.d.ts
 __pycache__/
 *.pyc
 
+# preflight backups
+.preflight-backups/
+
 # large assets
 wordpress-export/
