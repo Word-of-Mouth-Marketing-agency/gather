@@ -18,6 +18,17 @@ interface SyncResult {
   errors: Record<string, string>
 }
 
+interface StockSyncResult {
+  total: number
+  withSku: number
+  updated: number
+  skippedMissingSku: number
+  failed: number
+  warnings: string[]
+  errors: Record<string, string>
+  timestamp: string
+}
+
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [search, setSearch] = useState('')
@@ -25,6 +36,8 @@ export default function AdminProductsPage() {
   const [deleting, setDeleting] = useState<string | null>(null)
   const [syncing, setSyncing] = useState(false)
   const [syncResult, setSyncResult] = useState<SyncResult | null>(null)
+  const [stockSyncing, setStockSyncing] = useState(false)
+  const [stockSyncResult, setStockSyncResult] = useState<StockSyncResult | null>(null)
 
   async function load() {
     try {
@@ -84,6 +97,35 @@ export default function AdminProductsPage() {
     setSyncing(false)
   }
 
+  async function handleSyncStock() {
+    setStockSyncing(true)
+    setStockSyncResult(null)
+    try {
+      const res = await fetch('/api/admin/products/sync-stock-odoo', { method: 'POST' })
+      if (res.ok) {
+        const data = await res.json()
+        setStockSyncResult(data)
+        await load()
+      } else {
+        const err = await res.json()
+        setStockSyncResult({
+          total: 0, withSku: 0, updated: 0, skippedMissingSku: 0, failed: 0,
+          warnings: [err.error ?? 'Stock sync request failed'],
+          errors: {},
+          timestamp: new Date().toISOString(),
+        })
+      }
+    } catch {
+      setStockSyncResult({
+        total: 0, withSku: 0, updated: 0, skippedMissingSku: 0, failed: 0,
+        warnings: ['Network error — could not reach the stock sync endpoint'],
+        errors: {},
+        timestamp: new Date().toISOString(),
+      })
+    }
+    setStockSyncing(false)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
@@ -98,6 +140,13 @@ export default function AdminProductsPage() {
             className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
           >
             {syncing ? 'Syncing...' : 'Sync Products to Odoo'}
+          </button>
+          <button
+            onClick={handleSyncStock}
+            disabled={stockSyncing}
+            className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          >
+            {stockSyncing ? 'Pulling stock...' : 'Sync Stock from Odoo'}
           </button>
           <Link href="/admin/products/new" className="gather-btn-primary text-sm py-2.5 px-5 shadow-md inline-flex items-center gap-1.5">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -142,6 +191,46 @@ export default function AdminProductsPage() {
               <summary className="text-xs font-semibold cursor-pointer">Error details</summary>
               <ul className="mt-1 space-y-1">
                 {Object.entries(syncResult.errors).map(([id, msg]) => (
+                  <li key={id} className="text-xs opacity-80">{id}: {msg}</li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
+
+      {stockSyncResult && (
+        <div className={`rounded-2xl border p-4 text-sm ${
+          stockSyncResult.failed > 0
+            ? 'bg-red-50 border-red-200 text-red-800'
+            : stockSyncResult.warnings.length > 0
+              ? 'bg-amber-50 border-amber-200 text-amber-800'
+              : 'bg-green-50 border-green-200 text-green-800'
+        }`}>
+          <div className="flex items-center gap-4 flex-wrap">
+            <span className="text-xs text-gray-500">
+              {stockSyncResult.total} total, {stockSyncResult.withSku} with SKU
+            </span>
+            {stockSyncResult.updated > 0 && <span>Updated: <strong>{stockSyncResult.updated}</strong></span>}
+            {stockSyncResult.skippedMissingSku > 0 && <span>Skipped (no SKU): <strong>{stockSyncResult.skippedMissingSku}</strong></span>}
+            {stockSyncResult.failed > 0 && <span>Failed: <strong className="text-red-600">{stockSyncResult.failed}</strong></span>}
+            {stockSyncResult.total > 0 && stockSyncResult.withSku === 0 && (
+              <span>No products with SKU — stock sync requires SKUs.</span>
+            )}
+            {stockSyncResult.total === 0 && (
+              <span>No products to sync stock for.</span>
+            )}
+          </div>
+          {stockSyncResult.warnings.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {stockSyncResult.warnings.map((w, i) => <li key={i} className="text-xs opacity-80">{w}</li>)}
+            </ul>
+          )}
+          {Object.keys(stockSyncResult.errors).length > 0 && (
+            <details className="mt-2">
+              <summary className="text-xs font-semibold cursor-pointer">Error details</summary>
+              <ul className="mt-1 space-y-1">
+                {Object.entries(stockSyncResult.errors).map(([id, msg]) => (
                   <li key={id} className="text-xs opacity-80">{id}: {msg}</li>
                 ))}
               </ul>
