@@ -7,13 +7,39 @@ export interface OdooConfig {
   password: string
 }
 
+function sanitizeOdooError(body: { error?: { message?: string; data?: { message?: string } } }, fallback: string): string {
+  if (!body.error) return fallback
+  const msg = body.error.data?.message ?? body.error.message
+  if (msg && typeof msg === 'string') {
+    const lines = msg.split('\n')
+    return lines[0].trim().slice(0, 300)
+  }
+  return fallback
+}
+
+function isLocalOdooUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    const host = parsed.hostname
+    return host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === 'host.docker.internal'
+  } catch {
+    return false
+  }
+}
+
 export function getOdooConfig(): OdooConfig | null {
-  const url = process.env.ODOO_URL
+  const rawUrl = process.env.ODOO_URL
   const db = process.env.ODOO_DB
   const username = process.env.ODOO_USERNAME
   const password = process.env.ODOO_PASSWORD ?? process.env.ODOO_API_KEY
-  if (!url || !db || !username || !password) return null
-  return { url: url.replace(/\/+$/, ''), db, username, password }
+  if (!rawUrl || !db || !username || !password) return null
+  const url = rawUrl.replace(/\/+$/, '')
+  if (!isLocalOdooUrl(url)) {
+    throw new Error(
+      `Odoo URL "${rawUrl}" is not a local host. Only local Odoo instances (localhost, 127.0.0.1, ::1) are allowed.`,
+    )
+  }
+  return { url, db, username, password }
 }
 
 let uidCache: number | null = null
@@ -36,7 +62,7 @@ async function authenticate(config: OdooConfig): Promise<number> {
   })
   const body = await res.json()
   if (body.error) {
-    throw new Error(`Odoo auth failed: ${body.error.message ?? JSON.stringify(body.error)}`)
+    throw new Error(`Odoo auth failed: ${sanitizeOdooError(body, 'see server logs')}`)
   }
   uidCache = body.result as number
   if (!uidCache) {
@@ -97,8 +123,7 @@ export async function odooExecuteKw<T = unknown>(
   })
   const body = await res.json()
   if (body.error) {
-    const detail = body.error.data?.message ?? body.error.message ?? JSON.stringify(body.error)
-    throw new Error(`Odoo ${model}.${method} failed: ${detail}`)
+    throw new Error(`Odoo ${model}.${method} failed: ${sanitizeOdooError(body, 'see server logs')}`)
   }
   return body.result as T
 }
