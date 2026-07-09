@@ -12,6 +12,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   return NextResponse.json(product)
 }
 
+function normalizeSku(sku: unknown): string {
+  return String(sku ?? '').trim().toUpperCase()
+}
+
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const unauthorized = await requireAdminApi()
   if (unauthorized) return unauthorized
@@ -21,11 +25,20 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   if (data.discountStartsAt && data.discountEndsAt && data.discountEndsAt < data.discountStartsAt) {
     return NextResponse.json({ error: 'Discount end date cannot be before start date' }, { status: 400 })
   }
+
+  const sku = data.sku !== undefined ? normalizeSku(data.sku) : undefined
+  if (sku !== undefined) {
+    const repo = getProductRepository()
+    const all = repo.getAll()
+    const dup = all.find((p) => p.sku?.trim().toUpperCase() === sku && p.id !== id)
+    if (dup) return NextResponse.json({ error: `SKU "${sku}" is already used by product "${dup.name}".` }, { status: 400 })
+  }
+
   const repo = getProductRepository()
   const oldProduct = repo.getById(id)
   const stockChanged = oldProduct && data.stock !== undefined && data.stock !== oldProduct.stock
 
-  const updated = repo.update(id, data)
+  const updated = repo.update(id, sku !== undefined ? { ...data, sku } : data)
   if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   let syncResult

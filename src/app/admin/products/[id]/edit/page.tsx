@@ -45,6 +45,7 @@ export default function EditProductPage() {
     nameAr: product.nameAr || '',
     shortDescriptionAr: product.shortDescriptionAr || '',
     descriptionAr: product.descriptionAr || '',
+    sku: product.sku ?? '',
     price: product.price,
     salePrice: product.salePrice,
     discountStartsAt: product.discountStartsAt || '',
