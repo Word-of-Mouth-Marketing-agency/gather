@@ -34,6 +34,10 @@ export interface Order {
   status: OrderStatus
   createdAt: string
   updatedAt?: string
+  odooOrderId?: number
+  syncStatus?: 'not_synced' | 'synced' | 'sync_failed'
+  syncError?: string
+  lastSyncedAt?: string
 }
 
 const ORDERS_FILE = 'orders.json'
