@@ -34,6 +34,8 @@ export default function AdminProductsPage() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [deleteWarning, setDeleteWarning] = useState<string | null>(null)
   const [syncing, setSyncing] = useState(false)
   const [syncResult, setSyncResult] = useState<SyncResult | null>(null)
   const [stockSyncing, setStockSyncing] = useState(false)
@@ -43,7 +45,7 @@ export default function AdminProductsPage() {
 
   async function load() {
     try {
-      const res = await fetch('/api/products')
+      const res = await fetch('/api/products?includeArchived=true')
       if (res.ok) setProducts(await res.json())
     } catch { /* ignore */ }
     setLoading(false)
@@ -60,12 +62,26 @@ export default function AdminProductsPage() {
   async function handleDelete(id: string) {
     if (deleting === id) {
       try {
-        await fetch(`/api/products/${id}`, { method: 'DELETE' })
+        setDeleteError(null)
+        setDeleteWarning(null)
+        const res = await fetch(`/api/products/${id}`, { method: 'DELETE' })
+        const body = await res.json().catch(() => ({})) as Record<string, unknown>
+        if (!res.ok) {
+          setDeleteError((body.error as string) || `Delete failed (${res.status})`)
+          setDeleting(null)
+          return
+        }
+        if (body.warning) setDeleteWarning(body.warning as string)
         setDeleting(null)
         await load()
-      } catch { /* ignore */ }
+      } catch {
+        setDeleteError('Network error — product may not have been deleted')
+        setDeleting(null)
+      }
     } else {
       setDeleting(id)
+      setDeleteError(null)
+      setDeleteWarning(null)
       setTimeout(() => setDeleting(null), 3000)
     }
   }
@@ -318,6 +334,18 @@ export default function AdminProductsPage() {
       )}
 
       <div className="relative">
+        {deleteError && (
+          <div className="mb-3 rounded-xl border border-red-200 bg-red-50 text-red-700 text-sm px-4 py-2.5 flex items-center justify-between">
+            <span>{deleteError}</span>
+            <button onClick={() => setDeleteError(null)} className="text-red-400 hover:text-red-600 ml-2 font-bold">&times;</button>
+          </div>
+        )}
+        {deleteWarning && (
+          <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-sm px-4 py-2.5 flex items-center justify-between">
+            <span>{deleteWarning}</span>
+            <button onClick={() => setDeleteWarning(null)} className="text-amber-500 hover:text-amber-700 ml-2 font-bold">&times;</button>
+          </div>
+        )}
         <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>

@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import type { Product, Category } from '@/types'
 import { readJson, writeJson } from '@/lib/db'
-import { getOdooConfig, odooSearchRead, odooCreate, odooWrite } from './json-rpc'
+import { getOdooConfig, odooSearchRead, odooCreate, odooWrite, odooExecuteKw, logSync, setWebhookCooldown } from './json-rpc'
 
 const PRODUCTS_FILE = 'products.json'
 const CATEGORIES_FILE = 'categories.json'
@@ -13,6 +13,7 @@ export interface ProductSyncResult {
   withSku: number
   created: number
   updated: number
+  archived: number
   skippedMissingSku: number
   failed: number
   missingCategoryMapping: number
@@ -121,6 +122,7 @@ export async function syncProductsToOdoo(): Promise<ProductSyncResult> {
     withSku,
     created: 0,
     updated: 0,
+    archived: 0,
     skippedMissingSku: 0,
     failed: 0,
     missingCategoryMapping: 0,
@@ -149,7 +151,7 @@ export async function syncProductsToOdoo(): Promise<ProductSyncResult> {
     }
   }
 
-  if (result.created > 0 || result.updated > 0 || result.failed > 0 || result.skippedMissingSku > 0) {
+  if (result.created > 0 || result.updated > 0 || result.archived > 0 || result.failed > 0 || result.skippedMissingSku > 0) {
     saveProducts(allProducts)
   }
 
@@ -161,24 +163,25 @@ async function syncSingleProduct(
   allCategories: Category[],
   result: ProductSyncResult,
 ): Promise<void> {
+  const startMs = Date.now()
   const sku = product.sku?.trim()
+
   if (!sku) {
     result.skippedMissingSku += 1
-    const idx = loadProducts().findIndex((p) => p.id === product.id)
+    const all = loadProducts()
+    const idx = all.findIndex((p) => p.id === product.id)
     if (idx >= 0) {
-      const all = loadProducts()
-      all[idx] = {
-        ...all[idx],
-        syncStatus: all[idx].syncStatus || 'not_synced',
-      }
+      all[idx] = { ...all[idx], syncStatus: all[idx].syncStatus || 'not_synced' }
       saveProducts(all)
     }
     result.warnings.push(`Product "${product.name}" (${product.id}): skipped — no SKU`)
+    logSync({ direction: 'push', entity: 'product', localId: product.id, sku: undefined, operation: 'skip_no_sku', durationMs: Date.now() - startMs, result: 'skipped' })
     return
   }
 
   const price = resolvePrice(product)
   if (price === null) {
+    logSync({ direction: 'push', entity: 'product', localId: product.id, sku, operation: 'sync', durationMs: Date.now() - startMs, result: 'failed', error: 'No valid price' })
     throw new Error(`No valid price for product "${product.name}" (${product.id}). salePrice=${product.salePrice}, price=${product.price}`)
   }
 
@@ -196,6 +199,7 @@ async function syncSingleProduct(
   if (!categoryResolved) {
     result.missingCategoryMapping += 1
     const ids = product.categoryIds.join(', ')
+    logSync({ direction: 'push', entity: 'product', localId: product.id, sku, operation: 'sync', durationMs: Date.now() - startMs, result: 'failed', error: 'No category mapping' })
     throw new Error(
       `Odoo category mapping is required before syncing product. ` +
       `Product "${product.name}" (sku=${sku}, id=${product.id}) has categoryIds=[${ids}]. ` +
@@ -212,7 +216,7 @@ async function syncSingleProduct(
   let staleMapping = false
 
   if (product.odooProductId) {
-    const existing = await odooSearchRead('product.product', [['id', '=', product.odooProductId]], ['id', 'product_tmpl_id'], 1)
+    const existing = await odooSearchRead('product.product', [['id', '=', product.odooProductId]], ['id', 'product_tmpl_id'], 1, { context: { active_test: false } })
     if (existing.length > 0) {
       odooProductId = existing[0].id as number
     } else {
@@ -221,7 +225,7 @@ async function syncSingleProduct(
   }
 
   if (!odooProductId) {
-    const bySku = await odooSearchRead('product.product', [['default_code', '=', sku]], ['id', 'product_tmpl_id'], 1)
+    const bySku = await odooSearchRead('product.product', [['default_code', '=', sku]], ['id', 'product_tmpl_id'], 1, { context: { active_test: false } })
     if (bySku.length > 0) {
       odooProductId = bySku[0].id as number
       if (staleMapping) {
@@ -237,49 +241,86 @@ async function syncSingleProduct(
   }
 
   const imageBase64 = resolveMainImage(product.images, result.warnings, `Product "${product.name}" (sku=${sku})`)
+  const active = product.isActive !== false
+
+  const allCategoryIds: number[] = []
+  for (const catId of product.categoryIds) {
+    const resolved = await resolveOdooCategory(catId, allCategories)
+    if ('odooCategoryId' in resolved) {
+      allCategoryIds.push(resolved.odooCategoryId)
+    }
+  }
 
   if (odooProductId) {
-    const existing = await odooSearchRead('product.product', [['id', '=', odooProductId]], ['product_tmpl_id'], 1)
+    const existing = await odooSearchRead('product.product', [['id', '=', odooProductId]], ['product_tmpl_id'], 1, { context: { active_test: false } })
     const templateId = existing[0]?.product_tmpl_id as [number, string] | undefined
 
-    await odooWrite('product.product', odooProductId, { default_code: sku })
+    const variantValues: Record<string, unknown> = { default_code: sku }
+    await odooWrite('product.product', odooProductId, variantValues)
 
     if (templateId) {
       const tmplId = Array.isArray(templateId) ? templateId[0] : templateId
       const templateValues: Record<string, unknown> = {
         name: product.name,
         list_price: price,
+        standard_price: price,
         description_sale: descriptionSale || false,
+        description: product.description || false,
         categ_id: categoryId,
         is_storable: true,
         x_nextjs_id: product.id,
         x_slug: product.slug,
         sale_ok: true,
         purchase_ok: true,
+        active,
       }
       if (imageBase64) {
         templateValues.image_1920 = imageBase64
       }
       await odooWrite('product.template', tmplId as number, templateValues)
     }
+
+    const operation = active ? 'update' : 'archive'
+    const action = active ? 'updated' : 'archived'
+    result[action === 'updated' ? 'updated' : 'archived'] += 1
+
+    setWebhookCooldown(sku)
+    logSync({ direction: 'push', entity: 'product', localId: product.id, odooId: odooProductId, sku, operation, durationMs: Date.now() - startMs, result: 'success' })
   } else {
+    if (product.isActive === false) {
+      logSync({ direction: 'push', entity: 'product', localId: product.id, sku, operation: 'archive_skip', durationMs: Date.now() - startMs, result: 'skipped', error: 'Archived locally, no Odoo record to archive' })
+      const all = loadProducts()
+      const idx = all.findIndex((p) => p.id === product.id)
+      if (idx >= 0) {
+        all[idx] = { ...all[idx], syncStatus: 'synced', syncError: undefined, lastSyncedAt: now() }
+        saveProducts(all)
+      }
+      return
+    }
+
     const createValues: Record<string, unknown> = {
       default_code: sku,
       name: product.name,
       list_price: price,
+      standard_price: price,
       description_sale: descriptionSale || false,
+      description: product.description || false,
       categ_id: categoryId,
       is_storable: true,
       x_nextjs_id: product.id,
       x_slug: product.slug,
       sale_ok: true,
       purchase_ok: true,
+      active,
     }
     if (imageBase64) {
       createValues.image_1920 = imageBase64
     }
     const newProductId = await odooCreate('product.product', createValues)
     odooProductId = newProductId
+
+    setWebhookCooldown(sku)
+    logSync({ direction: 'push', entity: 'product', localId: product.id, odooId: odooProductId, sku, operation: 'create', durationMs: Date.now() - startMs, result: 'success' })
   }
 
   const all = loadProducts()
@@ -305,10 +346,10 @@ export interface SyncProductResult {
 }
 
 export async function syncProductById(productId: string, pushStock?: boolean): Promise<SyncProductResult> {
-  const config = getOdooConfig()
-  if (!config) return { syncStatus: 'skipped' }
-
   try {
+    const config = getOdooConfig()
+    if (!config) return { syncStatus: 'skipped' }
+
     const allProducts = loadProducts()
     const product = allProducts.find((p) => p.id === productId)
     if (!product) return { syncStatus: 'skipped' }
@@ -316,7 +357,7 @@ export async function syncProductById(productId: string, pushStock?: boolean): P
     const allCategories = loadCategories()
     const fakeResult: ProductSyncResult = {
       total: 1, withSku: product.sku?.trim() ? 1 : 0,
-      created: 0, updated: 0, skippedMissingSku: 0, failed: 0, missingCategoryMapping: 0,
+      created: 0, updated: 0, archived: 0, skippedMissingSku: 0, failed: 0, missingCategoryMapping: 0,
       warnings: [], errors: {}, timestamp: now(),
     }
     await syncSingleProduct(product, allCategories, fakeResult)
@@ -326,7 +367,7 @@ export async function syncProductById(productId: string, pushStock?: boolean): P
     const odooProductId = idx >= 0 ? updated[idx].odooProductId : undefined
 
     let stockPushResult: { stockPushStatus?: string; stockPushError?: string } = {}
-    if (pushStock && odooProductId) {
+    if (pushStock && odooProductId && product.isActive !== false) {
       const { pushStockToOdoo } = await import('./stock-push')
       stockPushResult = await pushStockToOdoo(productId)
     }
@@ -346,5 +387,114 @@ export async function syncProductById(productId: string, pushStock?: boolean): P
       saveProducts(all)
     }
     return { syncStatus: 'sync_failed', syncError: message.slice(0, 500) }
+  }
+}
+
+export async function pushArchiveToOdoo(productId: string): Promise<void> {
+  const startMs = Date.now()
+  const config = getOdooConfig()
+  if (!config) return
+
+  const all = loadProducts()
+  const product = all.find((p) => p.id === productId)
+  if (!product) return
+
+  const sku = product.sku?.trim()
+  if (!sku) {
+    logSync({ direction: 'push', entity: 'product', localId: productId, operation: 'archive', durationMs: Date.now() - startMs, result: 'skipped', error: 'No SKU' })
+    return
+  }
+
+  let odooProductId = product.odooProductId
+  if (!odooProductId) {
+    const bySku = await odooSearchRead('product.product', [['default_code', '=', sku]], ['id', 'product_tmpl_id'], 1, { context: { active_test: false } })
+    if (bySku.length > 0) {
+      odooProductId = bySku[0].id as number
+    }
+  }
+
+  if (!odooProductId) {
+    logSync({ direction: 'push', entity: 'product', localId: productId, sku, operation: 'archive', durationMs: Date.now() - startMs, result: 'skipped', error: 'No Odoo record found' })
+    return
+  }
+
+  const existing = await odooSearchRead('product.product', [['id', '=', odooProductId]], ['product_tmpl_id', 'active'], 1, { context: { active_test: false } })
+  if (existing.length === 0) {
+    logSync({ direction: 'push', entity: 'product', localId: productId, odooId: odooProductId, sku, operation: 'archive', durationMs: Date.now() - startMs, result: 'skipped', error: 'Odoo record not found' })
+    return
+  }
+
+  if (existing[0].active === false) {
+    logSync({ direction: 'push', entity: 'product', localId: productId, odooId: odooProductId, sku, operation: 'archive', durationMs: Date.now() - startMs, result: 'skipped', error: 'Already archived in Odoo' })
+    return
+  }
+
+  const templateId = Array.isArray(existing[0].product_tmpl_id) ? existing[0].product_tmpl_id[0] : existing[0].product_tmpl_id
+  await odooWrite('product.template', templateId as number, { active: false })
+  setWebhookCooldown(sku)
+  logSync({ direction: 'push', entity: 'product', localId: productId, odooId: odooProductId, sku, operation: 'archive', durationMs: Date.now() - startMs, result: 'success' })
+}
+
+export interface OdooDeleteResult {
+  odooResult: 'deleted' | 'archived' | 'not_found' | 'skipped'
+  warning?: string
+}
+
+export async function pushDeleteToOdoo(productId: string): Promise<OdooDeleteResult> {
+  const startMs = Date.now()
+  const config = getOdooConfig()
+  if (!config) return { odooResult: 'skipped' }
+
+  const all = loadProducts()
+  const product = all.find((p) => p.id === productId)
+  if (!product) return { odooResult: 'skipped' }
+
+  const sku = product.sku?.trim()
+  if (!sku) {
+    logSync({ direction: 'push', entity: 'product', localId: productId, operation: 'delete', durationMs: Date.now() - startMs, result: 'skipped', error: 'No SKU' })
+    return { odooResult: 'skipped' }
+  }
+
+  let odooProductId = product.odooProductId
+  if (!odooProductId) {
+    const bySku = await odooSearchRead('product.product', [['default_code', '=', sku]], ['id', 'product_tmpl_id'], 1, { context: { active_test: false } })
+    if (bySku.length > 0) {
+      odooProductId = bySku[0].id as number
+    }
+  }
+
+  if (!odooProductId) {
+    logSync({ direction: 'push', entity: 'product', localId: productId, sku, operation: 'delete', durationMs: Date.now() - startMs, result: 'skipped', error: 'No Odoo record found' })
+    return { odooResult: 'not_found' }
+  }
+
+  const existing = await odooSearchRead('product.product', [['id', '=', odooProductId]], ['product_tmpl_id', 'active'], 1, { context: { active_test: false } })
+  if (existing.length === 0) {
+    logSync({ direction: 'push', entity: 'product', localId: productId, odooId: odooProductId, sku, operation: 'delete', durationMs: Date.now() - startMs, result: 'skipped', error: 'Odoo product not found (already deleted)' })
+    return { odooResult: 'not_found' }
+  }
+
+  const templateId = Array.isArray(existing[0].product_tmpl_id) ? existing[0].product_tmpl_id[0] : existing[0].product_tmpl_id
+  try {
+    await odooExecuteKw('product.template', 'unlink', [[templateId as number]])
+    setWebhookCooldown(sku)
+    logSync({ direction: 'push', entity: 'product', localId: productId, odooId: odooProductId, sku, operation: 'delete', durationMs: Date.now() - startMs, result: 'success' })
+    return { odooResult: 'deleted' }
+  } catch (err) {
+    // Hard delete failed (foreign key constraints from stock.move etc.). Archive instead.
+    const unlinkMsg = err instanceof Error ? err.message : String(err)
+    try {
+      await odooWrite('product.template', templateId as number, { active: false })
+      setWebhookCooldown(sku)
+      logSync({ direction: 'push', entity: 'product', localId: productId, odooId: odooProductId, sku, operation: 'delete_archive_fallback', durationMs: Date.now() - startMs, result: 'success', error: `unlink failed, archived: ${unlinkMsg.slice(0, 150)}` })
+      return {
+        odooResult: 'archived',
+        warning: 'Product deleted from website and archived in Odoo because it has inventory history.',
+      }
+    } catch (archiveErr) {
+      const archiveMsg = archiveErr instanceof Error ? archiveErr.message : String(archiveErr)
+      logSync({ direction: 'push', entity: 'product', localId: productId, odooId: odooProductId, sku, operation: 'delete', durationMs: Date.now() - startMs, result: 'failed', error: `unlink: ${unlinkMsg.slice(0, 150)} | archive: ${archiveMsg.slice(0, 150)}` })
+      throw new Error(`Odoo unlink failed and archive fallback also failed: ${archiveMsg.slice(0, 200)}`)
+    }
   }
 }
