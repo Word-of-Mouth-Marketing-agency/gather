@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
   try {
     const payload = await request.json()
-    const { event, sku, odooProductId, x_nextjs_id, x_slug } = payload
+    const { event, sku, odooProductId, x_nextjs_id, x_slug, active } = payload
 
     if (!event || (!sku && !x_nextjs_id && !odooProductId)) {
       return NextResponse.json({ error: 'Invalid payload: event and sku, x_nextjs_id, or odooProductId required' }, { status: 400 })
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Unknown event: ${event}` }, { status: 400 })
     }
 
-    console.info('[Odoo webhook] received product event', { event, sku, odooProductId, x_nextjs_id, x_slug })
+    console.info('[Odoo webhook] received product event', { event, sku, odooProductId, x_nextjs_id, x_slug, active })
 
     // Cooldown check: if we pushed this change moments ago, skip the pullback
     if (sku && isWebhookOnCooldown(sku)) {
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ status: 'cooldown', event, sku }, { status: 200 })
     }
 
-    const result = await pullSingleProductFromOdoo({ event, sku, odooProductId, x_nextjs_id, x_slug })
+    const result = await pullSingleProductFromOdoo({ event, sku, odooProductId, x_nextjs_id, x_slug, active })
     console.info('[Odoo webhook] product pull result', result)
 
     return NextResponse.json({ status: 'ok', event, result }, { status: 200 })

@@ -23,7 +23,7 @@ export interface SingleProductPullResult {
   localId?: string
   odooProductId?: number
   sku?: string
-  operation?: 'create' | 'update' | 'skip'
+  operation?: 'create' | 'update' | 'archive' | 'skip'
   fieldsChanged?: string[]
   error?: string
 }
@@ -34,6 +34,7 @@ interface ProductWebhookPullParams {
   odooProductId?: number
   x_nextjs_id?: string
   x_slug?: string
+  active?: boolean
 }
 
 interface OdooProductRecord {
@@ -427,6 +428,23 @@ function changedUpdateFields(product: Product, updates: Partial<Product>): strin
   })
 }
 
+function findLocalWebhookProduct(products: Product[], params: ProductWebhookPullParams): Product | undefined {
+  const sku = normalizeSku(params.sku)
+  if (sku) {
+    const bySku = products.find((p) => normalizeLookup(p.sku) === normalizeLookup(sku))
+    if (bySku) return bySku
+  }
+  if (params.x_nextjs_id) {
+    const byNextjsId = products.find((p) => p.id === params.x_nextjs_id)
+    if (byNextjsId) return byNextjsId
+  }
+  if (params.odooProductId) {
+    const byOdooId = products.find((p) => p.odooProductId === params.odooProductId)
+    if (byOdooId) return byOdooId
+  }
+  return undefined
+}
+
 export async function pullSingleProductFromOdoo(params: ProductWebhookPullParams): Promise<SingleProductPullResult> {
   const config = getOdooConfig()
   if (!config) {
@@ -435,8 +453,27 @@ export async function pullSingleProductFromOdoo(params: ProductWebhookPullParams
 
   const startMs = Date.now()
   try {
+    const allProducts = loadProducts()
     const odooProduct = await findOdooProduct(params)
     if (!odooProduct) {
+      const product = params.active === false ? findLocalWebhookProduct(allProducts, params) : undefined
+      if (product) {
+        const updates: Partial<Product> = {
+          isActive: false,
+          syncStatus: 'synced',
+          syncError: undefined,
+          lastSyncedAt: now(),
+        }
+        const all = loadProducts()
+        const idx = all.findIndex((p) => p.id === product.id)
+        const fieldsChanged = changedUpdateFields(all[idx] || product, updates)
+        if (idx >= 0) {
+          all[idx] = { ...all[idx], ...updates }
+          saveProducts(all)
+        }
+        logSync({ direction: 'pull', entity: 'product', localId: product.id, odooId: params.odooProductId, sku: product.sku?.trim() || params.sku, operation: 'archive', durationMs: Date.now() - startMs, result: 'success' })
+        return { status: 'updated', operation: 'archive', localId: product.id, odooProductId: params.odooProductId, sku: product.sku?.trim() || params.sku, fieldsChanged }
+      }
       logSync({ direction: 'pull', entity: 'product', localId: 'unknown', sku: params.sku, odooId: params.odooProductId, operation: 'webhook', durationMs: Date.now() - startMs, result: 'skipped', error: 'Odoo product not found' })
       return { status: 'skipped', operation: 'skip', sku: params.sku, odooProductId: params.odooProductId, error: 'Odoo product not found' }
     }
@@ -459,7 +496,6 @@ export async function pullSingleProductFromOdoo(params: ProductWebhookPullParams
     const payloadNextjsId = params.x_nextjs_id?.trim() || templateNextjsId
     const payloadSlug = params.x_slug?.trim() || templateSlug
 
-    const allProducts = loadProducts()
     let product = sku
       ? allProducts.find((p) => normalizeLookup(p.sku) === normalizeLookup(sku))
       : undefined
@@ -559,8 +595,9 @@ export async function pullSingleProductFromOdoo(params: ProductWebhookPullParams
       saveProducts(all)
     }
 
-    logSync({ direction: 'pull', entity: 'product', localId: product.id, odooId: odooProduct.id, sku, operation: 'update', durationMs: Date.now() - startMs, result: 'success' })
-    return { status: 'updated', operation: 'update', localId: product.id, odooProductId: odooProduct.id, sku, fieldsChanged }
+    const operation = !odooActive ? 'archive' : 'update'
+    logSync({ direction: 'pull', entity: 'product', localId: product.id, odooId: odooProduct.id, sku, operation, durationMs: Date.now() - startMs, result: 'success' })
+    return { status: 'updated', operation, localId: product.id, odooProductId: odooProduct.id, sku, fieldsChanged }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     logSync({ direction: 'pull', entity: 'product', localId: params.sku || 'unknown', sku: params.sku, operation: 'webhook', durationMs: Date.now() - startMs, result: 'failed', error: message })
