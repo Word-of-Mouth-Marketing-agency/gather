@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { pullSingleProductFromOdoo } from '@/lib/odoo/product-pull'
+import { isWebhookOnCooldown } from '@/lib/odoo/json-rpc'
 
 export async function POST(request: Request) {
   if (process.env.ODOO_WEBHOOK_ENABLED !== 'true') {
@@ -28,10 +29,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Unknown event: ${event}` }, { status: 400 })
     }
 
-    await pullSingleProductFromOdoo({ sku, odooProductId })
+    console.info('[Odoo webhook] received product event', { event, sku, odooProductId })
 
-    return NextResponse.json({ status: 'ok', event }, { status: 200 })
-  } catch {
+    // Cooldown check: if we pushed this change moments ago, skip the pullback
+    if (sku && isWebhookOnCooldown(sku)) {
+      console.info('[Odoo webhook] skipped product event during cooldown', { event, sku })
+      return NextResponse.json({ status: 'cooldown', event, sku }, { status: 200 })
+    }
+
+    const result = await pullSingleProductFromOdoo({ sku, odooProductId })
+    console.info('[Odoo webhook] product pull result', result)
+
+    return NextResponse.json({ status: 'ok', event, result }, { status: 200 })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('[Odoo webhook] product event failed safely', { error: message })
     return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
   }
 }
