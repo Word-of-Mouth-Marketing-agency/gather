@@ -211,6 +211,7 @@ export default function ProductForm({ initialData, productId }: Props) {
       return
     }
     setSaving(true)
+    setError('')
     try {
       const url = isEdit ? `/api/products/${productId}` : '/api/products'
       const method = isEdit ? 'PUT' : 'POST'
@@ -219,9 +220,27 @@ export default function ProductForm({ initialData, productId }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
-      if (res.ok) router.push('/admin/products')
-    } catch { /* ignore */ }
-    setSaving(false)
+      const data = await res.json().catch(() => ({})) as Record<string, unknown>
+      if (!res.ok) {
+        setError((data.error as string) || 'Failed to save product.')
+        return
+      }
+      const odooSync = data.odooSync as { syncStatus?: string; syncError?: string } | undefined
+      if (odooSync?.syncStatus === 'sync_failed') {
+        const reason = odooSync.syncError || 'Unknown Odoo error.'
+        setError(
+          isEdit
+            ? `Saved locally. Odoo sync failed: ${reason}`
+            : `Product saved locally but Odoo sync failed: ${reason} — find it in the products list to retry.`,
+        )
+        return
+      }
+      router.push('/admin/products')
+    } catch {
+      setError('Network error. Check your connection and try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (

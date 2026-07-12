@@ -131,6 +131,24 @@ export async function odooExecuteKw<T = unknown>(
   })
   const body = await res.json()
   if (body.error) {
+    // Sanitize args for logging: redact large binary fields (image_1920, etc.)
+    const sanitizedArgs = args.map((a) => {
+      if (typeof a === 'object' && a !== null && !Array.isArray(a)) {
+        const copy = { ...(a as Record<string, unknown>) }
+        for (const k of Object.keys(copy)) {
+          if (typeof copy[k] === 'string' && (copy[k] as string).length > 500) copy[k] = `<truncated ${(copy[k] as string).length}b>`
+        }
+        return copy
+      }
+      return a
+    })
+    const errDetail = body.error?.data?.message ?? body.error?.message ?? 'no detail'
+    console.log(
+      `[ODOO_RPC_ERROR] model=${model} method=${method}` +
+      ` args=${JSON.stringify(sanitizedArgs).slice(0, 600)}` +
+      ` kwargs=${JSON.stringify(kwargs).slice(0, 200)}` +
+      ` error=${String(errDetail).slice(0, 500)}`,
+    )
     throw new Error(`Odoo ${model}.${method} failed: ${sanitizeOdooError(body, 'see server logs')}`)
   }
   return body.result as T
@@ -141,9 +159,12 @@ export async function odooSearchRead<T = OdooOrmResult>(
   domain: unknown[],
   fields: string[],
   limit?: number,
+  opts?: { context?: Record<string, unknown> },
 ): Promise<T[]> {
   requireDomain(domain, `${model}.search_read`)
-  return odooExecuteKw<T[]>(model, 'search_read', [domain], { fields, limit: limit ?? false })
+  const kwargs: Record<string, unknown> = { fields, limit: limit ?? false }
+  if (opts?.context) kwargs.context = opts.context
+  return odooExecuteKw<T[]>(model, 'search_read', [domain], kwargs)
 }
 
 export async function odooSearch(
@@ -156,13 +177,59 @@ export async function odooSearch(
 }
 
 export async function odooCreate(model: string, values: Record<string, unknown>): Promise<number> {
-  return odooExecuteKw<number>(model, 'create', [values])
+  return odooExecuteKw<number>(model, 'create', [values], { context: { gather_sync_origin: 'website' } })
 }
 
 export async function odooWrite(model: string, id: number, values: Record<string, unknown>): Promise<boolean> {
-  return odooExecuteKw<boolean>(model, 'write', [[id], values])
+  return odooExecuteKw<boolean>(model, 'write', [[id], values], { context: { gather_sync_origin: 'website' } })
 }
 
 export function resetOdooAuthCache(): void {
   uidCache = null
+}
+
+// ─── Webhook Cooldown (defense-in-depth loop prevention) ──────────────────
+
+const webhookCooldown = new Map<string, number>()
+const WEBHOOK_COOLDOWN_MS = 5000
+
+export function setWebhookCooldown(sku: string): void {
+  webhookCooldown.set(sku.toUpperCase(), Date.now())
+}
+
+export function isWebhookOnCooldown(sku: string): boolean {
+  const last = webhookCooldown.get(sku.toUpperCase())
+  return last !== undefined && (Date.now() - last) < WEBHOOK_COOLDOWN_MS
+}
+
+// ─── Structured Sync Logger ────────────────────────────────────────────────
+
+export interface SyncLogEntry {
+  timestamp: string
+  direction: 'push' | 'pull'
+  entity: 'product' | 'category' | 'order' | 'customer' | 'stock'
+  localId: string
+  odooId?: number
+  sku?: string
+  operation: string
+  durationMs: number
+  result: 'success' | 'skipped' | 'failed'
+  error?: string
+}
+
+export function logSync(entry: Omit<SyncLogEntry, 'timestamp'>): void {
+  const log: SyncLogEntry = { timestamp: new Date().toISOString(), ...entry }
+  const line = [
+    '[ODOO_SYNC]',
+    log.direction,
+    log.entity,
+    `local=${log.localId}`,
+    log.odooId ? `odoo=${log.odooId}` : '',
+    log.sku ? `sku=${log.sku}` : '',
+    log.operation,
+    `${log.durationMs}ms`,
+    log.result,
+    log.error ? `error=${log.error.slice(0, 200)}` : '',
+  ].filter(Boolean).join(' ')
+  console.log(line)
 }
