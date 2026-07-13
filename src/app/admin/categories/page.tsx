@@ -116,6 +116,7 @@ export default function AdminCategoriesPage() {
     .filter((product): product is Product => Boolean(product))
 
   const availableTopProducts = products
+    .filter((product) => product.isActive !== false)
     .filter((product) => modal.form.type === 'category'
       ? product.categoryIds.includes(modal.editing ?? '')
       : product.occasionIds.includes(modal.editing ?? '')

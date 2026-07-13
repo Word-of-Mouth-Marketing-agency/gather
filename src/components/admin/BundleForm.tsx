@@ -149,6 +149,7 @@ export default function BundleForm({ initialData, bundleId }: Props) {
 
   const availableProducts = products.filter(
     (p) =>
+      p.isActive !== false &&
       !form.productIds.includes(p.id) &&
       (p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.slug.includes(searchTerm.toLowerCase()))

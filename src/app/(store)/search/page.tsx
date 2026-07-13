@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { getAllProducts, getAllCategories } from '@/lib/data'
 import ProductCard from '@/components/ProductCard'
@@ -13,6 +13,20 @@ function SearchResults() {
   const params = useSearchParams()
   const q = params.get('q') || ''
   const query = q.trim().toLowerCase()
+
+  const [allProducts, setAllProducts] = useState<Product[]>(() => getAllProducts())
+  const [allCategories, setAllCategories] = useState(() => getAllCategories())
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then((r) => r.json())
+      .then((data) => setAllProducts(data))
+      .catch(() => {})
+    fetch('/api/categories')
+      .then((r) => r.json())
+      .then((data) => setAllCategories(data))
+      .catch(() => {})
+  }, [])
 
   if (!query) {
     return (
@@ -29,9 +43,6 @@ function SearchResults() {
       </main>
     )
   }
-
-  const allProducts = getAllProducts()
-  const allCategories = getAllCategories()
 
   const titleMatches: Product[] = []
   const descriptionMatches: Product[] = []
@@ -70,7 +81,7 @@ function SearchResults() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-3xl sm:text-4xl font-black text-[#171717] mb-2">
+      <h1 className="text-2xl sm:text-3xl font-black text-[#171717] mb-2">
         {t('search.resultsFor')} &ldquo;{q}&rdquo;
       </h1>
       <p className="text-[#7a6247] mb-8">

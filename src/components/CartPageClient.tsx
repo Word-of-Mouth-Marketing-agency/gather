@@ -114,10 +114,27 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
   const [mounted, setMounted] = useState(false)
   const [products, setProducts] = useState<CartEntry[]>([])
   const [bundles, setBundles] = useState<BundleCartItem[]>([])
+  const [freshProducts, setFreshProducts] = useState<Product[] | null>(null)
+
+  const suggestions = getCartCoPurchaseSuggestions({
+    cartProductIds: [
+      ...products.map(({ product }) => product.id),
+      ...bundles.flatMap((bundle) => bundle.productIds),
+    ],
+    products: freshProducts ?? getAllProducts(),
+    orders: coPurchaseOrders,
+  })
 
   useEffect(() => {
     const { products: p, bundles: b } = loadEntries()
     startTransition(() => { setProducts(p); setBundles(b); setMounted(true) })
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then((r) => r.json())
+      .then((data) => setFreshProducts(data))
+      .catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -154,14 +171,6 @@ export default function CartPageClient({ coPurchaseOrders }: Props) {
   ]
   const total = allCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const itemCount = products.length + bundles.length
-  const suggestions = getCartCoPurchaseSuggestions({
-    cartProductIds: [
-      ...products.map(({ product }) => product.id),
-      ...bundles.flatMap((bundle) => bundle.productIds),
-    ],
-    products: getAllProducts(),
-    orders: coPurchaseOrders,
-  })
   const unavailableBundles = getUnavailableCartBundles(bundles)
   const hasUnavailableBundles = unavailableBundles.length > 0
 

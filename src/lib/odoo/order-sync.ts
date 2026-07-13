@@ -1,7 +1,7 @@
-import type { Order } from '@/lib/orders'
+import type { Order, OrderStatus } from '@/lib/orders'
 import type { Product } from '@/types'
 import { readJson, writeJson } from '@/lib/db'
-import { getOdooConfig, odooSearchRead, odooCreate } from './json-rpc'
+import { getOdooConfig, odooSearchRead, odooCreate, odooExecuteKw, logSync } from './json-rpc'
 
 const ORDERS_FILE = 'orders.json'
 const PRODUCTS_FILE = 'products.json'
@@ -273,6 +273,179 @@ async function syncSingleOrder(
   }
 
   result.created += 1
+}
+
+// ─── Order Status Sync (Website → Odoo) ────────────────────────────────────
+
+export interface OrderStatusSyncResult {
+  action: string
+  odooState: string
+  syncStatus: 'synced' | 'sync_failed' | 'skipped'
+  syncError?: string
+  warning?: string
+}
+
+const STATUS_TO_ACTION: Partial<Record<OrderStatus, string>> = {
+  confirmed: 'action_confirm',
+  preparing: 'action_confirm',
+  out_for_delivery: 'action_confirm',
+  delivered: 'action_confirm',
+  cancelled: 'action_cancel',
+}
+
+export async function syncOrderStatusToOdoo(orderId: string): Promise<OrderStatusSyncResult> {
+  const config = getOdooConfig()
+  if (!config) {
+    return { action: 'none', odooState: 'unknown', syncStatus: 'skipped', syncError: 'Odoo not configured' }
+  }
+
+  const allOrders = loadOrders()
+  const order = allOrders.find((o) => o.id === orderId)
+  if (!order) {
+    return { action: 'none', odooState: 'unknown', syncStatus: 'sync_failed', syncError: 'Order not found locally' }
+  }
+
+  const targetAction = STATUS_TO_ACTION[order.status]
+  if (!targetAction) {
+    return { action: 'none', odooState: 'unknown', syncStatus: 'skipped' }
+  }
+
+  const t0 = Date.now()
+
+  try {
+    const odooId = await resolveOdooOrderId(order)
+    if (!odooId) {
+      return { action: 'none', odooState: 'unknown', syncStatus: 'sync_failed', syncError: 'Order not synced to Odoo yet' }
+    }
+
+    const current = await odooSearchRead<{ id: number; state: string }>(
+      'sale.order',
+      [['id', '=', odooId]],
+      ['id', 'state'],
+      1,
+    )
+    if (current.length === 0) {
+      return { action: 'none', odooState: 'unknown', syncStatus: 'sync_failed', syncError: 'Odoo order not found' }
+    }
+
+    const odooState = current[0].state as string
+
+    if (odooState === 'cancel' && targetAction === 'action_confirm') {
+      logSync({
+        direction: 'push',
+        entity: 'order',
+        localId: orderId,
+        odooId,
+        operation: `skip_${targetAction}`,
+        durationMs: Date.now() - t0,
+        result: 'skipped',
+        error: 'Odoo order is cancelled, cannot confirm',
+      })
+      return {
+        action: 'none',
+        odooState,
+        syncStatus: 'synced',
+        warning: 'Odoo order is already cancelled',
+      }
+    }
+
+    if ((odooState === 'sale' || odooState === 'done') && targetAction === 'action_confirm') {
+      logSync({
+        direction: 'push',
+        entity: 'order',
+        localId: orderId,
+        odooId,
+        operation: 'skip_action_confirm',
+        durationMs: Date.now() - t0,
+        result: 'skipped',
+      })
+      return { action: 'none', odooState, syncStatus: 'synced' }
+    }
+
+    if (odooState === 'cancel' && targetAction === 'action_cancel') {
+      logSync({
+        direction: 'push',
+        entity: 'order',
+        localId: orderId,
+        odooId,
+        operation: 'skip_action_cancel',
+        durationMs: Date.now() - t0,
+        result: 'skipped',
+      })
+      return { action: 'none', odooState, syncStatus: 'synced' }
+    }
+
+    await odooExecuteKw('sale.order', targetAction, [[odooId]], {
+      context: { gather_sync_origin: 'website' },
+    })
+
+    const after = await odooSearchRead<{ id: number; state: string }>(
+      'sale.order',
+      [['id', '=', odooId]],
+      ['id', 'state'],
+      1,
+    )
+    const newState = after.length > 0 ? after[0].state : odooState
+
+    logSync({
+      direction: 'push',
+      entity: 'order',
+      localId: orderId,
+      odooId,
+      operation: targetAction,
+      durationMs: Date.now() - t0,
+      result: 'success',
+    })
+
+    return { action: targetAction, odooState: newState, syncStatus: 'synced' }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+
+    logSync({
+      direction: 'push',
+      entity: 'order',
+      localId: orderId,
+      operation: targetAction,
+      durationMs: Date.now() - t0,
+      result: 'failed',
+      error: message,
+    })
+
+    return { action: targetAction, odooState: 'unknown', syncStatus: 'sync_failed', syncError: message }
+  }
+}
+
+async function resolveOdooOrderId(order: Order): Promise<number | null> {
+  if (order.odooOrderId) {
+    const found = await odooSearchRead('sale.order', [['id', '=', order.odooOrderId]], ['id'], 1)
+    if (found.length > 0) return found[0].id as number
+  }
+
+  const byNextjs = await odooSearchRead('sale.order', [['x_nextjs_id', '=', order.id]], ['id'], 1)
+  if (byNextjs.length > 0) {
+    const odooId = byNextjs[0].id as number
+    const all = loadOrders()
+    const idx = all.findIndex((o) => o.id === order.id)
+    if (idx >= 0) {
+      all[idx] = { ...all[idx], odooOrderId: odooId, syncStatus: 'synced', syncError: undefined, lastSyncedAt: now() }
+      saveOrders(all)
+    }
+    return odooId
+  }
+
+  const byRef = await odooSearchRead('sale.order', [['client_order_ref', '=', order.id]], ['id'], 1)
+  if (byRef.length > 0) {
+    const odooId = byRef[0].id as number
+    const all = loadOrders()
+    const idx = all.findIndex((o) => o.id === order.id)
+    if (idx >= 0) {
+      all[idx] = { ...all[idx], odooOrderId: odooId, syncStatus: 'synced', syncError: undefined, lastSyncedAt: now() }
+      saveOrders(all)
+    }
+    return odooId
+  }
+
+  return null
 }
 
 export async function syncOrderAfterCheckout(orderId: string): Promise<void> {

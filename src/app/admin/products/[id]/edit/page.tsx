@@ -14,7 +14,7 @@ export default function EditProductPage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`/api/products/${id}`)
+        const res = await fetch(`/api/products/${id}?includeArchived=true`)
         if (res.ok) setProduct(await res.json())
       } catch { /* ignore */ }
       setLoading(false)

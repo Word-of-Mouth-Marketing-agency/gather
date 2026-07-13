@@ -27,6 +27,7 @@ export interface Product {
   reviews?: ProductReview[]
   crossSellIds: string[]
   frequentlyBoughtTogetherIds?: string[]
+  isActive?: boolean
   featured: boolean
   createdAt: string
   sku?: string

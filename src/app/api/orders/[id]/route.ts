@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAdminApi } from '@/lib/admin-api'
 import { deleteOrder, getOrderById, updateOrderStatus } from '@/lib/orders'
+import { syncOrderStatusToOdoo } from '@/lib/odoo/order-sync'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const unauthorized = await requireAdminApi()
@@ -22,6 +23,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (!status) return NextResponse.json({ error: 'Status required' }, { status: 400 })
     const updated = updateOrderStatus(id, status)
     if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+    syncOrderStatusToOdoo(id).catch((err) => {
+      console.error(`[ORDER_STATUS_SYNC] ${id} failed:`, err)
+    })
+
     return NextResponse.json(updated)
   } catch {
     return NextResponse.json({ error: 'Invalid data' }, { status: 400 })

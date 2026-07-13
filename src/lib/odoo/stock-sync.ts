@@ -1,6 +1,6 @@
 import type { Product } from '@/types'
 import { readJson, writeJson } from '@/lib/db'
-import { getOdooConfig, odooSearchRead } from './json-rpc'
+import { getOdooConfig, odooSearchRead, logSync } from './json-rpc'
 
 const PRODUCTS_FILE = 'products.json'
 
@@ -70,6 +70,7 @@ async function syncSingleProductStock(
   product: Product,
   result: StockSyncResult,
 ): Promise<void> {
+  const startMs = Date.now()
   const sku = product.sku?.trim()
   if (!sku) {
     result.skippedMissingSku += 1
@@ -85,6 +86,7 @@ async function syncSingleProductStock(
       [['id', '=', product.odooProductId]],
       ['id', 'qty_available'],
       1,
+      { context: { active_test: false } },
     )
     if (existing.length > 0) {
       odooProductId = existing[0].id as number
@@ -97,6 +99,7 @@ async function syncSingleProductStock(
       [['default_code', '=', sku]],
       ['id', 'qty_available'],
       1,
+      { context: { active_test: false } },
     )
     if (bySku.length > 0) {
       odooProductId = bySku[0].id as number
@@ -104,6 +107,7 @@ async function syncSingleProductStock(
   }
 
   if (!odooProductId) {
+    logSync({ direction: 'pull', entity: 'stock', localId: product.id, sku, operation: 'stock_pull', durationMs: Date.now() - startMs, result: 'failed', error: 'Not found in Odoo' })
     throw new Error(
       `Product "${product.name}" (sku=${sku}): not found in Odoo by odooProductId or default_code`,
     )
@@ -114,9 +118,11 @@ async function syncSingleProductStock(
     [['id', '=', odooProductId]],
     ['qty_available'],
     1,
+    { context: { active_test: false } },
   )
 
   if (odooData.length === 0) {
+    logSync({ direction: 'pull', entity: 'stock', localId: product.id, odooId: odooProductId, sku, operation: 'stock_pull', durationMs: Date.now() - startMs, result: 'failed', error: 'Odoo product disappeared' })
     throw new Error(
       `Product "${product.name}" (sku=${sku}): Odoo product ${odooProductId} disappeared during sync`,
     )
@@ -137,4 +143,5 @@ async function syncSingleProductStock(
   }
 
   result.updated += 1
+  logSync({ direction: 'pull', entity: 'stock', localId: product.id, odooId: odooProductId, sku, operation: 'stock_pull', durationMs: Date.now() - startMs, result: 'success' })
 }

@@ -13,30 +13,42 @@ export default function WishlistPage() {
   const { locale, href, t } = useLocale()
   const [mounted, setMounted] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
+  const [freshProducts, setFreshProducts] = useState<Product[] | null>(null)
+
+  function resolveProducts() {
+    return freshProducts ?? getAllProducts()
+  }
 
   useEffect(() => {
     const ids = getWishlist()
-    const all = getAllProducts()
+    const all = freshProducts ?? getAllProducts()
     startTransition(() => {
       setProducts(all.filter((p) => ids.includes(p.id)))
       setMounted(true)
     })
+  }, [freshProducts])
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then((r) => r.json())
+      .then((data) => setFreshProducts(data))
+      .catch(() => {})
   }, [])
 
   useEffect(() => {
     if (!mounted) return
     const handler = () => {
       const ids = getWishlist()
-      const all = getAllProducts()
+      const all = freshProducts ?? getAllProducts()
       startTransition(() => setProducts(all.filter((p) => ids.includes(p.id))))
     }
     window.addEventListener('gather:wishlist-updated', handler)
     return () => window.removeEventListener('gather:wishlist-updated', handler)
-  }, [mounted])
+  }, [mounted, freshProducts])
 
   const refresh = () => {
     const ids = getWishlist()
-    const all = getAllProducts()
+    const all = freshProducts ?? getAllProducts()
     setProducts(all.filter((p) => ids.includes(p.id)))
     window.dispatchEvent(new Event('gather:wishlist-updated'))
   }

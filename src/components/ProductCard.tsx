@@ -27,10 +27,18 @@ export default function ProductCard({ product }: Props) {
   const displayPrice = getDisplayPrice(product)
   const hasDiscount = isProductDiscountActive(product)
 
-  function handleAddToCart(e: React.MouseEvent) {
+  async function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
+    if (product.isActive === false || product.stock === 0) return
     setAdding(true)
+    const available = await fetch(`/api/products/${product.id}`, { cache: 'no-store' })
+      .then((res) => res.ok)
+      .catch(() => false)
+    if (!available) {
+      setAdding(false)
+      return
+    }
     addToCart(product.id)
     window.dispatchEvent(new Event('gather:cart-updated'))
     setAdding(false)

@@ -67,8 +67,15 @@ export default function ProductInfoPanel({ product, categories, occasions, local
   )
 
   async function handleAddToCart() {
-    if (!inStock) return
+    if (!inStock || product.isActive === false) return
     setAdding(true)
+    const available = await fetch(`/api/products/${product.id}`, { cache: 'no-store' })
+      .then((res) => res.ok)
+      .catch(() => false)
+    if (!available) {
+      setAdding(false)
+      return
+    }
     addToCart(product.id, qty)
     window.dispatchEvent(new Event('gather:cart-updated'))
     await new Promise((resolve) => setTimeout(resolve, 450))

@@ -19,7 +19,7 @@ function migrateItem(raw: unknown): CartItem | null {
     if (!i.id || !i.productId || !i.name || typeof i.quantity !== 'number' || i.quantity < 1) return null
     const item = raw as ProductCartItem
     const product = getProductById(item.productId)
-    if (!product) return item
+    if (!product) return null
     return {
       ...item,
       name: product.name,

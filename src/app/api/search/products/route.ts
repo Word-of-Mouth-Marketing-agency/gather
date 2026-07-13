@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getAllProducts } from '@/lib/data'
+import { getProductRepository } from '@/lib/repositories'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -10,9 +10,10 @@ export async function GET(request: Request) {
   }
 
   const query = q.toLowerCase()
-  const all = getAllProducts()
+  const all = getProductRepository().getAll()
+  const active = all.filter((p) => p.isActive !== false)
 
-  const results = all
+  const results = active
     .filter((p) => {
       if (p.name.toLowerCase().includes(query)) return true
       if (p.nameAr?.toLowerCase().includes(query)) return true

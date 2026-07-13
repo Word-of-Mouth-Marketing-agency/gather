@@ -5,8 +5,8 @@ import { readJson } from './db'
 // ─── Repository Interfaces ─────────────────────────────────────────────────
 
 export interface ProductRepository {
-  getAll(): Product[]
-  getById(id: string): Product | undefined
+  getAll(includeArchived?: boolean): Product[]
+  getById(id: string, includeArchived?: boolean): Product | undefined
   create(data: Omit<Product, 'id' | 'createdAt'>): Product
   update(id: string, data: Partial<Product>): Product | undefined
   delete(id: string): boolean
@@ -54,16 +54,18 @@ function normalizeTopProductIds(ids?: string[]): string[] {
 }
 
 export class JsonProductRepository implements ProductRepository {
-  getAll(): Product[] {
-    return readJson<Product[]>(PRODUCTS_FILE)
+  getAll(includeArchived = false): Product[] {
+    const products = readJson<Product[]>(PRODUCTS_FILE)
+    if (includeArchived) return products
+    return products.filter((p) => p.isActive !== false)
   }
 
-  getById(id: string): Product | undefined {
-    return this.getAll().find((p) => p.id === id)
+  getById(id: string, includeArchived = false): Product | undefined {
+    return this.getAll(includeArchived).find((p) => p.id === id)
   }
 
   create(data: Omit<Product, 'id' | 'createdAt'>): Product {
-    const products = this.getAll()
+    const products = this.getAll(true)
     const product: Product = {
       ...data,
       id: generateId('prod'),
@@ -79,7 +81,7 @@ export class JsonProductRepository implements ProductRepository {
   }
 
   update(id: string, data: Partial<Product>): Product | undefined {
-    const products = this.getAll()
+    const products = this.getAll(true)
     const idx = products.findIndex((p) => p.id === id)
     if (idx < 0) return undefined
     products[idx] = {
@@ -94,7 +96,7 @@ export class JsonProductRepository implements ProductRepository {
   }
 
   delete(id: string): boolean {
-    const products = this.getAll()
+    const products = this.getAll(true)
     const idx = products.findIndex((p) => p.id === id)
     if (idx < 0) return false
     products.splice(idx, 1)
@@ -191,11 +193,11 @@ export class JsonBundleRepository implements BundleRepository {
 // ─── Odoo Adapter Scaffolds ────────────────────────────────────────────────
 
 export class OdooProductAdapter implements ProductRepository {
-  getAll(): Product[] {
+  getAll(_includeArchived = false): Product[] {
     console.warn('[OdooProductAdapter] getAll not implemented – returning empty')
     return []
   }
-  getById(_id: string): Product | undefined {
+  getById(_id: string, _includeArchived = false): Product | undefined {
     return undefined
   }
   create(_data: Omit<Product, 'id' | 'createdAt'>): Product {
