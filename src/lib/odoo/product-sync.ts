@@ -39,9 +39,6 @@ function loadCategories(): Category[] {
 }
 
 function resolvePrice(product: Product): number | null {
-  if (product.salePrice != null && typeof product.salePrice === 'number' && product.salePrice > 0) {
-    return product.salePrice
-  }
   if (product.price != null && typeof product.price === 'number' && product.price > 0) {
     return product.price
   }
