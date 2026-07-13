@@ -26,6 +26,13 @@ function normalizeSku(sku: unknown): string {
   return String(sku ?? '').trim().toUpperCase()
 }
 
+function normalizeStock(stock: unknown): number | undefined {
+  if (stock === undefined || stock === null || stock === '') return undefined
+  const value = Number(stock)
+  if (!Number.isFinite(value)) return undefined
+  return Math.max(0, Math.floor(value))
+}
+
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const unauthorized = await requireAdminApi()
   if (unauthorized) return unauthorized
@@ -44,21 +51,38 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (dup) return NextResponse.json({ error: `SKU "${sku}" is already used by product "${dup.name}".` }, { status: 400 })
   }
 
+  const normalizedStock = normalizeStock(data.stock)
+  if (data.stock !== undefined && normalizedStock === undefined) {
+    return NextResponse.json({ error: 'Stock must be a valid number' }, { status: 400 })
+  }
+
   const repo = getProductRepository()
   const oldProduct = repo.getById(id, true)
-  const stockChanged = oldProduct && data.stock !== undefined && data.stock !== oldProduct.stock
+  const updateData = {
+    ...data,
+    ...(sku !== undefined ? { sku } : {}),
+    ...(normalizedStock !== undefined ? {
+      stock: normalizedStock,
+      stockStatus: normalizedStock > 0 ? 'in_stock' : 'out_of_stock',
+    } : {}),
+  }
+  const stockChanged = Boolean(
+    oldProduct &&
+    normalizedStock !== undefined &&
+    Number(normalizedStock) !== Number(oldProduct.stock),
+  )
 
-  const updated = repo.update(id, sku !== undefined ? { ...data, sku } : data)
+  const updated = repo.update(id, updateData)
   if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  logOp('UPDATE', id, sku ?? updated.sku, `name="${updated.name}" stockChanged=${stockChanged}`)
+  logOp('UPDATE', id, sku ?? updated.sku, `name="${updated.name}" oldStock=${oldProduct?.stock ?? 'unknown'} requestedStock=${normalizedStock ?? 'unchanged'} stockChanged=${stockChanged}`)
 
   let syncResult
   if (isOdooSyncEnabled()) {
     const startMs = Date.now()
     try {
-      syncResult = await syncProductById(id, stockChanged)
-      logOp('UPDATE', id, sku ?? updated.sku, `odoo_sync=${syncResult.syncStatus} ${Date.now() - startMs}ms`)
+      syncResult = await syncProductById(id, { pushStock: stockChanged, requestedStock: normalizedStock })
+      logOp('UPDATE', id, sku ?? updated.sku, `odoo_sync=${syncResult.syncStatus} stock_push=${syncResult.stockPushStatus ?? 'n/a'} ${Date.now() - startMs}ms`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       syncResult = { syncStatus: 'sync_failed' as const, syncError: msg.slice(0, 500) }

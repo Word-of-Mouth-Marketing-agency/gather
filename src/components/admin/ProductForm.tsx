@@ -225,7 +225,7 @@ export default function ProductForm({ initialData, productId }: Props) {
         setError((data.error as string) || 'Failed to save product.')
         return
       }
-      const odooSync = data.odooSync as { syncStatus?: string; syncError?: string } | undefined
+      const odooSync = data.odooSync as { syncStatus?: string; syncError?: string; stockPushStatus?: string; stockPushError?: string } | undefined
       if (odooSync?.syncStatus === 'sync_failed') {
         const reason = odooSync.syncError || 'Unknown Odoo error.'
         setError(
@@ -233,6 +233,11 @@ export default function ProductForm({ initialData, productId }: Props) {
             ? `Saved locally. Odoo sync failed: ${reason}`
             : `Product saved locally but Odoo sync failed: ${reason} — find it in the products list to retry.`,
         )
+        return
+      }
+      if (odooSync?.stockPushStatus === 'failed') {
+        const reason = odooSync.stockPushError || 'Unknown Odoo stock error.'
+        setError(`Saved locally. Odoo stock sync failed: ${reason}`)
         return
       }
       router.push('/admin/products')

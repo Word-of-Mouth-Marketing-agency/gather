@@ -345,8 +345,14 @@ export interface SyncProductResult {
   stockPushError?: string
 }
 
-export async function syncProductById(productId: string, pushStock?: boolean): Promise<SyncProductResult> {
+export interface SyncProductOptions {
+  pushStock?: boolean
+  requestedStock?: number
+}
+
+export async function syncProductById(productId: string, options: SyncProductOptions | boolean = {}): Promise<SyncProductResult> {
   try {
+    const pushStock = typeof options === 'boolean' ? options : options.pushStock === true
     const config = getOdooConfig()
     if (!config) return { syncStatus: 'skipped' }
 
@@ -369,7 +375,7 @@ export async function syncProductById(productId: string, pushStock?: boolean): P
     let stockPushResult: { stockPushStatus?: string; stockPushError?: string } = {}
     if (pushStock && odooProductId && product.isActive !== false) {
       const { pushStockToOdoo } = await import('./stock-push')
-      stockPushResult = await pushStockToOdoo(productId)
+      stockPushResult = await pushStockToOdoo(productId, typeof options === 'boolean' ? undefined : options.requestedStock)
     }
 
     return {
