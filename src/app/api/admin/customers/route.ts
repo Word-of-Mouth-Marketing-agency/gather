@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { requireAdminApi } from '@/lib/admin-api'
 import { getAdminCustomers, updateCustomer } from '@/lib/customer-data'
+import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
+import { syncPartnerFromCustomer } from '@/lib/odoo/partner-sync'
 
 export async function GET() {
   const unauthorized = await requireAdminApi()
@@ -19,6 +21,10 @@ export async function POST(request: Request) {
 
     const updated = updateCustomer(id, { name, email, phone, isActive, status })
     if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+    if (isOdooSyncEnabled()) {
+      syncPartnerFromCustomer(id)
+    }
 
     return NextResponse.json({
       id: updated.id,

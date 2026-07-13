@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { customerIsActive, findCustomerById, updateCustomer } from '@/lib/customer-data'
 import { getCustomerSessionCookie } from '@/lib/customer-session'
+import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
+import { syncPartnerFromCustomer } from '@/lib/odoo/partner-sync'
 
 async function requireCustomerId(request: Request): Promise<NextResponse | string> {
   const session = await getCustomerSessionCookie()
@@ -56,6 +58,11 @@ export async function PUT(request: Request) {
     if (!updated) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
+
+    if (isOdooSyncEnabled()) {
+      syncPartnerFromCustomer(customerId)
+    }
+
     return NextResponse.json({
       id: updated.id,
       name: updated.name,

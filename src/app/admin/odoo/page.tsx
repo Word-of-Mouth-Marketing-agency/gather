@@ -11,8 +11,9 @@ interface Diagnostics {
   categories: { total: number; synced: number; failed: number; skippedOccasions: number }
   products: { total: number; withSku: number; synced: number; failed: number; missingSku: number; outOfStock: number }
   orders: { total: number; synced: number; failed: number; notSynced: number }
+  customers: { total: number; synced: number; failed: number; notSynced: number; stalePartnerId: number; duplicateRisk: number }
   stock: { lastStockPulledAt: string | null; outOfStockProducts: Array<{ id: string; name: string; sku: string; stock: number }> }
-  timestamps: { categoryLastSyncedAt: string | null; productLastSyncedAt: string | null; stockLastPulledAt: string | null; orderLastSyncedAt: string | null }
+  timestamps: { categoryLastSyncedAt: string | null; productLastSyncedAt: string | null; stockLastPulledAt: string | null; orderLastSyncedAt: string | null; customerLastSyncedAt: string | null }
   warnings: string[]
 }
 
@@ -175,6 +176,18 @@ export default function OdooDiagnosticsPage() {
           <div className="mt-2 pt-2 border-t border-gray-100">
             <p className="text-xs text-gray-400">Last sync: {tsDisplay(data.timestamps.orderLastSyncedAt)}</p>
             <a href="/admin/orders" className="text-xs text-[#ff7a1a] font-semibold hover:underline">Sync Orders →</a>
+          </div>
+        </Card>
+
+        <Card title="Customers">
+          <CountRow label="Total" count={data.customers.total} />
+          <CountRow label="Synced" count={data.customers.synced} />
+          <CountRow label="Failed" count={data.customers.failed} highlight />
+          <CountRow label="Not synced" count={data.customers.notSynced} />
+          <CountRow label="Stale partner ID" count={data.customers.stalePartnerId} highlight />
+          <CountRow label="Duplicate risk" count={data.customers.duplicateRisk} highlight />
+          <div className="mt-2 pt-2 border-t border-gray-100">
+            <p className="text-xs text-gray-400">Last sync: {tsDisplay(data.timestamps.customerLastSyncedAt)}</p>
           </div>
         </Card>
       </div>

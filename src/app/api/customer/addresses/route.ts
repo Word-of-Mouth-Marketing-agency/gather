@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getCustomerAddresses, addCustomerAddress, updateCustomerAddress, deleteCustomerAddress } from '@/lib/customer-data'
 import { getCustomerSessionCookie } from '@/lib/customer-session'
+import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
+import { syncPartnerFromCustomer } from '@/lib/odoo/partner-sync'
 
 async function requireCustomerId(): Promise<NextResponse | string> {
   const session = await getCustomerSessionCookie()
@@ -26,6 +28,9 @@ export async function POST(request: Request) {
     if (!address) {
       return NextResponse.json({ error: 'Customer not found' }, { status: 404 })
     }
+    if (isOdooSyncEnabled()) {
+      syncPartnerFromCustomer(customerId)
+    }
     return NextResponse.json(address, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Invalid data' }, { status: 400 })
@@ -43,6 +48,9 @@ export async function PUT(request: Request) {
     const updated = updateCustomerAddress(customerId, addressId, data)
     if (!updated) {
       return NextResponse.json({ error: 'Address not found' }, { status: 404 })
+    }
+    if (isOdooSyncEnabled()) {
+      syncPartnerFromCustomer(customerId)
     }
     return NextResponse.json(updated)
   } catch {
@@ -62,6 +70,9 @@ export async function DELETE(request: Request) {
     const deleted = deleteCustomerAddress(customerId, addressId)
     if (!deleted) {
       return NextResponse.json({ error: 'Address not found' }, { status: 404 })
+    }
+    if (isOdooSyncEnabled()) {
+      syncPartnerFromCustomer(customerId)
     }
     return NextResponse.json({ success: true })
   } catch {

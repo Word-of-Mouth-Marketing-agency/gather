@@ -1,10 +1,10 @@
 import { getOdooConfig, odooSearchRead, odooExecuteKw, isOdooSyncEnabled, getAllowedOdooHosts } from './json-rpc'
 import { readJson } from '@/lib/db'
-import type { Category, Product } from '@/types'
+import type { Category, Customer, Product } from '@/types'
 import type { Order } from '@/lib/orders'
 
 const REQUIRED_FIELDS = {
-  'product.template': ['x_nextjs_id', 'x_slug'],
+  'product.template': ['x_nextjs_id', 'x_slug', 'x_nextjs_category_ids'],
   'product.category': ['x_nextjs_id', 'x_slug'],
   'res.partner': ['x_nextjs_id'],
   'sale.order': ['x_nextjs_id', 'x_nextjs_order_number', 'x_delivery_city_area', 'x_delivery_slot', 'x_payment_method'],
@@ -54,6 +54,15 @@ interface OrderCounts {
   notSynced: number
 }
 
+interface CustomerCounts {
+  total: number
+  synced: number
+  failed: number
+  notSynced: number
+  stalePartnerId: number
+  duplicateRisk: number
+}
+
 interface StockStatus {
   lastStockPulledAt: string | null
   outOfStockProducts: Array<{ id: string; name: string; sku: string; stock: number }>
@@ -64,6 +73,7 @@ interface SyncTimestamps {
   productLastSyncedAt: string | null
   stockLastPulledAt: string | null
   orderLastSyncedAt: string | null
+  customerLastSyncedAt: string | null
 }
 
 export interface DiagnosticsResult {
@@ -72,6 +82,7 @@ export interface DiagnosticsResult {
   categories: CategoryCounts
   products: ProductCounts
   orders: OrderCounts
+  customers: CustomerCounts
   stock: StockStatus
   timestamps: SyncTimestamps
   warnings: string[]
@@ -93,8 +104,9 @@ export async function getOdooDiagnostics(): Promise<DiagnosticsResult> {
     categories: { total: 0, synced: 0, failed: 0, skippedOccasions: 0 },
     products: { total: 0, withSku: 0, synced: 0, failed: 0, missingSku: 0, outOfStock: 0 },
     orders: { total: 0, synced: 0, failed: 0, notSynced: 0 },
+    customers: { total: 0, synced: 0, failed: 0, notSynced: 0, stalePartnerId: 0, duplicateRisk: 0 },
     stock: { lastStockPulledAt: null, outOfStockProducts: [] },
-    timestamps: { categoryLastSyncedAt: null, productLastSyncedAt: null, stockLastPulledAt: null, orderLastSyncedAt: null },
+    timestamps: { categoryLastSyncedAt: null, productLastSyncedAt: null, stockLastPulledAt: null, orderLastSyncedAt: null, customerLastSyncedAt: null },
     warnings: [],
   }
 
@@ -136,13 +148,28 @@ export async function getOdooDiagnostics(): Promise<DiagnosticsResult> {
     notSynced: orders.filter((o) => !o.syncStatus || o.syncStatus === 'not_synced').length,
   }
 
+  const customers = readJson<Customer[]>('customers.json')
+  const emailCounts = new Map<string, number>()
+  for (const c of customers) {
+    const key = c.email.toLowerCase()
+    emailCounts.set(key, (emailCounts.get(key) ?? 0) + 1)
+  }
+  result.customers = {
+    total: customers.length,
+    synced: customers.filter((c) => c.syncStatus === 'synced').length,
+    failed: customers.filter((c) => c.syncStatus === 'sync_failed').length,
+    notSynced: customers.filter((c) => !c.syncStatus || c.syncStatus === 'not_synced').length,
+    stalePartnerId: customers.filter((c) => c.odooPartnerId && c.syncStatus !== 'synced').length,
+    duplicateRisk: Array.from(emailCounts.values()).filter((n) => n > 1).length,
+  }
+
   const outOfStockProducts = products
     .filter((p) => p.stockStatus === 'out_of_stock' || (p.stock <= 0))
     .map((p) => ({ id: p.id, name: p.name, sku: p.sku ?? '', stock: p.stock }))
   result.stock.outOfStockProducts = outOfStockProducts
   result.stock.lastStockPulledAt = findLatestStockPull(products)
 
-  const syncTimes = extractSyncTimestamps(products, categories, orders)
+  const syncTimes = extractSyncTimestamps(products, categories, orders, customers)
   result.timestamps = syncTimes
 
   if (withSku.length > 0 && products.filter((p) => p.syncStatus === 'synced').length === 0) {
@@ -155,6 +182,16 @@ export async function getOdooDiagnostics(): Promise<DiagnosticsResult> {
   const staleProducts = products.filter((p) => p.odooProductId && p.syncStatus !== 'synced')
   if (staleProducts.length > 0) {
     result.warnings.push(`${staleProducts.length} product(s) have stale odooProductId (${staleProducts.map((p) => p.name).join(', ')}).`)
+  }
+
+  if (result.customers.failed > 0) {
+    result.warnings.push(`${result.customers.failed} customer(s) have failed sync to Odoo.`)
+  }
+  if (result.customers.stalePartnerId > 0) {
+    result.warnings.push(`${result.customers.stalePartnerId} customer(s) have stale odooPartnerId.`)
+  }
+  if (result.customers.duplicateRisk > 0) {
+    result.warnings.push(`${result.customers.duplicateRisk} customer email(s) appear more than once — duplicate risk.`)
   }
 
   return result
@@ -225,6 +262,7 @@ function extractSyncTimestamps(
   products: Product[],
   categories: Category[],
   orders: Order[],
+  customers: Customer[],
 ): SyncTimestamps {
   const catLast = categories
     .filter((c) => c.lastSyncedAt)
@@ -246,10 +284,17 @@ function extractSyncTimestamps(
     .sort()
     .pop() ?? null
 
+  const custLast = customers
+    .filter((c) => c.lastSyncedAt && c.syncStatus === 'synced')
+    .map((c) => c.lastSyncedAt!)
+    .sort()
+    .pop() ?? null
+
   return {
     categoryLastSyncedAt: catLast,
     productLastSyncedAt: prodLast,
     stockLastPulledAt: stockLast,
     orderLastSyncedAt: ordLast,
+    customerLastSyncedAt: custLast,
   }
 }
