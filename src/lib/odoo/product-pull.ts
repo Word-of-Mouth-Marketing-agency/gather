@@ -367,7 +367,6 @@ export async function pullProductsFromOdoo(): Promise<ProductPullResult> {
       const pulledCatId = mapCategoryId(odooCategId, allCategories)
       const updates: Partial<Product> = {
         name: normalizeOdooText(odoo.name),
-        price: typeof odoo.list_price === 'number' ? odoo.list_price : product.price,
         shortDescription: normalizeOdooText(odoo.description_sale) || product.shortDescription || '',
         stock: qty,
         stockStatus,
@@ -377,6 +376,7 @@ export async function pullProductsFromOdoo(): Promise<ProductPullResult> {
         lastSyncedAt: now(),
         odooProductId,
       }
+      applyPulledOdooListPrice(product, updates, odoo.list_price)
       if (pulledCatIds.length > 0) {
         updates.categoryIds = pulledCatIds
       } else if (pulledCatId) {
@@ -419,6 +419,19 @@ function normalizeOdooText(val: unknown): string {
     return String((val as Record<string, unknown>).en_US || '')
   }
   return String(val || '')
+}
+
+function isValidSalePrice(salePrice: unknown): salePrice is number {
+  return typeof salePrice === 'number' && Number.isFinite(salePrice) && salePrice > 0
+}
+
+function applyPulledOdooListPrice(product: Product, updates: Partial<Product>, listPrice: unknown): void {
+  if (typeof listPrice !== 'number' || !Number.isFinite(listPrice) || listPrice <= 0) return
+  if (isValidSalePrice(product.salePrice)) {
+    updates.salePrice = listPrice
+    return
+  }
+  updates.price = listPrice
 }
 
 function changedUpdateFields(product: Product, updates: Partial<Product>): string[] {
@@ -573,7 +586,6 @@ export async function pullSingleProductFromOdoo(params: ProductWebhookPullParams
 
     const updates: Partial<Product> = {
       name: name || product.name,
-      price: Number.isFinite(price) && price > 0 ? price : product.price,
       shortDescription: shortDescription || product.shortDescription || '',
       stock: qty,
       stockStatus: qty > 0 ? 'in_stock' : 'out_of_stock',
@@ -583,6 +595,7 @@ export async function pullSingleProductFromOdoo(params: ProductWebhookPullParams
       lastSyncedAt: now(),
       odooProductId: odooProduct.id,
     }
+    applyPulledOdooListPrice(product, updates, price)
     if (pulledCatIds.length > 0) {
       updates.categoryIds = pulledCatIds
     }

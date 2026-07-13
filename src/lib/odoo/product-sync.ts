@@ -38,11 +38,28 @@ function loadCategories(): Category[] {
   return readJson<Category[]>(CATEGORIES_FILE)
 }
 
-function resolvePrice(product: Product): number | null {
+function isValidSalePrice(salePrice: unknown): salePrice is number {
+  return typeof salePrice === 'number' && Number.isFinite(salePrice) && salePrice > 0
+}
+
+function resolveOdooListPrice(product: Product): number | null {
+  if (isValidSalePrice(product.salePrice)) {
+    return product.salePrice
+  }
   if (product.price != null && typeof product.price === 'number' && product.price > 0) {
     return product.price
   }
   return null
+}
+
+function logPriceMapping(product: Product, sku: string, odooListPrice: number, result: string): void {
+  console.info('[ODOO_PRICE_MAP]', {
+    sku,
+    price: product.price,
+    salePrice: product.salePrice,
+    odooListPrice,
+    result,
+  })
 }
 
 function resolveDescription(product: Product): string {
@@ -176,8 +193,8 @@ async function syncSingleProduct(
     return
   }
 
-  const price = resolvePrice(product)
-  if (price === null) {
+  const odooListPrice = resolveOdooListPrice(product)
+  if (odooListPrice === null) {
     logSync({ direction: 'push', entity: 'product', localId: product.id, sku, operation: 'sync', durationMs: Date.now() - startMs, result: 'failed', error: 'No valid price' })
     throw new Error(`No valid price for product "${product.name}" (${product.id}). salePrice=${product.salePrice}, price=${product.price}`)
   }
@@ -259,8 +276,8 @@ async function syncSingleProduct(
       const tmplId = Array.isArray(templateId) ? templateId[0] : templateId
       const templateValues: Record<string, unknown> = {
         name: product.name,
-        list_price: price,
-        standard_price: price,
+        list_price: odooListPrice,
+        standard_price: odooListPrice,
         description_sale: descriptionSale || false,
         description: product.description || false,
         categ_id: categoryId,
@@ -282,6 +299,7 @@ async function syncSingleProduct(
     result[action === 'updated' ? 'updated' : 'archived'] += 1
 
     setWebhookCooldown(sku)
+    logPriceMapping(product, sku, odooListPrice, operation)
     logSync({ direction: 'push', entity: 'product', localId: product.id, odooId: odooProductId, sku, operation, durationMs: Date.now() - startMs, result: 'success' })
   } else {
     if (product.isActive === false) {
@@ -298,8 +316,8 @@ async function syncSingleProduct(
     const createValues: Record<string, unknown> = {
       default_code: sku,
       name: product.name,
-      list_price: price,
-      standard_price: price,
+      list_price: odooListPrice,
+      standard_price: odooListPrice,
       description_sale: descriptionSale || false,
       description: product.description || false,
       categ_id: categoryId,
@@ -317,6 +335,7 @@ async function syncSingleProduct(
     odooProductId = newProductId
 
     setWebhookCooldown(sku)
+    logPriceMapping(product, sku, odooListPrice, 'create')
     logSync({ direction: 'push', entity: 'product', localId: product.id, odooId: odooProductId, sku, operation: 'create', durationMs: Date.now() - startMs, result: 'success' })
   }
 
