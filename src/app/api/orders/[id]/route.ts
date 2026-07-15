@@ -21,7 +21,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { id } = await params
     const { status } = await request.json()
     if (!status) return NextResponse.json({ error: 'Status required' }, { status: 400 })
-    const updated = updateOrderStatus(id, status)
+    const updated = await updateOrderStatus(id, status)
     if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
     syncOrderStatusToOdoo(id).catch((err) => {
@@ -39,7 +39,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   if (unauthorized) return unauthorized
 
   const { id } = await params
-  const deleted = deleteOrder(id)
+  const deleted = await deleteOrder(id)
   if (!deleted) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json({ success: true })
 }

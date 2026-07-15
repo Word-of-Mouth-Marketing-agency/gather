@@ -23,7 +23,7 @@ export interface CategoryRepository {
 export interface OrderRepository {
   getAll(): Order[]
   getById(id: string): Order | undefined
-  updateStatus(id: string, status: Order['status']): Order | undefined
+  updateStatus(id: string, status: Order['status']): Promise<Order | undefined>
 }
 
 export interface BundleRepository {
@@ -218,7 +218,7 @@ export class OdooOrderAdapter implements OrderRepository {
   getById(_id: string): Order | undefined {
     return undefined
   }
-  updateStatus(_id: string, _status: Order['status']): Order | undefined {
+  async updateStatus(_id: string, _status: Order['status']): Promise<Order | undefined> {
     throw new Error('OdooOrderAdapter.updateStatus not implemented')
   }
 }

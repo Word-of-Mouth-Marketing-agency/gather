@@ -2,19 +2,41 @@ import fs from 'fs'
 import path from 'path'
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data')
-const writeLocks = new Set<string>()
 const lastValidJson = new Map<string, string>()
+
+// ─── Sync lock for standalone writeJson callers ───────────────────────
+const syncLocks = new Set<string>()
 
 function sleepMs(ms: number): void {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms)
 }
 
-function dataPath(filename: string): string {
-  return path.join(DATA_DIR, filename)
+function acquireSyncLock(filename: string): void {
+  while (syncLocks.has(filename)) sleepMs(10)
+  syncLocks.add(filename)
+  logJsonFile('sync_lock', filename)
 }
+
+function releaseSyncLock(filename: string): void {
+  syncLocks.delete(filename)
+  logJsonFile('sync_unlock', filename)
+}
+
+// ─── Async mutex for withLock callers ─────────────────────────────────
+interface Waiter {
+  resolve: () => void
+  next: Waiter | null
+}
+
+const asyncQueues = new Map<string, { head: Waiter | null; tail: Waiter | null }>()
 
 function logJsonFile(event: string, filename: string, detail?: string): void {
   console.info(`[JSON_FILE] file=${filename} operation=${event}${detail ? ` ${detail}` : ''}`)
+}
+
+// ─── File helpers ─────────────────────────────────────────────────────
+function dataPath(filename: string): string {
+  return path.join(DATA_DIR, filename)
 }
 
 function parseJson<T>(filename: string, raw: string): T {
@@ -23,29 +45,7 @@ function parseJson<T>(filename: string, raw: string): T {
   return parsed
 }
 
-export function acquireLock(filename: string): void {
-  while (writeLocks.has(filename)) {
-    sleepMs(10)
-  }
-  writeLocks.add(filename)
-  logJsonFile('lock_acquired', filename)
-}
-
-export function releaseLock(filename: string): void {
-  writeLocks.delete(filename)
-  logJsonFile('lock_released', filename)
-}
-
-export function withLock<T>(filename: string, fn: () => T): T {
-  acquireLock(filename)
-  try {
-    return fn()
-  } finally {
-    releaseLock(filename)
-  }
-}
-
-function writeJsonAtomic(filename: string, data: unknown): void {
+function atomicWrite(filename: string, data: unknown): void {
   const filePath = dataPath(filename)
   const tempPath = `${filePath}.${process.pid}.${Date.now()}.tmp`
   const payload = `${JSON.stringify(data, null, 2)}\n`
@@ -62,66 +62,88 @@ function writeJsonAtomic(filename: string, data: unknown): void {
   logJsonFile('write_success', filename, `bytes=${payload.length}`)
 }
 
-export function writeJson<T>(filename: string, data: T): void {
-  acquireLock(filename)
+// ─── Public API ───────────────────────────────────────────────────────
+
+export function acquireLock(filename: string): Promise<void> {
+  return new Promise<void>((resolve) => {
+    const entry: Waiter = { resolve, next: null }
+    const q = asyncQueues.get(filename)
+    if (!q) {
+      asyncQueues.set(filename, { head: entry, tail: entry })
+      resolve()
+    } else {
+      q.tail!.next = entry
+      q.tail = entry
+    }
+  })
+}
+
+export function releaseLock(filename: string): void {
+  const q = asyncQueues.get(filename)
+  if (!q || !q.head) { asyncQueues.delete(filename); return }
+  const done = q.head
+  if (done.next) {
+    q.head = done.next
+    done.next.resolve()
+  } else {
+    asyncQueues.delete(filename)
+  }
+  logJsonFile('async_unlock', filename)
+}
+
+export async function withLock<T>(filename: string, fn: () => Promise<T> | T): Promise<T> {
+  await acquireLock(filename)
   try {
-    writeJsonAtomic(filename, data)
-  } catch (error) {
-    const tempPath = `${dataPath(filename)}.${process.pid}.${Date.now()}.tmp`
-    try {
-      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath)
-    } catch { /* ignore */ }
-    const message = error instanceof Error ? error.message : String(error)
-    logJsonFile('write_failed', filename, `error="${message.slice(0, 180)}"`)
-    throw error
+    return await fn()
   } finally {
     releaseLock(filename)
   }
 }
 
-export function writeJsonUnlocked<T>(filename: string, data: T): void {
-  try {
-    writeJsonAtomic(filename, data)
-  } catch (error) {
-    const tempPath = `${dataPath(filename)}.${process.pid}.${Date.now()}.tmp`
-    try {
-      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath)
-    } catch { /* ignore */ }
-    const message = error instanceof Error ? error.message : String(error)
-    logJsonFile('write_failed', filename, `error="${message.slice(0, 180)}"`)
-    throw error
-  }
-}
-
 export function readJson<T>(filename: string): T {
   const filePath = dataPath(filename)
-
   for (let attempt = 1; attempt <= 2; attempt += 1) {
     try {
       const raw = fs.readFileSync(filePath, 'utf-8')
-      if (!raw.trim()) {
-        throw new SyntaxError('JSON file is empty')
-      }
+      if (!raw.trim()) throw new SyntaxError('JSON file is empty')
       return parseJson<T>(filename, raw)
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
-      logJsonFile('read_parse_failure', filename, `attempt=${attempt} error="${message.slice(0, 180)}"`)
-      if (attempt === 1) {
-        sleepMs(30)
-        continue
-      }
-
+      logJsonFile('read_error', filename, `attempt=${attempt} error="${message.slice(0, 160)}"`)
+      if (attempt === 1) continue
       const cached = lastValidJson.get(filename)
-      if (cached) {
-        logJsonFile('read_restore_last_valid', filename)
-        return parseJson<T>(filename, cached)
-      }
-
-      throw new Error(`Failed to read valid JSON from ${filename}: ${message}`)
+      if (cached) return parseJson<T>(filename, cached)
+      throw new Error(`Failed to read ${filename}: ${message}`)
     }
   }
+  throw new Error(`Failed to read ${filename}`)
+}
 
-  throw new Error(`Failed to read valid JSON from ${filename}`)
+export function writeJson<T>(filename: string, data: T): void {
+  acquireSyncLock(filename)
+  try {
+    atomicWrite(filename, data)
+  } catch (error) {
+    const tempPath = `${dataPath(filename)}.${process.pid}.${Date.now()}.tmp`
+    try { if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath) } catch { }
+    const message = error instanceof Error ? error.message : String(error)
+    logJsonFile('write_error', filename, `error="${message.slice(0, 160)}"`)
+    throw error
+  } finally {
+    releaseSyncLock(filename)
+  }
+}
+
+export function writeJsonUnlocked<T>(filename: string, data: T): void {
+  try {
+    atomicWrite(filename, data)
+  } catch (error) {
+    const tempPath = `${dataPath(filename)}.${process.pid}.${Date.now()}.tmp`
+    try { if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath) } catch { }
+    const message = error instanceof Error ? error.message : String(error)
+    logJsonFile('write_error', filename, `error="${message.slice(0, 160)}"`)
+    throw error
+  }
 }
 
 export function generateId(prefix: string = 'id'): string {

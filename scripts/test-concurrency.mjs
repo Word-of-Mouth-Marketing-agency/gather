@@ -57,12 +57,12 @@ try { JSON.parse(readFileSync(ORDERS_FILE, 'utf-8')); assert('JSON valid after o
 catch { assert('JSON valid after ops', false, 'corrupt') }
 writeFileSync(ORDERS_FILE, '[]\n')
 
-// Test 3: Lock exclusion verified by sequential order creation
+// Test 3: Async lock sequential
 console.log('\n=== Test 3: Sequential lock/release ===')
-const { acquireLock, releaseLock, withLock } = await import('../src/lib/db.ts')
-let state = 0
-withLock('seq-test', () => { state = 1 })
-assert('lock acquired and released', state === 1, '')
+const { withLock } = await import('../src/lib/db.ts')
+let state3 = 0
+await withLock('seq-test', () => { state3 = 1 })
+assert('lock acquired and released', state3 === 1, '')
 
 // Test 4: Lock released after error
 console.log('\n=== Test 4: Lock release on error ===')

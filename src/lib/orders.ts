@@ -77,11 +77,11 @@ export function getOrderById(id: string): Order | undefined {
   return getAllOrders().find((o) => o.id === id)
 }
 
-export function createOrder(data: Omit<Order, 'id' | 'orderNumber' | 'status' | 'createdAt'>): Order {
-  return withLock(ORDERS_FILE, () => {
+export async function createOrder(data: Omit<Order, 'id' | 'orderNumber' | 'status' | 'createdAt'>): Promise<Order> {
+  const order = await withLock(ORDERS_FILE, () => {
     const orders = readJson<Order[]>(ORDERS_FILE)
     const now = new Date().toISOString()
-    const order: Order = {
+    const o: Order = {
       ...data,
       id: generateId('ord'),
       orderNumber: `GATHER-${Date.now().toString(36).toUpperCase()}`,
@@ -89,13 +89,14 @@ export function createOrder(data: Omit<Order, 'id' | 'orderNumber' | 'status' | 
       createdAt: now,
       updatedAt: now,
     }
-    orders.push(order)
+    orders.push(o)
     writeJsonUnlocked(ORDERS_FILE, orders)
-    return order
+    return o
   })
+  return order
 }
 
-export function updateOrderStatus(id: string, status: Order['status']): Order | undefined {
+export async function updateOrderStatus(id: string, status: Order['status']): Promise<Order | undefined> {
   if (!isOrderStatus(status)) return undefined
   return withLock(ORDERS_FILE, () => {
     const orders = readJson<Order[]>(ORDERS_FILE)
@@ -108,7 +109,7 @@ export function updateOrderStatus(id: string, status: Order['status']): Order | 
   })
 }
 
-export function deleteOrder(id: string): boolean {
+export async function deleteOrder(id: string): Promise<boolean> {
   return withLock(ORDERS_FILE, () => {
     const orders = readJson<Order[]>(ORDERS_FILE)
     const idx = orders.findIndex((o) => o.id === id)
@@ -121,7 +122,7 @@ export function deleteOrder(id: string): boolean {
 
 const EMAIL_SENDING_TIMEOUT_MS = 60_000
 
-export function reserveAdminEmail(id: string): boolean {
+export async function reserveAdminEmail(id: string): Promise<boolean> {
   return withLock(ORDERS_FILE, () => {
     const orders = readJson<Order[]>(ORDERS_FILE)
     const idx = orders.findIndex((o) => o.id === id)
@@ -139,7 +140,7 @@ export function reserveAdminEmail(id: string): boolean {
   })
 }
 
-export function reserveCustomerEmail(id: string): boolean {
+export async function reserveCustomerEmail(id: string): Promise<boolean> {
   return withLock(ORDERS_FILE, () => {
     const orders = readJson<Order[]>(ORDERS_FILE)
     const idx = orders.findIndex((o) => o.id === id)
@@ -157,8 +158,8 @@ export function reserveCustomerEmail(id: string): boolean {
   })
 }
 
-export function commitAdminEmailSent(id: string): void {
-  withLock(ORDERS_FILE, () => {
+export async function commitAdminEmailSent(id: string): Promise<void> {
+  await withLock(ORDERS_FILE, () => {
     const orders = readJson<Order[]>(ORDERS_FILE)
     const idx = orders.findIndex((o) => o.id === id)
     if (idx < 0) return
@@ -170,8 +171,8 @@ export function commitAdminEmailSent(id: string): void {
   })
 }
 
-export function commitCustomerEmailSent(id: string): void {
-  withLock(ORDERS_FILE, () => {
+export async function commitCustomerEmailSent(id: string): Promise<void> {
+  await withLock(ORDERS_FILE, () => {
     const orders = readJson<Order[]>(ORDERS_FILE)
     const idx = orders.findIndex((o) => o.id === id)
     if (idx < 0) return
@@ -183,8 +184,8 @@ export function commitCustomerEmailSent(id: string): void {
   })
 }
 
-export function markEmailFailed(id: string, error: string): void {
-  withLock(ORDERS_FILE, () => {
+export async function markEmailFailed(id: string, error: string): Promise<void> {
+  await withLock(ORDERS_FILE, () => {
     const orders = readJson<Order[]>(ORDERS_FILE)
     const idx = orders.findIndex((o) => o.id === id)
     if (idx < 0) return

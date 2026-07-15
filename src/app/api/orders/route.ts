@@ -109,7 +109,7 @@ async function sendOrderNotifications(order: Order) {
     '</div>',
   ].join('\n')
 
-  if (reserveAdminEmail(order.id)) {
+  if (await reserveAdminEmail(order.id)) {
     const adminOk = await sendAdminNotification({
       subject: `[Gather Order] ${order.orderNumber}`,
       text: adminText,
@@ -172,7 +172,7 @@ async function sendOrderNotifications(order: Order) {
     '</div>',
   ].join('\n')
 
-  if (reserveCustomerEmail(order.id)) {
+  if (await reserveCustomerEmail(order.id)) {
     const customerOk = await sendMail({
       to: order.customer.email,
       subject: `Order Confirmed — ${order.orderNumber}`,
@@ -228,7 +228,7 @@ export async function POST(request: Request) {
       address: data.delivery?.address,
     })
 
-    const order = createOrder({
+    const order = await createOrder({
       ...data,
       customerId: customer.id,
       subtotal,
