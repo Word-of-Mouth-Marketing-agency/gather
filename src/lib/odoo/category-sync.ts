@@ -75,8 +75,8 @@ export async function syncCategoriesToOdoo(): Promise<CategorySyncResult> {
     }
   }
 
-  if (result.created > 0 || result.updated > 0 || result.failed > 0) {
-    await saveCategories(allItems)
+  if (result.failed > 0) {
+    await saveCategories(loadCategories())
   }
 
   return result
