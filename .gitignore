@@ -57,3 +57,10 @@ __pycache__/
 
 # large assets
 wordpress-export/
+
+# Log files
+*.err.log
+*.log
+*.pid
+cookie.txt
+cookie_jar.txt

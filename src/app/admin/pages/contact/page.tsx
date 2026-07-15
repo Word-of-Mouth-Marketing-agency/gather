@@ -202,7 +202,7 @@ export default function AdminContactEditorPage() {
               setContent({ ...content, formTitle: v })
             }
           }} hint="Heading shown above the contact form" />
-          <Field label="Recipient Email" value={content.recipientEmail} onChange={(v) => setContent({ ...content, recipientEmail: v })} hint="Email address where contact form submissions will be sent (future email integration)" />
+          <Field label="Recipient Email" value={content.recipientEmail} onChange={(v) => setContent({ ...content, recipientEmail: v })} hint="Email address where contact form submissions are sent" />
           <Field label="WhatsApp Number" value={content.whatsappNumber ?? ''} onChange={(v) => setContent({ ...content, whatsappNumber: v })} hint="Used for the contact page WhatsApp link. Include country code, e.g. +20123456789." />
         </div>
       </SectionPanel>
