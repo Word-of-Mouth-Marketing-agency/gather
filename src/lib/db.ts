@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data')
-const writeLocks = new Map<string, number>()
+const writeLocks = new Set<string>()
 const lastValidJson = new Map<string, string>()
 
 function sleepMs(ms: number): void {
@@ -23,27 +23,17 @@ function parseJson<T>(filename: string, raw: string): T {
   return parsed
 }
 
-function isLocked(filename: string): boolean {
-  return (writeLocks.get(filename) ?? 0) > 0
-}
-
 export function acquireLock(filename: string): void {
-  while (isLocked(filename)) {
+  while (writeLocks.has(filename)) {
     sleepMs(10)
   }
-  writeLocks.set(filename, 1)
+  writeLocks.add(filename)
   logJsonFile('lock_acquired', filename)
 }
 
 export function releaseLock(filename: string): void {
-  const current = writeLocks.get(filename) ?? 0
-  if (current <= 1) {
-    writeLocks.delete(filename)
-    logJsonFile('lock_released', filename)
-  } else {
-    writeLocks.set(filename, current - 1)
-    logJsonFile('lock_depth', filename, `depth=${current - 1}`)
-  }
+  writeLocks.delete(filename)
+  logJsonFile('lock_released', filename)
 }
 
 export function withLock<T>(filename: string, fn: () => T): T {
@@ -52,6 +42,54 @@ export function withLock<T>(filename: string, fn: () => T): T {
     return fn()
   } finally {
     releaseLock(filename)
+  }
+}
+
+function writeJsonAtomic(filename: string, data: unknown): void {
+  const filePath = dataPath(filename)
+  const tempPath = `${filePath}.${process.pid}.${Date.now()}.tmp`
+  const payload = `${JSON.stringify(data, null, 2)}\n`
+
+  const fd = fs.openSync(tempPath, 'w')
+  try {
+    fs.writeFileSync(fd, payload, 'utf-8')
+    fs.fsyncSync(fd)
+  } finally {
+    fs.closeSync(fd)
+  }
+  fs.renameSync(tempPath, filePath)
+  lastValidJson.set(filename, payload)
+  logJsonFile('write_success', filename, `bytes=${payload.length}`)
+}
+
+export function writeJson<T>(filename: string, data: T): void {
+  acquireLock(filename)
+  try {
+    writeJsonAtomic(filename, data)
+  } catch (error) {
+    const tempPath = `${dataPath(filename)}.${process.pid}.${Date.now()}.tmp`
+    try {
+      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath)
+    } catch { /* ignore */ }
+    const message = error instanceof Error ? error.message : String(error)
+    logJsonFile('write_failed', filename, `error="${message.slice(0, 180)}"`)
+    throw error
+  } finally {
+    releaseLock(filename)
+  }
+}
+
+export function writeJsonUnlocked<T>(filename: string, data: T): void {
+  try {
+    writeJsonAtomic(filename, data)
+  } catch (error) {
+    const tempPath = `${dataPath(filename)}.${process.pid}.${Date.now()}.tmp`
+    try {
+      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath)
+    } catch { /* ignore */ }
+    const message = error instanceof Error ? error.message : String(error)
+    logJsonFile('write_failed', filename, `error="${message.slice(0, 180)}"`)
+    throw error
   }
 }
 
@@ -84,49 +122,6 @@ export function readJson<T>(filename: string): T {
   }
 
   throw new Error(`Failed to read valid JSON from ${filename}`)
-}
-
-export function writeJson<T>(filename: string, data: T): void {
-  const filePath = dataPath(filename)
-  const tempPath = `${filePath}.${process.pid}.${Date.now()}.tmp`
-  const payload = `${JSON.stringify(data, null, 2)}\n`
-
-  if (isLocked(filename)) {
-    writeLocks.set(filename, (writeLocks.get(filename) ?? 0) + 1)
-    logJsonFile('write_reentrant', filename, `depth=${writeLocks.get(filename)}`)
-  } else {
-    writeLocks.set(filename, 1)
-    logJsonFile('write_lock_acquired', filename)
-  }
-
-  try {
-    const fd = fs.openSync(tempPath, 'w')
-    try {
-      fs.writeFileSync(fd, payload, 'utf-8')
-      fs.fsyncSync(fd)
-    } finally {
-      fs.closeSync(fd)
-    }
-    fs.renameSync(tempPath, filePath)
-    lastValidJson.set(filename, payload)
-    logJsonFile('write_success', filename, `bytes=${payload.length}`)
-  } catch (error) {
-    try {
-      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath)
-    } catch { /* ignore temp cleanup */ }
-    const message = error instanceof Error ? error.message : String(error)
-    logJsonFile('write_failed', filename, `error="${message.slice(0, 180)}"`)
-    throw error
-  } finally {
-    const current = writeLocks.get(filename) ?? 0
-    if (current <= 1) {
-      writeLocks.delete(filename)
-      logJsonFile('write_lock_released', filename)
-    } else {
-      writeLocks.set(filename, current - 1)
-      logJsonFile('write_lock_depth', filename, `depth=${current - 1}`)
-    }
-  }
 }
 
 export function generateId(prefix: string = 'id'): string {

@@ -27,10 +27,13 @@ export interface RateLimitConfig {
 const DEFAULTS: RateLimitConfig = { windowMs: 60_000, maxRequests: 30 }
 
 export function getClientIp(request: Request): string {
+  const realIp = request.headers.get('x-real-ip')
+  if (realIp) return realIp
   const forwarded = request.headers.get('x-forwarded-for')
   if (forwarded) {
-    const ip = forwarded.split(',')[0].trim()
-    if (ip) return ip
+    const ips = forwarded.split(',').map((s) => s.trim()).filter(Boolean)
+    const last = ips[ips.length - 1]
+    if (last) return last
   }
   return '127.0.0.1'
 }

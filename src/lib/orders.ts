@@ -1,4 +1,4 @@
-import { readJson, writeJson, generateId, withLock, acquireLock, releaseLock } from './db'
+import { readJson, writeJsonUnlocked, generateId, withLock } from './db'
 
 export type OrderItem =
   | { type: 'product'; productId: string; name: string; price: number; quantity: number }
@@ -90,7 +90,7 @@ export function createOrder(data: Omit<Order, 'id' | 'orderNumber' | 'status' | 
       updatedAt: now,
     }
     orders.push(order)
-    writeJson(ORDERS_FILE, orders)
+    writeJsonUnlocked(ORDERS_FILE, orders)
     return order
   })
 }
@@ -103,7 +103,7 @@ export function updateOrderStatus(id: string, status: Order['status']): Order | 
     if (idx < 0) return undefined
     orders[idx].status = status
     orders[idx].updatedAt = new Date().toISOString()
-    writeJson(ORDERS_FILE, orders)
+    writeJsonUnlocked(ORDERS_FILE, orders)
     return orders[idx]
   })
 }
@@ -114,7 +114,7 @@ export function deleteOrder(id: string): boolean {
     const idx = orders.findIndex((o) => o.id === id)
     if (idx < 0) return false
     orders.splice(idx, 1)
-    writeJson(ORDERS_FILE, orders)
+    writeJsonUnlocked(ORDERS_FILE, orders)
     return true
   })
 }
@@ -134,7 +134,7 @@ export function reserveAdminEmail(id: string): boolean {
     }
     o.adminEmailStatus = 'sending'
     o.emailLastAttemptAt = new Date().toISOString()
-    writeJson(ORDERS_FILE, orders)
+    writeJsonUnlocked(ORDERS_FILE, orders)
     return true
   })
 }
@@ -152,7 +152,7 @@ export function reserveCustomerEmail(id: string): boolean {
     }
     o.customerEmailStatus = 'sending'
     o.emailLastAttemptAt = new Date().toISOString()
-    writeJson(ORDERS_FILE, orders)
+    writeJsonUnlocked(ORDERS_FILE, orders)
     return true
   })
 }
@@ -166,7 +166,7 @@ export function commitAdminEmailSent(id: string): void {
     orders[idx].adminEmailSentAt = new Date().toISOString()
     orders[idx].emailLastAttemptAt = new Date().toISOString()
     orders[idx].emailLastError = undefined
-    writeJson(ORDERS_FILE, orders)
+    writeJsonUnlocked(ORDERS_FILE, orders)
   })
 }
 
@@ -179,7 +179,7 @@ export function commitCustomerEmailSent(id: string): void {
     orders[idx].customerEmailSentAt = new Date().toISOString()
     orders[idx].emailLastAttemptAt = new Date().toISOString()
     orders[idx].emailLastError = undefined
-    writeJson(ORDERS_FILE, orders)
+    writeJsonUnlocked(ORDERS_FILE, orders)
   })
 }
 
@@ -193,6 +193,6 @@ export function markEmailFailed(id: string, error: string): void {
     if (o.customerEmailStatus === 'sending') o.customerEmailStatus = 'failed'
     o.emailLastError = error.slice(0, 500)
     o.emailLastAttemptAt = new Date().toISOString()
-    writeJson(ORDERS_FILE, orders)
+    writeJsonUnlocked(ORDERS_FILE, orders)
   })
 }
