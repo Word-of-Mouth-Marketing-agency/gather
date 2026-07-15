@@ -118,6 +118,7 @@ export default async function HomePage() {
 
   return (
     <main className="overflow-x-clip">
+      <h1 className="sr-only">{t('meta.home', locale)}</h1>
       <HeroSlideshow slides={homepage.heroSlides} heroText={heroText} isRTL={isAr} />
       <SectionRenderer sections={sections} locale={locale} />
     </main>

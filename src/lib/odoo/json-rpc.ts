@@ -50,11 +50,32 @@ export function getOdooConfig(): OdooConfig | null {
   return { url, db, username, password }
 }
 
+function getOdooTimeoutMs(): number {
+  const raw = process.env.ODOO_REQUEST_TIMEOUT_MS
+  if (raw) {
+    const n = parseInt(raw, 10)
+    if (!isNaN(n) && n > 0) return n
+  }
+  return 15000
+}
+
+async function fetchWithTimeout(url: string, options: RequestInit & { timeout?: number }): Promise<Response> {
+  const timeout = options.timeout ?? getOdooTimeoutMs()
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeout)
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal })
+    return res
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 let uidCache: number | null = null
 
 async function authenticate(config: OdooConfig): Promise<number> {
   if (uidCache) return uidCache
-  const res = await fetch(`${config.url}/jsonrpc`, {
+  const res = await fetchWithTimeout(`${config.url}/jsonrpc`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -114,7 +135,7 @@ export async function odooExecuteKw<T = unknown>(
   if (!config) throw new Error('Odoo env vars not configured')
 
   const uid = await authenticate(config)
-  const res = await fetch(`${config.url}/jsonrpc`, {
+  const res = await fetchWithTimeout(`${config.url}/jsonrpc`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

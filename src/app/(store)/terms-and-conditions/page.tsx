@@ -1,4 +1,10 @@
+import type { Metadata } from 'next'
 import PageTitleSection from '@/components/PageTitleSection'
+
+export const metadata: Metadata = {
+  title: 'Terms and Conditions',
+  description: 'Gather terms and conditions — rules, guidelines, and legal terms for using our website and services.',
+}
 
 export default function TermsAndConditionsPage() {
   return (

@@ -2,11 +2,18 @@ import { NextResponse } from 'next/server'
 import { generatePasswordResetToken } from '@/lib/customer-data'
 import { sendMail } from '@/lib/mail'
 import { getSiteUrl } from '@/lib/site-url'
+import { rateLimit, rateLimitByKey } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
+  const rl = rateLimit(request, { windowMs: 60_000, maxRequests: 5 })
+  if (!rl.ok) return rl.response
+
   try {
     const { email } = await request.json()
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ message: 'If the email exists, a reset link will be sent.' }, { status: 200 })
+    }
+    if (!rateLimitByKey(`forgot:${(email as string).toLowerCase()}`, { windowMs: 300_000, maxRequests: 3 }).ok) {
       return NextResponse.json({ message: 'If the email exists, a reset link will be sent.' }, { status: 200 })
     }
 

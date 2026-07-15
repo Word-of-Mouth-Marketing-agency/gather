@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireAdminApi } from '@/lib/admin-api'
-import { getAllOrders, createOrder, updateOrderStatus, type Order } from '@/lib/orders'
+import { getAllOrders, createOrder, updateOrderStatus, type Order, reserveAdminEmail, reserveCustomerEmail, commitAdminEmailSent, commitCustomerEmailSent, markEmailFailed } from '@/lib/orders'
 import { getShippingFeeForCity } from '@/lib/shipping-fees'
 import { upsertCustomerFromCheckout } from '@/lib/customer-data'
 import { getCustomerSessionCookie } from '@/lib/customer-session'
@@ -9,6 +9,7 @@ import { syncPartnerFromCustomer } from '@/lib/odoo/partner-sync'
 import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
 import { sendMail, sendAdminNotification } from '@/lib/mail'
 import { getSiteUrl } from '@/lib/site-url'
+import { rateLimit } from '@/lib/rate-limit'
 
 function escapeHtml(text: string): string {
   return text
@@ -20,8 +21,6 @@ function safe(val: unknown): string {
   if (val === null || val === undefined) return ''
   return escapeHtml(String(val))
 }
-
-const sentOrderNotifications = new Set<string>()
 
 function formatPrice(amount: number): string {
   return `${Number(amount).toFixed(2)} EGP`
@@ -40,10 +39,9 @@ function formatDate(iso: string): string {
 }
 
 async function sendOrderNotifications(order: Order) {
-  if (sentOrderNotifications.has(order.id)) return
-  sentOrderNotifications.add(order.id)
-
   const siteUrl = getSiteUrl()
+
+  const adminReserved = reserveAdminEmail(order.id)
   const adminLink = `${siteUrl}/admin/orders`
   const itemsHtml = order.items.map((item) => {
     const name = 'name' in item ? safe(item.name) : 'Unknown'
@@ -112,12 +110,20 @@ async function sendOrderNotifications(order: Order) {
     '</div>',
   ].join('\n')
 
-  await sendAdminNotification({
-    subject: `[Gather Order] ${order.orderNumber}`,
-    text: adminText,
-    html: adminHtml,
-  })
+  if (reserveAdminEmail(order.id)) {
+    const adminOk = await sendAdminNotification({
+      subject: `[Gather Order] ${order.orderNumber}`,
+      text: adminText,
+      html: adminHtml,
+    })
+    if (adminOk) {
+      commitAdminEmailSent(order.id)
+    } else {
+      markEmailFailed(order.id, 'admin_email_failed')
+    }
+  }
 
+  const customerReserved = reserveCustomerEmail(order.id)
   const customerText = [
     `Thank you for your order, ${order.customer.firstName}!`,
     ``,
@@ -169,12 +175,19 @@ async function sendOrderNotifications(order: Order) {
     '</div>',
   ].join('\n')
 
-  await sendMail({
-    to: order.customer.email,
-    subject: `Order Confirmed — ${order.orderNumber}`,
-    text: customerText,
-    html: customerHtml,
-  })
+  if (reserveCustomerEmail(order.id)) {
+    const customerOk = await sendMail({
+      to: order.customer.email,
+      subject: `Order Confirmed — ${order.orderNumber}`,
+      text: customerText,
+      html: customerHtml,
+    })
+    if (customerOk) {
+      commitCustomerEmailSent(order.id)
+    } else {
+      markEmailFailed(order.id, 'customer_email_failed')
+    }
+  }
 }
 
 export async function GET(request: Request) {
@@ -201,6 +214,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const rl = rateLimit(request, { windowMs: 60_000, maxRequests: 20 })
+  if (!rl.ok) return rl.response
+
   try {
     const data = await request.json()
     const shippingFee = getShippingFeeForCity(data.delivery?.city ?? '')
@@ -232,7 +248,9 @@ export async function POST(request: Request) {
       syncOrderAfterCheckout(order.id)
     }
 
-    sendOrderNotifications(order)
+    sendOrderNotifications(order).catch((err) => {
+      console.error('[Order] notification failed:', err instanceof Error ? err.message : String(err))
+    })
 
     const safeOrder = {
       ...order,

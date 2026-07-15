@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { pullCustomerFromOdoo } from '@/lib/odoo/customer-pull'
 import { isWebhookOnCooldown, setWebhookCooldown } from '@/lib/odoo/json-rpc'
+import { timingSafeEqual } from '@/lib/secure-compare'
 
 export async function POST(request: Request) {
   if (process.env.ODOO_WEBHOOK_ENABLED !== 'true') {
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
   }
 
   const header = request.headers.get('x-odoo-webhook-secret')
-  if (!header || header !== rawSecret) {
+  if (!header || !timingSafeEqual(header, rawSecret)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

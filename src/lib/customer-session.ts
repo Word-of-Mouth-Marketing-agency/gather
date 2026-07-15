@@ -1,6 +1,5 @@
 import 'server-only'
 import { cookies } from 'next/headers'
-import { getAdminSessionSecret } from '@/lib/admin-session'
 
 const CUSTOMER_COOKIE = 'gather_customer_token'
 const CUSTOMER_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000
@@ -9,7 +8,19 @@ export type CustomerSessionPayload = {
   id: string
   email: string
   name: string
+  role: 'customer'
   exp: number
+}
+
+function getCustomerSessionSecret(): string {
+  const secret = process.env.CUSTOMER_SESSION_SECRET
+  if (secret) return secret
+  const fallback = process.env.ADMIN_SESSION_SECRET
+  if (fallback) return fallback
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('CUSTOMER_SESSION_SECRET or ADMIN_SESSION_SECRET is required in production')
+  }
+  return 'dev-only-customer-session-secret'
 }
 
 function base64UrlEncode(value: string): string {
@@ -46,7 +57,7 @@ function timingSafeEqual(a: string, b: string): boolean {
 async function sign(value: string): Promise<string> {
   const key = await crypto.subtle.importKey(
     'raw',
-    new TextEncoder().encode(getAdminSessionSecret()),
+    new TextEncoder().encode(getCustomerSessionSecret()),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign']
@@ -63,6 +74,7 @@ export async function createCustomerSessionToken(
       id: customer.id,
       email: customer.email,
       name: customer.name,
+      role: 'customer',
       exp: Date.now() + CUSTOMER_EXPIRY_MS,
     })
   )

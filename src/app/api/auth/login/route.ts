@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server'
 import { validateCredentials, setSession } from '@/lib/auth'
+import { rateLimit } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
+  const rl = rateLimit(request, { windowMs: 60_000, maxRequests: 10 })
+  if (!rl.ok) return rl.response
+
   try {
     const { email, password } = await request.json()
 

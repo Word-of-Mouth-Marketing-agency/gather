@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { Category } from '@/types'
 import { readJson, writeJson } from '@/lib/db'
 import { isWebhookOnCooldown, setWebhookCooldown, logSync } from '@/lib/odoo/json-rpc'
+import { timingSafeEqual } from '@/lib/secure-compare'
 
 const CATEGORIES_FILE = 'categories.json'
 
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
   }
 
   const header = request.headers.get('x-odoo-webhook-secret')
-  if (!header || header !== rawSecret) {
+  if (!header || !timingSafeEqual(header, rawSecret)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

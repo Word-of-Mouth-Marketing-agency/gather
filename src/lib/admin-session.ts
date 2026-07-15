@@ -2,6 +2,7 @@ const SESSION_EXPIRY_MS = 24 * 60 * 60 * 1000
 
 type AdminSessionPayload = {
   email: string
+  role: 'admin'
   exp: number
 }
 
@@ -58,7 +59,7 @@ async function sign(value: string): Promise<string> {
 }
 
 export async function createAdminSessionToken(email: string): Promise<string> {
-  const payload = base64UrlEncode(JSON.stringify({ email, exp: Date.now() + SESSION_EXPIRY_MS }))
+  const payload = base64UrlEncode(JSON.stringify({ email, role: 'admin', exp: Date.now() + SESSION_EXPIRY_MS }))
   const signature = await sign(payload)
   return `${payload}.${signature}`
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { syncStockFromOdoo } from '@/lib/odoo/stock-sync'
+import { timingSafeEqual } from '@/lib/secure-compare'
 
 export async function POST(request: Request) {
   const secret = process.env.ODOO_CRON_SECRET
@@ -11,7 +12,7 @@ export async function POST(request: Request) {
   }
 
   const auth = request.headers.get('authorization')
-  if (!auth || !auth.startsWith('Bearer ') || auth.slice(7) !== secret) {
+  if (!auth || !auth.startsWith('Bearer ') || !timingSafeEqual(auth.slice(7), secret)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

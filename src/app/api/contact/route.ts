@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { sendAdminNotification } from '@/lib/mail'
+import { rateLimit } from '@/lib/rate-limit'
 
 function escapeHtml(text: string): string {
   return text
@@ -15,6 +16,9 @@ function validateEmail(email: string): boolean {
 }
 
 export async function POST(request: Request) {
+  const rl = rateLimit(request, { windowMs: 60_000, maxRequests: 5 })
+  if (!rl.ok) return rl.response
+
   try {
     const body = await request.json()
     const { name, email, message, recipientEmail } = body

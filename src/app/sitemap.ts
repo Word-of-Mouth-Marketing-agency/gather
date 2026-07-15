@@ -15,6 +15,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/shop-by-occasion`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
     { url: `${BASE_URL}/privacy-policy`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
     { url: `${BASE_URL}/refund_returns`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+    { url: `${BASE_URL}/data-policy`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+    { url: `${BASE_URL}/terms-and-conditions`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
     { url: `${BASE_URL}/ar`, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
     { url: `${BASE_URL}/ar/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
     { url: `${BASE_URL}/ar/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
@@ -22,6 +24,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/ar/shop-by-occasion`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
     { url: `${BASE_URL}/ar/privacy-policy`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
     { url: `${BASE_URL}/ar/refund_returns`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+    { url: `${BASE_URL}/ar/data-policy`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+    { url: `${BASE_URL}/ar/terms-and-conditions`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
   ]
 
   const productRoutes: MetadataRoute.Sitemap = products.flatMap((p) => [

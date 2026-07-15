@@ -1,10 +1,26 @@
-import { readJson, writeJson, generateId } from './db'
+import { readJson, writeJson, generateId, withLock } from './db'
 import type { Customer, Address } from '@/types'
-import { randomBytes, scryptSync, timingSafeEqual } from 'crypto'
+import { randomBytes, scryptSync, timingSafeEqual, createHash } from 'crypto'
 
 const CUSTOMERS_FILE = 'customers.json'
 const PASSWORD_PREFIX = 'scrypt'
 const PASSWORD_KEY_LENGTH = 64
+const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000
+
+const TOKEN_PREFIX = 'rt1'
+function hashResetToken(token: string): string {
+  const hash = createHash('sha256').update(token).digest('base64url')
+  return `${TOKEN_PREFIX}$${hash}`
+}
+
+function timingSafeEqualStr(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  }
+  return diff === 0
+}
 
 function hashPassword(password: string): string {
   const salt = randomBytes(16).toString('base64url')
@@ -268,25 +284,28 @@ export function deleteCustomerAddress(customerId: string, addressId: string): bo
   return true
 }
 
-const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000
-
 export function generatePasswordResetToken(email: string): string | null {
   const customers = getCustomers()
   const idx = customers.findIndex((c) => c.email.toLowerCase() === email.toLowerCase())
   if (idx < 0) return null
 
-  const token = randomBytes(32).toString('base64url')
-  customers[idx].passwordResetToken = token
-  customers[idx].passwordResetExpiry = Date.now() + RESET_TOKEN_EXPIRY_MS
+  const rawToken = randomBytes(32).toString('base64url')
+  const hashedToken = hashResetToken(rawToken)
+  const customer = customers[idx]
+
+  customer.passwordResetToken = hashedToken
+  customer.passwordResetExpiry = Date.now() + RESET_TOKEN_EXPIRY_MS
   saveCustomers(customers)
-  return token
+
+  return rawToken
 }
 
-export function resetPasswordWithToken(token: string, newPassword: string): boolean {
+export function resetPasswordWithToken(rawToken: string, newPassword: string): boolean {
   const customers = getCustomers()
   const idx = customers.findIndex((c) => {
     if (!c.passwordResetToken || !c.passwordResetExpiry) return false
-    return c.passwordResetToken === token && c.passwordResetExpiry > Date.now()
+    if (c.passwordResetExpiry <= Date.now()) return false
+    return c.passwordResetToken === hashResetToken(rawToken)
   })
   if (idx < 0) return false
 

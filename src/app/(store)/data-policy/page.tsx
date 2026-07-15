@@ -1,4 +1,10 @@
+import type { Metadata } from 'next'
 import PageTitleSection from '@/components/PageTitleSection'
+
+export const metadata: Metadata = {
+  title: 'Data Policy',
+  description: 'Gather data policy — how we collect, use, and protect your personal information.',
+}
 
 export default function DataPolicyPage() {
   return (

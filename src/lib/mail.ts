@@ -25,10 +25,13 @@ function createTransport() {
     return null
   }
 
-  const tlsOptions: Record<string, unknown> = { rejectUnauthorized: true }
+  const tlsOptions: Record<string, unknown> = {
+    rejectUnauthorized: process.env.SMTP_TLS_INSECURE !== 'true',
+  }
   if (smtpConfig.tlsCert) {
     try {
       tlsOptions.ca = fs.readFileSync(smtpConfig.tlsCert)
+      tlsOptions.rejectUnauthorized = true
     } catch {
       console.warn('[Mail] MAIL_TLS_CERT path not readable:', smtpConfig.tlsCert)
     }

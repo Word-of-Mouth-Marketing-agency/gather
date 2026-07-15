@@ -16,13 +16,13 @@ export function validateCredentials(email: string, password: string): boolean {
   return email === creds.email && password === creds.password
 }
 
-export async function getSession(): Promise<{ email: string } | null> {
+export async function getSession(): Promise<{ email: string; role: string } | null> {
   const store = await cookies()
   const token = store.get(SESSION_COOKIE)?.value
   if (!token) return null
   const payload = await parseAdminSessionToken(token)
   if (!payload) return null
-  return { email: payload.email }
+  return { email: payload.email, role: payload.role }
 }
 
 export async function setSession(email: string) {

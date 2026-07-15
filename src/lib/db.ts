@@ -23,6 +23,28 @@ function parseJson<T>(filename: string, raw: string): T {
   return parsed
 }
 
+export function acquireLock(filename: string): void {
+  while (writeLocks.has(filename)) {
+    sleepMs(10)
+  }
+  writeLocks.add(filename)
+  logJsonFile('lock_acquired', filename)
+}
+
+export function releaseLock(filename: string): void {
+  writeLocks.delete(filename)
+  logJsonFile('lock_released', filename)
+}
+
+export function withLock<T>(filename: string, fn: () => T): T {
+  acquireLock(filename)
+  try {
+    return fn()
+  } finally {
+    releaseLock(filename)
+  }
+}
+
 export function readJson<T>(filename: string): T {
   const filePath = dataPath(filename)
 

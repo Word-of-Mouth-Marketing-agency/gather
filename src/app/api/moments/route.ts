@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Image is required' }, { status: 400 })
     }
 
-    const validation = validateImageUpload(file)
+    const validation = await validateImageUpload(file)
     if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 })
 
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {

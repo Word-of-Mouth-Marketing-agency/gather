@@ -6,6 +6,7 @@
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
+    "mail:test": "node --env-file=.env.local scripts/mail-test.mjs",
     "lint": "eslint",
     "test:e2e": "playwright test",
     "odoo:preflight:dry": "node scripts/odoo-preflight-cleanup.mjs",

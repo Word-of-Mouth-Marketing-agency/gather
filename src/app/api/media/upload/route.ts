@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
-    const validation = validateImageUpload(file)
+    const validation = await validateImageUpload(file)
     if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 })
 
     // eslint-disable-next-line @typescript-eslint/no-require-imports
