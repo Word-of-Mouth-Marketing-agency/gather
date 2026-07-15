@@ -9,8 +9,8 @@ function loadCustomers(): Customer[] {
   return readJson<Customer[]>(CUSTOMERS_FILE)
 }
 
-function saveCustomers(items: Customer[]): void {
-  writeJson(CUSTOMERS_FILE, items)
+async function saveCustomers(items: Customer[]): Promise<void> {
+  await writeJson(CUSTOMERS_FILE, items)
 }
 
 function normalizePhone(phone?: string): string {
@@ -171,7 +171,7 @@ export async function pullCustomerFromOdoo(payload: {
   all[idx].lastSyncedAt = new Date().toISOString()
 
   if (updatedFields.length > 0) {
-    saveCustomers(all)
+    await saveCustomers(all)
   }
 
   logSync({

@@ -55,8 +55,8 @@ function getCustomers(): Customer[] {
   }
 }
 
-function saveCustomers(data: Customer[]): void {
-  writeJson(CUSTOMERS_FILE, data)
+async function saveCustomers(data: Customer[]): Promise<void> {
+  await writeJson(CUSTOMERS_FILE, data)
 }
 
 function isCustomerActive(customer: Customer): boolean {
@@ -96,7 +96,7 @@ export function findCustomerById(id: string): Customer | undefined {
   return getCustomers().find((c) => c.id === id)
 }
 
-export function createCustomer(data: {
+export async function createCustomer(data: {
   name: string
   email: string
   phone: string
@@ -104,7 +104,7 @@ export function createCustomer(data: {
   acceptedDataPolicy?: boolean
   acceptedTermsAndConditions?: boolean
   acceptedCustomerPoliciesAt?: string
-}): Customer {
+}): Promise<Customer> {
   const customers = getCustomers()
   const customer: Customer = {
     id: generateId('cust'),
@@ -121,11 +121,11 @@ export function createCustomer(data: {
     createdAt: new Date().toISOString(),
   }
   customers.push(customer)
-  saveCustomers(customers)
+  await saveCustomers(customers)
   return customer
 }
 
-export function verifyCustomerPassword(email: string, password: string): Customer | null {
+export async function verifyCustomerPassword(email: string, password: string): Promise<Customer | null> {
   const customers = getCustomers()
   const idx = customers.findIndex((c) => c.email.toLowerCase() === email.toLowerCase())
   if (idx < 0) return null
@@ -134,21 +134,21 @@ export function verifyCustomerPassword(email: string, password: string): Custome
 
   if (isLegacyPlaintextPassword(customer.password)) {
     customers[idx] = { ...customer, password: hashPassword(password) }
-    saveCustomers(customers)
+    await saveCustomers(customers)
     return customers[idx]
   }
 
   return customer
 }
 
-export function upsertCustomerFromCheckout(data: {
+export async function upsertCustomerFromCheckout(data: {
   firstName: string
   lastName: string
   email: string
   phone: string
   city?: string
   address?: string
-}): Customer {
+}): Promise<Customer> {
   const customers = getCustomers()
   const existingIdx = customers.findIndex((c) => c.email.toLowerCase() === data.email.toLowerCase())
 
@@ -174,7 +174,7 @@ export function upsertCustomerFromCheckout(data: {
         customer.addresses.push(newAddr)
       }
     }
-    saveCustomers(customers)
+    await saveCustomers(customers)
     return customer
   }
 
@@ -205,11 +205,11 @@ export function upsertCustomerFromCheckout(data: {
     })
   }
   customers.push(customer)
-  saveCustomers(customers)
+  await saveCustomers(customers)
   return customer
 }
 
-export function updateCustomer(id: string, data: Partial<Pick<Customer, 'name' | 'email' | 'phone' | 'isActive' | 'status'>>): Customer | null {
+export async function updateCustomer(id: string, data: Partial<Pick<Customer, 'name' | 'email' | 'phone' | 'isActive' | 'status'>>): Promise<Customer | null> {
   const customers = getCustomers()
   const idx = customers.findIndex((c) => c.id === id)
   if (idx < 0) return null
@@ -224,16 +224,16 @@ export function updateCustomer(id: string, data: Partial<Pick<Customer, 'name' |
     isActive: nextStatus === 'disabled' ? false : true,
     status: nextStatus === 'disabled' ? 'disabled' : 'active',
   }
-  saveCustomers(customers)
+  await saveCustomers(customers)
   return customers[idx]
 }
 
-export function deleteCustomer(id: string): boolean {
+export async function deleteCustomer(id: string): Promise<boolean> {
   const customers = getCustomers()
   const idx = customers.findIndex((c) => c.id === id)
   if (idx < 0) return false
   customers.splice(idx, 1)
-  saveCustomers(customers)
+  await saveCustomers(customers)
   return true
 }
 
@@ -246,7 +246,7 @@ export function getCustomerAddresses(id: string): Address[] {
   return customer?.addresses ?? []
 }
 
-export function addCustomerAddress(id: string, data: Omit<Address, 'id'>): Address | null {
+export async function addCustomerAddress(id: string, data: Omit<Address, 'id'>): Promise<Address | null> {
   const customers = getCustomers()
   const idx = customers.findIndex((c) => c.id === id)
   if (idx < 0) return null
@@ -255,11 +255,11 @@ export function addCustomerAddress(id: string, data: Omit<Address, 'id'>): Addre
     customers[idx].addresses.forEach((a) => { a.isDefault = false })
   }
   customers[idx].addresses.push(address)
-  saveCustomers(customers)
+  await saveCustomers(customers)
   return address
 }
 
-export function updateCustomerAddress(customerId: string, addressId: string, data: Partial<Omit<Address, 'id'>>): Address | null {
+export async function updateCustomerAddress(customerId: string, addressId: string, data: Partial<Omit<Address, 'id'>>): Promise<Address | null> {
   const customers = getCustomers()
   const cIdx = customers.findIndex((c) => c.id === customerId)
   if (cIdx < 0) return null
@@ -269,22 +269,22 @@ export function updateCustomerAddress(customerId: string, addressId: string, dat
     customers[cIdx].addresses.forEach((a) => { a.isDefault = false })
   }
   customers[cIdx].addresses[aIdx] = { ...customers[cIdx].addresses[aIdx], ...data }
-  saveCustomers(customers)
+  await saveCustomers(customers)
   return customers[cIdx].addresses[aIdx]
 }
 
-export function deleteCustomerAddress(customerId: string, addressId: string): boolean {
+export async function deleteCustomerAddress(customerId: string, addressId: string): Promise<boolean> {
   const customers = getCustomers()
   const cIdx = customers.findIndex((c) => c.id === customerId)
   if (cIdx < 0) return false
   const len = customers[cIdx].addresses.length
   customers[cIdx].addresses = customers[cIdx].addresses.filter((a) => a.id !== addressId)
   if (customers[cIdx].addresses.length === len) return false
-  saveCustomers(customers)
+  await saveCustomers(customers)
   return true
 }
 
-export function generatePasswordResetToken(email: string): string | null {
+export async function generatePasswordResetToken(email: string): Promise<string | null> {
   const customers = getCustomers()
   const idx = customers.findIndex((c) => c.email.toLowerCase() === email.toLowerCase())
   if (idx < 0) return null
@@ -295,12 +295,12 @@ export function generatePasswordResetToken(email: string): string | null {
 
   customer.passwordResetToken = hashedToken
   customer.passwordResetExpiry = Date.now() + RESET_TOKEN_EXPIRY_MS
-  saveCustomers(customers)
+  await saveCustomers(customers)
 
   return rawToken
 }
 
-export function resetPasswordWithToken(rawToken: string, newPassword: string): boolean {
+export async function resetPasswordWithToken(rawToken: string, newPassword: string): Promise<boolean> {
   const customers = getCustomers()
   const idx = customers.findIndex((c) => {
     if (!c.passwordResetToken || !c.passwordResetExpiry) return false
@@ -313,16 +313,16 @@ export function resetPasswordWithToken(rawToken: string, newPassword: string): b
   customers[idx].passwordResetToken = undefined
   customers[idx].passwordResetExpiry = undefined
   customers[idx].needsPasswordSetup = false
-  saveCustomers(customers)
+  await saveCustomers(customers)
   return true
 }
 
-export function setCustomerPassword(id: string, newPassword: string): boolean {
+export async function setCustomerPassword(id: string, newPassword: string): Promise<boolean> {
   const customers = getCustomers()
   const idx = customers.findIndex((c) => c.id === id)
   if (idx < 0) return false
   customers[idx].password = hashPassword(newPassword)
   customers[idx].needsPasswordSetup = false
-  saveCustomers(customers)
+  await saveCustomers(customers)
   return true
 }

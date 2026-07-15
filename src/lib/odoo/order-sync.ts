@@ -38,8 +38,8 @@ function loadOrders(): Order[] {
   return readJson<Order[]>(ORDERS_FILE)
 }
 
-function saveOrders(items: Order[]): void {
-  writeJson(ORDERS_FILE, items)
+async function saveOrders(items: Order[]): Promise<void> {
+  await writeJson(ORDERS_FILE, items)
 }
 
 function loadProducts(): Product[] {
@@ -147,7 +147,7 @@ export async function syncOrdersToOdoo(): Promise<OrderSyncResult> {
           syncError: message.slice(0, 500),
           lastSyncedAt: now(),
         }
-        saveOrders(all)
+        await saveOrders(all)
       }
     }
   }
@@ -175,7 +175,7 @@ async function syncSingleOrder(
     const idx = all.findIndex((o) => o.id === order.id)
     if (idx >= 0) {
       all[idx] = { ...all[idx], odooOrderId: odooId, syncStatus: 'synced', syncError: undefined, lastSyncedAt: now() }
-      saveOrders(all)
+      await saveOrders(all)
     }
     result.alreadySynced += 1
     return
@@ -188,7 +188,7 @@ async function syncSingleOrder(
     const idx = all.findIndex((o) => o.id === order.id)
     if (idx >= 0) {
       all[idx] = { ...all[idx], odooOrderId: odooId, syncStatus: 'synced', syncError: undefined, lastSyncedAt: now() }
-      saveOrders(all)
+      await saveOrders(all)
     }
     result.alreadySynced += 1
     return
@@ -269,7 +269,7 @@ async function syncSingleOrder(
       syncError: undefined,
       lastSyncedAt: now(),
     }
-    saveOrders(all)
+    await saveOrders(all)
   }
 
   result.created += 1
@@ -428,7 +428,7 @@ async function resolveOdooOrderId(order: Order): Promise<number | null> {
     const idx = all.findIndex((o) => o.id === order.id)
     if (idx >= 0) {
       all[idx] = { ...all[idx], odooOrderId: odooId, syncStatus: 'synced', syncError: undefined, lastSyncedAt: now() }
-      saveOrders(all)
+      await saveOrders(all)
     }
     return odooId
   }
@@ -440,7 +440,7 @@ async function resolveOdooOrderId(order: Order): Promise<number | null> {
     const idx = all.findIndex((o) => o.id === order.id)
     if (idx >= 0) {
       all[idx] = { ...all[idx], odooOrderId: odooId, syncStatus: 'synced', syncError: undefined, lastSyncedAt: now() }
-      saveOrders(all)
+      await saveOrders(all)
     }
     return odooId
   }
@@ -474,7 +474,7 @@ export async function syncOrderAfterCheckout(orderId: string): Promise<void> {
         syncError: message.slice(0, 500),
         lastSyncedAt: now(),
       }
-      saveOrders(all)
+      await saveOrders(all)
     }
   }
 }

@@ -49,7 +49,7 @@ export async function PUT(
     review.updatedAt = now
     reviews[index] = review
 
-    writeJson(FILE, reviews)
+    await writeJson(FILE, reviews)
 
     return NextResponse.json(review)
   } catch {
@@ -74,7 +74,7 @@ export async function DELETE(
     }
 
     reviews.splice(index, 1)
-    writeJson(FILE, reviews)
+    await writeJson(FILE, reviews)
 
     return NextResponse.json({ success: true })
   } catch {

@@ -8,8 +8,8 @@ function loadCustomers(): Customer[] {
   return readJson<Customer[]>(CUSTOMERS_FILE)
 }
 
-function saveCustomers(items: Customer[]): void {
-  writeJson(CUSTOMERS_FILE, items)
+async function saveCustomers(items: Customer[]): Promise<void> {
+  await writeJson(CUSTOMERS_FILE, items)
 }
 
 function normalizePhone(phone?: string): string {
@@ -138,7 +138,7 @@ export async function syncPartnerFromCustomer(customerId: string): Promise<void>
           syncError: undefined,
           lastSyncedAt: new Date().toISOString(),
         }
-        saveCustomers(all)
+        await saveCustomers(all)
       }
 
       logSync({
@@ -165,7 +165,7 @@ export async function syncPartnerFromCustomer(customerId: string): Promise<void>
           syncError: undefined,
           lastSyncedAt: new Date().toISOString(),
         }
-        saveCustomers(all)
+        await saveCustomers(all)
       }
 
       logSync({
@@ -190,7 +190,7 @@ export async function syncPartnerFromCustomer(customerId: string): Promise<void>
           syncStatus: 'sync_failed',
           syncError: errorMsg.slice(0, 300),
         }
-        saveCustomers(all)
+        await saveCustomers(all)
       }
     } catch { /* secondary failure — silent */ }
 

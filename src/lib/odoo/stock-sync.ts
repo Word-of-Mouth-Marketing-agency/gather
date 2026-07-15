@@ -23,8 +23,8 @@ function loadProducts(): Product[] {
   return readJson<Product[]>(PRODUCTS_FILE)
 }
 
-function saveProducts(items: Product[]): void {
-  writeJson(PRODUCTS_FILE, items)
+async function saveProducts(items: Product[]): Promise<void> {
+  await writeJson(PRODUCTS_FILE, items)
 }
 
 export async function syncStockFromOdoo(): Promise<StockSyncResult> {
@@ -60,7 +60,7 @@ export async function syncStockFromOdoo(): Promise<StockSyncResult> {
   }
 
   if (result.updated > 0 || result.failed > 0 || result.skippedMissingSku > 0) {
-    saveProducts(loadProducts())
+    await saveProducts(loadProducts())
   }
 
   return result
@@ -139,7 +139,7 @@ async function syncSingleProductStock(
       stock: Math.max(0, Math.floor(qtyAvailable)),
       stockStatus,
     }
-    saveProducts(all)
+    await saveProducts(all)
   }
 
   result.updated += 1

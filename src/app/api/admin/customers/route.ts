@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const { id, name, email, phone, isActive, status } = await request.json()
     if (!id) return NextResponse.json({ error: 'Customer ID required' }, { status: 400 })
 
-    const updated = updateCustomer(id, { name, email, phone, isActive, status })
+    const updated = await updateCustomer(id, { name, email, phone, isActive, status })
     if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
     if (isOdooSyncEnabled()) {

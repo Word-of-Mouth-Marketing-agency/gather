@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'If the email exists, a reset link will be sent.' }, { status: 200 })
     }
 
-    const token = generatePasswordResetToken(email)
+    const token = await generatePasswordResetToken(email)
     if (token) {
       const siteUrl = getSiteUrl()
       const resetLink = `${siteUrl}/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`

@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'An account with this email already exists' }, { status: 409 })
     }
 
-    const customer = createCustomer({ name, email, phone, password, acceptedDataPolicy, acceptedTermsAndConditions, acceptedCustomerPoliciesAt })
+    const customer = await createCustomer({ name, email, phone, password, acceptedDataPolicy, acceptedTermsAndConditions, acceptedCustomerPoliciesAt })
 
     if (isOdooSyncEnabled()) {
       syncPartnerFromCustomer(customer.id)

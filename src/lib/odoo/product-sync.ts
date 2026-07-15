@@ -30,8 +30,8 @@ function loadProducts(): Product[] {
   return readJson<Product[]>(PRODUCTS_FILE)
 }
 
-function saveProducts(items: Product[]): void {
-  writeJson(PRODUCTS_FILE, items)
+async function saveProducts(items: Product[]): Promise<void> {
+  await writeJson(PRODUCTS_FILE, items)
 }
 
 function loadCategories(): Category[] {
@@ -166,7 +166,7 @@ export async function syncProductsToOdoo(): Promise<ProductSyncResult> {
   }
 
   if (result.created > 0 || result.updated > 0 || result.archived > 0 || result.failed > 0 || result.skippedMissingSku > 0) {
-    saveProducts(allProducts)
+    await saveProducts(allProducts)
   }
 
   return result
@@ -186,7 +186,7 @@ async function syncSingleProduct(
     const idx = all.findIndex((p) => p.id === product.id)
     if (idx >= 0) {
       all[idx] = { ...all[idx], syncStatus: all[idx].syncStatus || 'not_synced' }
-      saveProducts(all)
+      await saveProducts(all)
     }
     result.warnings.push(`Product "${product.name}" (${product.id}): skipped — no SKU`)
     logSync({ direction: 'push', entity: 'product', localId: product.id, sku: undefined, operation: 'skip_no_sku', durationMs: Date.now() - startMs, result: 'skipped' })
@@ -308,7 +308,7 @@ async function syncSingleProduct(
       const idx = all.findIndex((p) => p.id === product.id)
       if (idx >= 0) {
         all[idx] = { ...all[idx], syncStatus: 'synced', syncError: undefined, lastSyncedAt: now() }
-        saveProducts(all)
+        await saveProducts(all)
       }
       return
     }
@@ -349,7 +349,7 @@ async function syncSingleProduct(
       syncError: undefined,
       lastSyncedAt: now(),
     }
-    saveProducts(all)
+    await saveProducts(all)
   }
 }
 
@@ -406,7 +406,7 @@ export async function syncProductById(productId: string, options: SyncProductOpt
     const idx = all.findIndex((p) => p.id === productId)
     if (idx >= 0) {
       all[idx] = { ...all[idx], syncStatus: 'sync_failed', syncError: message.slice(0, 500), lastSyncedAt: now() }
-      saveProducts(all)
+      await saveProducts(all)
     }
     return { syncStatus: 'sync_failed', syncError: message.slice(0, 500) }
   }

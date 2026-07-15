@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     if (skuError) return NextResponse.json({ error: skuError }, { status: 400 })
 
     const repo = getProductRepository()
-    const product = repo.create({ ...data, sku })
+    const product = await repo.create({ ...data, sku })
     logOp('CREATE', product.id, sku, `name="${product.name}" stock=${product.stock} categories=${JSON.stringify(data.categoryIds ?? [])}`)
 
     let syncResult

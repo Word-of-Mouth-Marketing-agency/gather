@@ -8,8 +8,8 @@ function loadProducts(): Product[] {
   return readJson<Product[]>(PRODUCTS_FILE)
 }
 
-function saveProducts(items: Product[]): void {
-  writeJson(PRODUCTS_FILE, items)
+async function saveProducts(items: Product[]): Promise<void> {
+  await writeJson(PRODUCTS_FILE, items)
 }
 
 async function getInternalLocationId(): Promise<number> {
@@ -125,7 +125,7 @@ export async function pushStockToOdoo(
     const idx = updated.findIndex((p) => p.id === productId)
     if (idx >= 0) {
       updated[idx] = { ...updated[idx], stock: confirmedQty, stockStatus, syncError: undefined }
-      saveProducts(updated)
+      await saveProducts(updated)
     }
 
     logSync({ direction: 'push', entity: 'stock', localId: productId, odooId: odooProductId, sku, operation: `stock_push old=${product.stock} requested=${desiredQty} confirmed=${confirmedQty}`, durationMs: Date.now() - startMs, result: 'success' })

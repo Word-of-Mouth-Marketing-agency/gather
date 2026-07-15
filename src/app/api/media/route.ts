@@ -13,7 +13,7 @@ export async function DELETE(request: Request) {
     const idx = items.findIndex((m) => m.id === id)
     if (idx < 0) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     items.splice(idx, 1)
-    writeJson('media.json', items)
+    await writeJson('media.json', items)
     return NextResponse.json({ success: true })
   } catch {
     return NextResponse.json({ error: 'Invalid data' }, { status: 400 })

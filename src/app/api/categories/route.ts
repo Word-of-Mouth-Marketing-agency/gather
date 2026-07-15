@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   try {
     const data = await request.json()
     const repo = getCategoryRepository()
-    const item = repo.create(data)
+    const item = await repo.create(data)
     if (isOdooSyncEnabled()) {
       syncCategoryById(item.id)
     }

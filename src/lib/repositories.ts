@@ -7,17 +7,17 @@ import { readJson } from './db'
 export interface ProductRepository {
   getAll(includeArchived?: boolean): Product[]
   getById(id: string, includeArchived?: boolean): Product | undefined
-  create(data: Omit<Product, 'id' | 'createdAt'>): Product
-  update(id: string, data: Partial<Product>): Product | undefined
-  delete(id: string): boolean
+  create(data: Omit<Product, 'id' | 'createdAt'>): Promise<Product>
+  update(id: string, data: Partial<Product>): Promise<Product | undefined>
+  delete(id: string): Promise<boolean>
 }
 
 export interface CategoryRepository {
   getAll(): Category[]
   getById(id: string): Category | undefined
-  create(data: Omit<Category, 'id'>): Category
-  update(id: string, data: Partial<Category>): Category | undefined
-  delete(id: string): boolean
+  create(data: Omit<Category, 'id'>): Promise<Category>
+  update(id: string, data: Partial<Category>): Promise<Category | undefined>
+  delete(id: string): Promise<boolean>
 }
 
 export interface OrderRepository {
@@ -29,9 +29,9 @@ export interface OrderRepository {
 export interface BundleRepository {
   getAll(): Bundle[]
   getById(id: string): Bundle | undefined
-  create(data: Omit<Bundle, 'id'>): Bundle
-  update(id: string, data: Partial<Bundle>): Bundle | undefined
-  delete(id: string): boolean
+  create(data: Omit<Bundle, 'id'>): Promise<Bundle>
+  update(id: string, data: Partial<Bundle>): Promise<Bundle | undefined>
+  delete(id: string): Promise<boolean>
 }
 
 // ─── Mock JSON Implementations ────────────────────────────────────────────
@@ -64,7 +64,7 @@ export class JsonProductRepository implements ProductRepository {
     return this.getAll(includeArchived).find((p) => p.id === id)
   }
 
-  create(data: Omit<Product, 'id' | 'createdAt'>): Product {
+  async create(data: Omit<Product, 'id' | 'createdAt'>): Promise<Product> {
     const products = this.getAll(true)
     const product: Product = {
       ...data,
@@ -76,11 +76,11 @@ export class JsonProductRepository implements ProductRepository {
       product.id
     )
     products.push(product)
-    writeJson(PRODUCTS_FILE, products)
+    await writeJson(PRODUCTS_FILE, products)
     return product
   }
 
-  update(id: string, data: Partial<Product>): Product | undefined {
+  async update(id: string, data: Partial<Product>): Promise<Product | undefined> {
     const products = this.getAll(true)
     const idx = products.findIndex((p) => p.id === id)
     if (idx < 0) return undefined
@@ -91,16 +91,16 @@ export class JsonProductRepository implements ProductRepository {
         ? products[idx].frequentlyBoughtTogetherIds
         : normalizeFrequentlyBoughtTogetherIds(data.frequentlyBoughtTogetherIds, id),
     }
-    writeJson(PRODUCTS_FILE, products)
+    await writeJson(PRODUCTS_FILE, products)
     return products[idx]
   }
 
-  delete(id: string): boolean {
+  async delete(id: string): Promise<boolean> {
     const products = this.getAll(true)
     const idx = products.findIndex((p) => p.id === id)
     if (idx < 0) return false
     products.splice(idx, 1)
-    writeJson(PRODUCTS_FILE, products)
+    await writeJson(PRODUCTS_FILE, products)
     return true
   }
 }
@@ -114,7 +114,7 @@ export class JsonCategoryRepository implements CategoryRepository {
     return this.getAll().find((c) => c.id === id)
   }
 
-  create(data: Omit<Category, 'id'>): Category {
+  async create(data: Omit<Category, 'id'>): Promise<Category> {
     const items = this.getAll()
     const item: Category = {
       ...data,
@@ -124,11 +124,11 @@ export class JsonCategoryRepository implements CategoryRepository {
       topProductIds: normalizeTopProductIds(data.topProductIds),
     }
     items.push(item)
-    writeJson(CATEGORIES_FILE, items)
+    await writeJson(CATEGORIES_FILE, items)
     return item
   }
 
-  update(id: string, data: Partial<Category>): Category | undefined {
+  async update(id: string, data: Partial<Category>): Promise<Category | undefined> {
     const items = this.getAll()
     const idx = items.findIndex((c) => c.id === id)
     if (idx < 0) return undefined
@@ -139,16 +139,16 @@ export class JsonCategoryRepository implements CategoryRepository {
         ? items[idx].topProductIds
         : normalizeTopProductIds(data.topProductIds),
     }
-    writeJson(CATEGORIES_FILE, items)
+    await writeJson(CATEGORIES_FILE, items)
     return items[idx]
   }
 
-  delete(id: string): boolean {
+  async delete(id: string): Promise<boolean> {
     const items = this.getAll()
     const idx = items.findIndex((c) => c.id === id)
     if (idx < 0) return false
     items.splice(idx, 1)
-    writeJson(CATEGORIES_FILE, items)
+    await writeJson(CATEGORIES_FILE, items)
     return true
   }
 }
@@ -162,30 +162,30 @@ export class JsonBundleRepository implements BundleRepository {
     return this.getAll().find((b) => b.id === id)
   }
 
-  create(data: Omit<Bundle, 'id'>): Bundle {
+  async create(data: Omit<Bundle, 'id'>): Promise<Bundle> {
     const items = this.getAll()
     const now = new Date().toISOString()
     const item: Bundle = { ...data, id: generateId('bdl'), createdAt: now, updatedAt: now }
     items.push(item)
-    writeJson(BUNDLES_FILE, items)
+    await writeJson(BUNDLES_FILE, items)
     return item
   }
 
-  update(id: string, data: Partial<Bundle>): Bundle | undefined {
+  async update(id: string, data: Partial<Bundle>): Promise<Bundle | undefined> {
     const items = this.getAll()
     const idx = items.findIndex((b) => b.id === id)
     if (idx < 0) return undefined
     items[idx] = { ...items[idx], ...data, updatedAt: new Date().toISOString() }
-    writeJson(BUNDLES_FILE, items)
+    await writeJson(BUNDLES_FILE, items)
     return items[idx]
   }
 
-  delete(id: string): boolean {
+  async delete(id: string): Promise<boolean> {
     const items = this.getAll()
     const idx = items.findIndex((b) => b.id === id)
     if (idx < 0) return false
     items.splice(idx, 1)
-    writeJson(BUNDLES_FILE, items)
+    await writeJson(BUNDLES_FILE, items)
     return true
   }
 }
@@ -200,13 +200,13 @@ export class OdooProductAdapter implements ProductRepository {
   getById(_id: string, _includeArchived = false): Product | undefined {
     return undefined
   }
-  create(_data: Omit<Product, 'id' | 'createdAt'>): Product {
+  async create(_data: Omit<Product, 'id' | 'createdAt'>): Promise<Product> {
     throw new Error('OdooProductAdapter.create not implemented')
   }
-  update(_id: string, _data: Partial<Product>): Product | undefined {
+  async update(_id: string, _data: Partial<Product>): Promise<Product | undefined> {
     throw new Error('OdooProductAdapter.update not implemented')
   }
-  delete(_id: string): boolean {
+  async delete(_id: string): Promise<boolean> {
     throw new Error('OdooProductAdapter.delete not implemented')
   }
 }

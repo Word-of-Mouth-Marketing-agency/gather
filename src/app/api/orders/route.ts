@@ -219,7 +219,7 @@ export async function POST(request: Request) {
     const shippingFee = getShippingFeeForCity(data.delivery?.city ?? '')
     const subtotal = Number(data.subtotal) || 0
 
-    const customer = upsertCustomerFromCheckout({
+    const customer = await upsertCustomerFromCheckout({
       firstName: data.customer?.firstName ?? '',
       lastName: data.customer?.lastName ?? '',
       email: data.customer?.email ?? '',

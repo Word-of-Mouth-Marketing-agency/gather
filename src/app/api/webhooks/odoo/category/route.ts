@@ -75,7 +75,7 @@ export async function POST(request: Request) {
         lastSyncedAt: new Date().toISOString(),
       }
       allCategories[idx] = updated
-      writeJson(CATEGORIES_FILE, allCategories)
+      await writeJson(CATEGORIES_FILE, allCategories)
     }
 
     logSync({

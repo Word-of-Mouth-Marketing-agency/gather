@@ -72,7 +72,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     Number(normalizedStock) !== Number(oldProduct.stock),
   )
 
-  const updated = repo.update(id, updateData)
+  const updated = await repo.update(id, updateData)
   if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   logOp('UPDATE', id, sku ?? updated.sku, `name="${updated.name}" oldStock=${oldProduct?.stock ?? 'unknown'} requestedStock=${normalizedStock ?? 'unchanged'} stockChanged=${stockChanged}`)
@@ -135,7 +135,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     const allMedia = readJson<MediaAsset[]>('media.json')
     const imageUrls = new Set(product.images ?? [])
     const remaining = allMedia.filter((m) => !imageUrls.has(m.url))
-    writeJson('media.json', remaining)
+    await writeJson('media.json', remaining)
   } catch { /* ignore media cleanup errors */ }
 
   // 4. Cascade: remove this product's ID from cross-sell / FBT of other products
@@ -153,7 +153,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
         productsDirty = true
       }
     }
-    if (productsDirty) writeJson('products.json', allProducts)
+    if (productsDirty) await writeJson('products.json', allProducts)
   } catch { /* ignore cross-sell cleanup errors */ }
 
   // 5. Cascade: remove this product's ID from bundles
@@ -166,7 +166,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
         bundlesDirty = true
       }
     }
-    if (bundlesDirty) writeJson('bundles.json', bundles)
+    if (bundlesDirty) await writeJson('bundles.json', bundles)
   } catch { /* ignore bundle cleanup errors */ }
 
   // 6. Cascade: remove this product's ID from category topProductIds
@@ -179,7 +179,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
         catDirty = true
       }
     }
-    if (catDirty) writeJson('categories.json', categories)
+    if (catDirty) await writeJson('categories.json', categories)
   } catch { /* ignore category cleanup errors */ }
 
   // 7. Cascade: remove reviews for this product
@@ -187,12 +187,12 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     const reviews = readJson<Review[]>('reviews.json')
     const remainingReviews = reviews.filter((r) => r.productId !== id)
     if (remainingReviews.length !== reviews.length) {
-      writeJson('reviews.json', remainingReviews)
+      await writeJson('reviews.json', remainingReviews)
     }
   } catch { /* ignore review cleanup errors */ }
 
   // 8. Hard delete the product from products.json
-  repo.delete(id)
+  await repo.delete(id)
   logOp('DELETE', id, product.sku, 'local_delete=success')
 
   const responseBody: Record<string, unknown> = { localDeleted: true }

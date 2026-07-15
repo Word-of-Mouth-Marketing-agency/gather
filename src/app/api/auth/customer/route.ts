@@ -50,7 +50,7 @@ export async function PUT(request: Request) {
     if (!customerIsActive(customer)) {
       return NextResponse.json({ error: 'Account disabled' }, { status: 403 })
     }
-    const updated = updateCustomer(customerId, {
+    const updated = await updateCustomer(customerId, {
       name: data.name,
       email: data.email,
       phone: data.phone,

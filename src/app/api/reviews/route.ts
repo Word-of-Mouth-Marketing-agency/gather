@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     }
 
     reviews.push(newReview)
-    writeJson(FILE, reviews)
+    await writeJson(FILE, reviews)
 
     return NextResponse.json(newReview, { status: 201 })
   } catch {

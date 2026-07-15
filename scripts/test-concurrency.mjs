@@ -66,9 +66,10 @@ assert('lock acquired and released', state3 === 1, '')
 
 // Test 4: Lock released after error
 console.log('\n=== Test 4: Lock release on error ===')
-try { withLock('err-test', () => { throw new Error('oops') }) } catch {}
-acquireLock('err-test')
-releaseLock('err-test')
+const { acquireLock: acq, releaseLock: rel } = await import('../src/lib/db.ts')
+try { await withLock('err-test', () => { throw new Error('oops') }) } catch {}
+await acq('err-test')
+rel('err-test')
 assert('lock released after error', true)
 
 // Restore backup

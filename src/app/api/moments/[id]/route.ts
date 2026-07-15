@@ -35,7 +35,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 
     items[index] = updated
-    writeJson('moments.json', items)
+    await writeJson('moments.json', items)
 
     return NextResponse.json({ success: true, submission: updated })
   } catch (err) {
@@ -73,7 +73,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     }
 
     items.splice(index, 1)
-    writeJson('moments.json', items)
+    await writeJson('moments.json', items)
 
     return NextResponse.json({ success: true })
   } catch (err) {

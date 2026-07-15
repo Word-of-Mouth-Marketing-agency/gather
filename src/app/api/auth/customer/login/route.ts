@@ -10,7 +10,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
     }
 
-    const customer = verifyCustomerPassword(email, password)
+    const customer = await verifyCustomerPassword(email, password)
     if (!customer) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
     }

@@ -72,8 +72,8 @@ function loadProducts(): Product[] {
   return readJson<Product[]>(PRODUCTS_FILE)
 }
 
-function saveProducts(items: Product[]): void {
-  writeJson(PRODUCTS_FILE, items)
+async function saveProducts(items: Product[]): Promise<void> {
+  await writeJson(PRODUCTS_FILE, items)
 }
 
 function loadCategories(): Category[] {
@@ -387,7 +387,7 @@ export async function pullProductsFromOdoo(): Promise<ProductPullResult> {
       const idx = all.findIndex((p) => p.id === product.id)
       if (idx >= 0) {
         all[idx] = { ...all[idx], ...updates }
-        saveProducts(all)
+        await saveProducts(all)
       }
 
       const operation = !odooActive ? 'archived_in_odoo' : (product.isActive === false ? 'restored' : 'updated')
@@ -404,7 +404,7 @@ export async function pullProductsFromOdoo(): Promise<ProductPullResult> {
       const idx = all.findIndex((p) => p.id === product.id)
       if (idx >= 0) {
         all[idx] = { ...all[idx], syncStatus: 'sync_failed', syncError: message.slice(0, 500), lastSyncedAt: now() }
-        saveProducts(all)
+        await saveProducts(all)
       }
       logSync({ direction: 'pull', entity: 'product', localId: product.id, sku: product.sku?.trim(), operation: 'pull', durationMs: Date.now() - startMs, result: 'failed', error: message })
     }
@@ -482,7 +482,7 @@ export async function pullSingleProductFromOdoo(params: ProductWebhookPullParams
         const fieldsChanged = changedUpdateFields(all[idx] || product, updates)
         if (idx >= 0) {
           all[idx] = { ...all[idx], ...updates }
-          saveProducts(all)
+          await saveProducts(all)
         }
         logSync({ direction: 'pull', entity: 'product', localId: product.id, odooId: params.odooProductId, sku: product.sku?.trim() || params.sku, operation: 'archive', durationMs: Date.now() - startMs, result: 'success' })
         return { status: 'updated', operation: 'archive', localId: product.id, odooProductId: params.odooProductId, sku: product.sku?.trim() || params.sku, fieldsChanged }
@@ -579,7 +579,7 @@ export async function pullSingleProductFromOdoo(params: ProductWebhookPullParams
         isActive: odooActive,
       }
 
-      saveProducts([...allProducts, newProduct])
+      await saveProducts([...allProducts, newProduct])
       logSync({ direction: 'pull', entity: 'product', localId: id, odooId: odooProduct.id, sku, operation: 'create', durationMs: Date.now() - startMs, result: 'success' })
       return { status: 'created', operation: 'create', localId: id, odooProductId: odooProduct.id, sku, fieldsChanged: Object.keys(newProduct) }
     }
@@ -605,7 +605,7 @@ export async function pullSingleProductFromOdoo(params: ProductWebhookPullParams
     const fieldsChanged = changedUpdateFields(all[idx] || product, updates)
     if (idx >= 0) {
       all[idx] = { ...all[idx], ...updates }
-      saveProducts(all)
+      await saveProducts(all)
     }
 
     const operation = !odooActive ? 'archive' : 'update'

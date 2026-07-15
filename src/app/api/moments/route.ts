@@ -76,7 +76,7 @@ export async function POST(request: Request) {
 
     const items = readJson<MomentSubmission[]>('moments.json')
     items.unshift(submission)
-    writeJson('moments.json', items)
+    await writeJson('moments.json', items)
 
     return NextResponse.json({ success: true, submission }, { status: 201 })
   } catch (err) {

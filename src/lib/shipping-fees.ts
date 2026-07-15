@@ -32,7 +32,7 @@ export function getShippingFeeForCity(city: string): number {
   return match?.fee ?? fallback?.fee ?? DEFAULT_SHIPPING_FEE
 }
 
-export function createShippingFee(data: Omit<ShippingFee, 'id'>): ShippingFee {
+export async function createShippingFee(data: Omit<ShippingFee, 'id'>): Promise<ShippingFee> {
   const items = getAllShippingFees()
   const item: ShippingFee = {
     ...data,
@@ -42,11 +42,11 @@ export function createShippingFee(data: Omit<ShippingFee, 'id'>): ShippingFee {
     sortOrder: data.sortOrder ?? items.length + 1,
   }
   items.push(item)
-  writeJson(SHIPPING_FEES_FILE, sortFees(items))
+  await writeJson(SHIPPING_FEES_FILE, sortFees(items))
   return item
 }
 
-export function updateShippingFee(id: string, data: Partial<ShippingFee>): ShippingFee | undefined {
+export async function updateShippingFee(id: string, data: Partial<ShippingFee>): Promise<ShippingFee | undefined> {
   const items = getAllShippingFees()
   const idx = items.findIndex((item) => item.id === id)
   if (idx < 0) return undefined
@@ -55,15 +55,15 @@ export function updateShippingFee(id: string, data: Partial<ShippingFee>): Shipp
     ...data,
     fee: data.fee === undefined ? items[idx].fee : Number(data.fee),
   }
-  writeJson(SHIPPING_FEES_FILE, sortFees(items))
+  await writeJson(SHIPPING_FEES_FILE, sortFees(items))
   return items[idx]
 }
 
-export function deleteShippingFee(id: string): boolean {
+export async function deleteShippingFee(id: string): Promise<boolean> {
   const items = getAllShippingFees()
   const idx = items.findIndex((item) => item.id === id)
   if (idx < 0) return false
   items.splice(idx, 1)
-  writeJson(SHIPPING_FEES_FILE, sortFees(items))
+  await writeJson(SHIPPING_FEES_FILE, sortFees(items))
   return true
 }

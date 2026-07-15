@@ -21,7 +21,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params
     const data = await request.json()
-    const updated = updateCustomer(id, {
+    const updated = await updateCustomer(id, {
       name: data.name,
       email: data.email,
       phone: data.phone,
@@ -54,7 +54,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   if (unauthorized) return unauthorized
 
   const { id } = await params
-  const deleted = deleteCustomer(id)
+  const deleted = await deleteCustomer(id)
   if (!deleted) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json({ success: true })
 }

@@ -27,7 +27,7 @@ export async function PUT(request: Request) {
       updatedAt: new Date().toISOString(),
     }
 
-    writeJson(FILE, updated)
+    await writeJson(FILE, updated)
     return NextResponse.json(updated)
   } catch {
     return NextResponse.json({ error: 'Invalid data' }, { status: 400 })

@@ -43,7 +43,7 @@ export async function POST(request: Request) {
 
     const items = readJson<MediaAsset[]>('media.json')
     items.unshift(asset)
-    writeJson('media.json', items)
+    await writeJson('media.json', items)
 
     return NextResponse.json(asset, { status: 201 })
   } catch (err) {

@@ -22,8 +22,8 @@ function loadCategories(): Category[] {
   return readJson<Category[]>(CATEGORIES_FILE)
 }
 
-function saveCategories(items: Category[]): void {
-  writeJson(CATEGORIES_FILE, items)
+async function saveCategories(items: Category[]): Promise<void> {
+  await writeJson(CATEGORIES_FILE, items)
 }
 
 export async function syncCategoriesToOdoo(): Promise<CategorySyncResult> {
@@ -76,7 +76,7 @@ export async function syncCategoriesToOdoo(): Promise<CategorySyncResult> {
   }
 
   if (result.created > 0 || result.updated > 0 || result.failed > 0) {
-    saveCategories(allItems)
+    await saveCategories(allItems)
   }
 
   return result
@@ -144,7 +144,7 @@ async function syncSingleCategory(
       syncError: undefined,
       lastSyncedAt: now(),
     }
-    saveCategories(allItems)
+    await saveCategories(allItems)
   }
 
   return { odooId, action }
@@ -183,7 +183,7 @@ export async function syncCategoryById(categoryId: string): Promise<void> {
     const idx = all.findIndex((c) => c.id === categoryId)
     if (idx >= 0) {
       all[idx] = { ...all[idx], odooCategoryId: odooId, syncStatus: 'synced', syncError: undefined, lastSyncedAt: now() }
-      saveCategories(all)
+      await saveCategories(all)
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
@@ -191,7 +191,7 @@ export async function syncCategoryById(categoryId: string): Promise<void> {
     const idx = all.findIndex((c) => c.id === categoryId)
     if (idx >= 0) {
       all[idx] = { ...all[idx], syncStatus: 'sync_failed', syncError: message.slice(0, 500), lastSyncedAt: now() }
-      saveCategories(all)
+      await saveCategories(all)
     }
   }
 }
