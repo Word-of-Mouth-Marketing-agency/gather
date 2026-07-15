@@ -41,7 +41,6 @@ function formatDate(iso: string): string {
 async function sendOrderNotifications(order: Order) {
   const siteUrl = getSiteUrl()
 
-  const adminReserved = reserveAdminEmail(order.id)
   const adminLink = `${siteUrl}/admin/orders`
   const itemsHtml = order.items.map((item) => {
     const name = 'name' in item ? safe(item.name) : 'Unknown'
@@ -122,8 +121,6 @@ async function sendOrderNotifications(order: Order) {
       markEmailFailed(order.id, 'admin_email_failed')
     }
   }
-
-  const customerReserved = reserveCustomerEmail(order.id)
   const customerText = [
     `Thank you for your order, ${order.customer.firstName}!`,
     ``,

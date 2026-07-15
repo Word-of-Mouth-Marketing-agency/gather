@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data')
-const writeLocks = new Set<string>()
+const writeLocks = new Map<string, number>()
 const lastValidJson = new Map<string, string>()
 
 function sleepMs(ms: number): void {
@@ -23,17 +23,27 @@ function parseJson<T>(filename: string, raw: string): T {
   return parsed
 }
 
+function isLocked(filename: string): boolean {
+  return (writeLocks.get(filename) ?? 0) > 0
+}
+
 export function acquireLock(filename: string): void {
-  while (writeLocks.has(filename)) {
+  while (isLocked(filename)) {
     sleepMs(10)
   }
-  writeLocks.add(filename)
+  writeLocks.set(filename, 1)
   logJsonFile('lock_acquired', filename)
 }
 
 export function releaseLock(filename: string): void {
-  writeLocks.delete(filename)
-  logJsonFile('lock_released', filename)
+  const current = writeLocks.get(filename) ?? 0
+  if (current <= 1) {
+    writeLocks.delete(filename)
+    logJsonFile('lock_released', filename)
+  } else {
+    writeLocks.set(filename, current - 1)
+    logJsonFile('lock_depth', filename, `depth=${current - 1}`)
+  }
 }
 
 export function withLock<T>(filename: string, fn: () => T): T {
@@ -81,16 +91,14 @@ export function writeJson<T>(filename: string, data: T): void {
   const tempPath = `${filePath}.${process.pid}.${Date.now()}.tmp`
   const payload = `${JSON.stringify(data, null, 2)}\n`
 
-  if (writeLocks.has(filename)) {
-    logJsonFile('write_wait', filename)
+  if (isLocked(filename)) {
+    writeLocks.set(filename, (writeLocks.get(filename) ?? 0) + 1)
+    logJsonFile('write_reentrant', filename, `depth=${writeLocks.get(filename)}`)
+  } else {
+    writeLocks.set(filename, 1)
+    logJsonFile('write_lock_acquired', filename)
   }
 
-  while (writeLocks.has(filename)) {
-    sleepMs(10)
-  }
-
-  writeLocks.add(filename)
-  logJsonFile('write_lock_acquired', filename)
   try {
     const fd = fs.openSync(tempPath, 'w')
     try {
@@ -110,8 +118,14 @@ export function writeJson<T>(filename: string, data: T): void {
     logJsonFile('write_failed', filename, `error="${message.slice(0, 180)}"`)
     throw error
   } finally {
-    writeLocks.delete(filename)
-    logJsonFile('write_lock_released', filename)
+    const current = writeLocks.get(filename) ?? 0
+    if (current <= 1) {
+      writeLocks.delete(filename)
+      logJsonFile('write_lock_released', filename)
+    } else {
+      writeLocks.set(filename, current - 1)
+      logJsonFile('write_lock_depth', filename, `depth=${current - 1}`)
+    }
   }
 }
 
