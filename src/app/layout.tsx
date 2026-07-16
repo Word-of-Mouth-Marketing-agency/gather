@@ -25,19 +25,19 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(siteUrl),
     title: {
       default: isArabic
-        ? 'چزر — هدايا فاخرة مع توصيل في القاهرة'
+        ? 'جژر — هدايا فاخرة مع توصيل في القاهرة'
         : 'Gather — Premium Gifts Delivered in Cairo',
-      template: isArabic ? '%s | چزر' : '%s | Gather',
+      template: isArabic ? '%s | جژر' : '%s | Gather',
     },
     description: isArabic
-      ? 'چزر — منصة الهدايا الفاخرة في القاهرة. تسوق علب هدايا، ورود، شوكولاتة، والمزيد لكل المناسبات.'
+      ? 'جژر — منصة الهدايا الفاخرة في القاهرة. تسوق علب هدايا، ورود، شوكولاتة، والمزيد لكل المناسبات.'
       : "Gather — Cairo's premium gifting platform. Shop gift boxes, flowers, chocolates, and more for every occasion. Fast delivery available across Cairo.",
     icons: {
       icon: '/assets/gather/favicon.png',
     },
     openGraph: {
       title: isArabic
-        ? 'چزر — هدايا فاخرة مع توصيل في القاهرة'
+        ? 'جژر — هدايا فاخرة مع توصيل في القاهرة'
         : 'Gather — Premium Gifts Delivered in Cairo',
       description: isArabic
         ? 'تسوق هدايا فاخرة لكل مناسبة. توصيل سريع في القاهرة.'
@@ -58,7 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: 'summary_large_image',
       title: isArabic
-        ? 'چزر — هدايا فاخرة مع توصيل في القاهرة'
+        ? 'جژر — هدايا فاخرة مع توصيل في القاهرة'
         : 'Gather — Premium Gifts Delivered in Cairo',
       description: isArabic
         ? 'تسوق هدايا فاخرة لكل مناسبة. توصيل سريع في القاهرة.'

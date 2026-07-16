@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { requireAdminApi } from '@/lib/admin-api'
+import { requireAnyAdminPermission } from '@/lib/admin-api'
 import { readJson, writeJson } from '@/lib/db'
 import { validateImageUpload } from '@/lib/upload-validation'
 import type { MediaAsset } from '@/types'
@@ -10,8 +10,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['media.upload'])
+  if (auth instanceof NextResponse) return auth
 
   try {
     const formData = await request.formData()

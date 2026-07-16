@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
-import { requireAdminApi } from '@/lib/admin-api'
+import { requireAnyAdminPermission } from '@/lib/admin-api'
 import { getOdooDiagnostics } from '@/lib/odoo/diagnostics'
 
 export async function GET() {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['odoo.read'])
+  if (auth instanceof NextResponse) return auth
 
   try {
     const result = await getOdooDiagnostics()

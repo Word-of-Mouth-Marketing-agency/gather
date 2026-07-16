@@ -40,6 +40,11 @@ export interface Order {
   syncStatus?: 'not_synced' | 'synced' | 'sync_failed'
   syncError?: string
   lastSyncedAt?: string
+  couponCode?: string
+  couponId?: string
+  couponDiscount?: number
+  subtotalBeforeDiscount?: number
+  totalAfterDiscount?: number
   adminEmailStatus?: EmailStatus
   customerEmailStatus?: EmailStatus
   adminEmailSentAt?: string

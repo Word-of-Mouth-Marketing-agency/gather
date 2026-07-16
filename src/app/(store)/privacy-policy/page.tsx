@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: isAr ? 'سياسة الخصوصية' : 'Privacy Policy',
     description: isAr
-      ? 'سياسة خصوصية چزر - كيف نجمع ونستخدم ونحمي معلوماتك الشخصية.'
+      ? 'سياسة خصوصية جژر - كيف نجمع ونستخدم ونحمي معلوماتك الشخصية.'
       : 'Gather privacy policy — how we collect, use, and protect your personal information.',
   }
 }

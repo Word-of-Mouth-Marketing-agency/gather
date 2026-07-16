@@ -3,6 +3,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Category, Product } from '@/types'
+import { CONTENT_FIELDS, PRICING_FIELDS } from '@/lib/product-fields'
+
+type Role = 'super_admin' | 'marketing_admin' | 'finance_admin'
 
 const FBT_LIMIT = 3
 
@@ -59,7 +62,6 @@ const EMPTY: ProductFormData = {
 interface Props {
   initialData?: ProductFormData
   productId?: string
-  initialDataAr?: { nameAr?: string; shortDescriptionAr?: string; descriptionAr?: string }
 }
 
 export default function ProductForm({ initialData, productId }: Props) {
@@ -73,6 +75,8 @@ export default function ProductForm({ initialData, productId }: Props) {
   const [occasions, setOccasions] = useState<Category[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [fbtSearch, setFbtSearch] = useState('')
+  const [role, setRole] = useState<Role | null>(null)
+  const [roleLoading, setRoleLoading] = useState(true)
   const featuredFileRef = useRef<HTMLInputElement>(null)
   const galleryFileRef = useRef<HTMLInputElement>(null)
 
@@ -80,12 +84,21 @@ export default function ProductForm({ initialData, productId }: Props) {
   const galleryImages = form.images.slice(1)
 
   useEffect(() => {
-    async function load() {
+    async function init() {
       try {
-        const [categoriesRes, productsRes] = await Promise.all([
+        const [meRes, categoriesRes, productsRes] = await Promise.all([
+          fetch('/api/auth/me'),
           fetch('/api/categories'),
           fetch('/api/products'),
         ])
+        if (meRes.ok) {
+          const me = await meRes.json()
+          if (!me.authenticated) {
+            router.push('/admin/login')
+            return
+          }
+          setRole(me.role)
+        }
         if (categoriesRes.ok) {
           const all: Category[] = await categoriesRes.json()
           setCategories(all.filter((c) => c.type === 'category'))
@@ -93,9 +106,38 @@ export default function ProductForm({ initialData, productId }: Props) {
         }
         if (productsRes.ok) setProducts(await productsRes.json())
       } catch { /* ignore */ }
+      setRoleLoading(false)
     }
-    load()
-  }, [])
+    init()
+  }, [router])
+
+  if (roleLoading) {
+    return <p className="text-sm text-gray-400">Loading...</p>
+  }
+
+  if (!role) {
+    return <p className="text-sm text-red-500">Authentication required.</p>
+  }
+
+  if (!isEdit && role === 'finance_admin') {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500 mb-4">
+          Finance admins cannot create products. A Super Admin or Marketing Admin must create the product first, then you can set pricing and stock.
+        </p>
+        <button
+          onClick={() => router.push('/admin/products')}
+          className="text-[#ff7a1a] font-bold hover:underline text-sm"
+        >
+          ← Back to Products
+        </button>
+      </div>
+    )
+  }
+
+  const canContent = role === 'super_admin' || role === 'marketing_admin'
+  const canPricing = role === 'super_admin' || role === 'finance_admin'
+  const canStock = role === 'super_admin' || role === 'finance_admin'
 
   function setField<K extends keyof ProductFormData>(key: K, value: ProductFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -200,6 +242,24 @@ export default function ProductForm({ initialData, productId }: Props) {
     setField('images', [featuredImage, ...galleryImages.filter((_, i) => i !== idx)].filter(Boolean))
   }
 
+  function buildPayload(): Record<string, unknown> {
+    const payload: Record<string, unknown> = {}
+    if (canContent) {
+      for (const key of CONTENT_FIELDS) {
+        if (key in form) payload[key] = form[key as keyof ProductFormData]
+      }
+    }
+    if (canPricing) {
+      for (const key of PRICING_FIELDS) {
+        if (key in form) payload[key] = form[key as keyof ProductFormData]
+      }
+    }
+    if (canStock) {
+      payload.stock = form.stock
+    }
+    return payload
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     if (form.discountStartsAt && form.discountEndsAt && form.discountEndsAt < form.discountStartsAt) {
@@ -215,10 +275,11 @@ export default function ProductForm({ initialData, productId }: Props) {
     try {
       const url = isEdit ? `/api/products/${productId}` : '/api/products'
       const method = isEdit ? 'PUT' : 'POST'
+      const payload = buildPayload()
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       })
       const data = await res.json().catch(() => ({})) as Record<string, unknown>
       if (!res.ok) {
@@ -256,427 +317,449 @@ export default function ProductForm({ initialData, productId }: Props) {
         </div>
       )}
 
-      {/* Basic Info */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
-        <h2 className="text-lg font-black text-gray-900">Basic Information</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="sm:col-span-2">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Product Name</label>
-            <input
-              required
-              value={form.name}
-              onChange={(e) => setField('name', e.target.value)}
-              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Slug</label>
-            <input
-              required
-              value={form.slug}
-              onChange={(e) => setField('slug', e.target.value)}
-              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-mono focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">SKU (Internal Reference)</label>
-            <input
-              required
-              value={form.sku}
-              onChange={(e) => setField('sku', e.target.value.toUpperCase())}
-              placeholder="e.g. GFT-BDAY-BOX"
-              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-mono focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-            />
-            <p className="mt-1 text-xs text-gray-400">SKU is required for Odoo sync and becomes the Odoo Internal Reference. Uppercase, hyphens allowed.</p>
-          </div>
-          <div className="sm:col-span-2">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Short Description</label>
-            <input
-              value={form.shortDescription}
-              onChange={(e) => setField('shortDescription', e.target.value)}
-              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Description</label>
-            <textarea
-              value={form.description}
-              onChange={(e) => setField('description', e.target.value)}
-              rows={4}
-              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-            />
-          </div>
-        </div>
-
-        <div className="border-t border-gray-100 pt-4 mt-4">
-          <h3 className="text-sm font-black text-[#ff7a1a] uppercase tracking-wide mb-4">Arabic Translation</h3>
+      {/* Basic Info - only shown for content editors */}
+      {canContent && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+          <h2 className="text-lg font-black text-gray-900">Basic Information</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Arabic Name</label>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Product Name</label>
               <input
-                value={form.nameAr || ''}
-                onChange={(e) => setField('nameAr', e.target.value)}
+                required
+                value={form.name}
+                onChange={(e) => setField('name', e.target.value)}
                 className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-                dir="rtl"
-                placeholder="الاسم بالعربية"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Arabic Short Description</label>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Slug</label>
               <input
-                value={form.shortDescriptionAr || ''}
-                onChange={(e) => setField('shortDescriptionAr', e.target.value)}
-                className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-                dir="rtl"
-                placeholder="وصف مختصر بالعربية"
+                required
+                value={form.slug}
+                onChange={(e) => setField('slug', e.target.value)}
+                className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-mono focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Arabic Description</label>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">SKU (Internal Reference)</label>
+              <input
+                required
+                value={form.sku}
+                onChange={(e) => setField('sku', e.target.value.toUpperCase())}
+                placeholder="e.g. GFT-BDAY-BOX"
+                className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-mono focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+              />
+              <p className="mt-1 text-xs text-gray-400">SKU is required for Odoo sync and becomes the Odoo Internal Reference.</p>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Short Description</label>
+              <input
+                value={form.shortDescription}
+                onChange={(e) => setField('shortDescription', e.target.value)}
+                className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Description</label>
               <textarea
-                value={form.descriptionAr || ''}
-                onChange={(e) => setField('descriptionAr', e.target.value)}
+                value={form.description}
+                onChange={(e) => setField('description', e.target.value)}
                 rows={4}
                 className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-                dir="rtl"
-                placeholder="الوصف بالعربية"
               />
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Pricing & Stock */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
-        <h2 className="text-lg font-black text-gray-900">Pricing & Stock</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Price</label>
-            <input
-              required
-              type="number"
-              min={0}
-              step="0.01"
-              value={form.price}
-              onChange={(e) => setField('price', Number(e.target.value))}
-              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Sale Price</label>
-            <input
-              type="number"
-              min={0}
-              step="0.01"
-              value={form.salePrice ?? ''}
-              onChange={(e) => setField('salePrice', e.target.value ? Number(e.target.value) : null)}
-              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Stock</label>
-            <input
-              required
-              type="number"
-              min={0}
-              value={form.stock}
-              onChange={(e) => setField('stock', Number(e.target.value))}
-              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Discount starts</label>
-            <input
-              type="date"
-              value={form.discountStartsAt ?? ''}
-              onChange={(e) => setField('discountStartsAt', e.target.value)}
-              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Discount ends</label>
-            <input
-              type="date"
-              value={form.discountEndsAt ?? ''}
-              min={form.discountStartsAt || undefined}
-              onChange={(e) => setField('discountEndsAt', e.target.value)}
-              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Rating</label>
-            <input
-              type="number"
-              min={0}
-              max={5}
-              step="0.1"
-              value={form.rating ?? ''}
-              onChange={(e) => setField('rating', e.target.value ? Number(e.target.value) : undefined)}
-              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-              placeholder="4.8"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Review Count</label>
-            <input
-              type="number"
-              min={0}
-              value={form.reviewCount ?? ''}
-              onChange={(e) => setField('reviewCount', e.target.value ? Number(e.target.value) : undefined)}
-              className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
-              placeholder="24"
-            />
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            id="featured"
-            checked={form.featured}
-            onChange={(e) => setField('featured', e.target.checked)}
-            className="w-4 h-4 rounded border-gray-300 text-[#ff7a1a] focus:ring-[#ff7a1a]"
-          />
-          <label htmlFor="featured" className="text-sm font-semibold text-gray-700 cursor-pointer">
-            Featured product
-          </label>
-        </div>
-      </div>
-
-      {/* Images */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
-        <div>
-          <h2 className="text-lg font-black text-gray-900">Product Images</h2>
-          <p className="mt-1 text-xs text-gray-400">The featured image is used first on product cards and as the main detail image.</p>
-        </div>
-
-        <div className="space-y-3">
-          <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Featured Image</label>
-          <div className="flex flex-wrap gap-3">
-            {featuredImage ? (
-              <div className="relative w-28 h-28 rounded-xl overflow-hidden bg-gray-100 group">
-                <img src={featuredImage} alt="Featured product image" className="object-cover w-full h-full" />
-                <button
-                  type="button"
-                  onClick={removeFeaturedImage}
-                  className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  &times;
-                </button>
+          <div className="border-t border-gray-100 pt-4 mt-4">
+            <h3 className="text-sm font-black text-[#ff7a1a] uppercase tracking-wide mb-4">Arabic Translation</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Arabic Name</label>
+                <input
+                  value={form.nameAr || ''}
+                  onChange={(e) => setField('nameAr', e.target.value)}
+                  className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+                  dir="rtl"
+                  placeholder="الاسم بالعربية"
+                />
               </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => featuredFileRef.current?.click()}
-                className="w-28 h-28 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#ff7a1a] transition-colors text-gray-400 hover:text-[#ff7a1a]"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-                <span className="text-[10px] font-semibold">{uploading ? '...' : 'Add featured'}</span>
-              </button>
-            )}
-          </div>
-          {featuredImage && (
-            <button
-              type="button"
-              onClick={() => featuredFileRef.current?.click()}
-              disabled={uploading}
-              className="rounded-xl border border-gray-200 px-3 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-            >
-              {uploading ? 'Uploading...' : 'Replace featured image'}
-            </button>
-          )}
-          <input
-            ref={featuredFileRef}
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleFeaturedUpload(e.target.files)}
-            className="hidden"
-          />
-        </div>
-
-        <div className="space-y-3 border-t border-gray-100 pt-4">
-          <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Product Gallery Images</label>
-          <div className="flex flex-wrap gap-3">
-            {galleryImages.map((url, i) => (
-              <div key={`${url}-${i}`} className="relative w-24 h-24 rounded-xl overflow-hidden bg-gray-100 group">
-                <img src={url} alt={`Product gallery ${i + 1}`} className="object-cover w-full h-full" />
-                <button
-                  type="button"
-                  onClick={() => removeGalleryImage(i)}
-                  className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  &times;
-                </button>
+              <div className="sm:col-span-2">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Arabic Short Description</label>
+                <input
+                  value={form.shortDescriptionAr || ''}
+                  onChange={(e) => setField('shortDescriptionAr', e.target.value)}
+                  className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+                  dir="rtl"
+                  placeholder="وصف مختصر بالعربية"
+                />
               </div>
-            ))}
-            <label className="w-24 h-24 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#ff7a1a] transition-colors text-gray-400 hover:text-[#ff7a1a]">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-              </svg>
-              <span className="text-[10px] font-semibold">{uploading ? '...' : 'Add gallery'}</span>
-              <input
-                ref={galleryFileRef}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={(e) => handleGalleryUpload(e.target.files)}
-                className="hidden"
-              />
+              <div className="sm:col-span-2">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Arabic Description</label>
+                <textarea
+                  value={form.descriptionAr || ''}
+                  onChange={(e) => setField('descriptionAr', e.target.value)}
+                  rows={4}
+                  className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+                  dir="rtl"
+                  placeholder="الوصف بالعربية"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="featured"
+              checked={form.featured}
+              onChange={(e) => setField('featured', e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 text-[#ff7a1a] focus:ring-[#ff7a1a]"
+            />
+            <label htmlFor="featured" className="text-sm font-semibold text-gray-700 cursor-pointer">
+              Featured product
             </label>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Frequently Bought Together */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-black text-gray-900">Frequently Bought Together</h2>
-            <p className="mt-1 text-xs text-gray-400">
-              Choose up to {FBT_LIMIT} products to show with this product. If empty, the storefront uses automatic suggestions.
-            </p>
-          </div>
-          <span className={`text-xs font-bold ${selectedFbtProducts.length >= FBT_LIMIT ? 'text-red-500' : 'text-gray-400'}`}>
-            {selectedFbtProducts.length}/{FBT_LIMIT}
-          </span>
-        </div>
-
-        <div className="relative">
-          <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="search"
-            value={fbtSearch}
-            onChange={(e) => setFbtSearch(e.target.value)}
-            disabled={selectedFbtProducts.length >= FBT_LIMIT}
-            placeholder="Search products by name, slug, or ID..."
-            className="w-full rounded-xl border border-gray-200 py-2.5 pl-9 pr-3 text-sm focus:outline-none focus:border-[#ff7a1a] disabled:opacity-50"
-          />
-        </div>
-
-        {selectedFbtProducts.length < FBT_LIMIT && (
-          <div className="max-h-44 overflow-y-auto rounded-xl border border-gray-100 bg-gray-50">
-            {searchableFbtProducts.length > 0 ? (
-              searchableFbtProducts.map((product) => (
-                <button
-                  key={product.id}
-                  type="button"
-                  onClick={() => addFbtProduct(product.id)}
-                  className="flex w-full items-center justify-between gap-3 border-b border-white px-3 py-2 text-left last:border-b-0 hover:bg-white"
-                >
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-semibold text-gray-700">{product.name}</span>
-                    <span className="block truncate text-xs text-gray-400">{product.slug}</span>
-                  </span>
-                  <span className="shrink-0 rounded-lg bg-[#fff4e8] px-2 py-1 text-xs font-bold text-[#ff7a1a]">Add</span>
-                </button>
-              ))
-            ) : (
-              <p className="px-3 py-3 text-xs text-gray-400">
-                {fbtSearch ? 'No matching products found.' : 'No products available.'}
-              </p>
+      {/* Pricing & Stock - only shown for finance/super_admin */}
+      {(canPricing || canStock) && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+          <h2 className="text-lg font-black text-gray-900">Pricing & Stock</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {canPricing && (
+              <div>
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Price</label>
+                <input
+                  required
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={form.price}
+                  onChange={(e) => setField('price', Number(e.target.value))}
+                  className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+                />
+              </div>
+            )}
+            {canPricing && (
+              <div>
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Sale Price</label>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={form.salePrice ?? ''}
+                  onChange={(e) => setField('salePrice', e.target.value ? Number(e.target.value) : null)}
+                  className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+                />
+              </div>
+            )}
+            {canStock && (
+              <div>
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Stock</label>
+                <input
+                  required
+                  type="number"
+                  min={0}
+                  value={form.stock}
+                  onChange={(e) => setField('stock', Number(e.target.value))}
+                  className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+                />
+              </div>
             )}
           </div>
-        )}
-
-        {selectedFbtProducts.length > 0 && (
-          <div className="space-y-2">
-            {selectedFbtProducts.map((product, index) => (
-              <div key={product.id} className="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-2">
-                <span className="w-5 text-xs font-black text-gray-400">{index + 1}</span>
-                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-gray-700">{product.name}</span>
-                <button
-                  type="button"
-                  onClick={() => moveFbtProduct(product.id, -1)}
-                  disabled={index === 0}
-                  className="rounded-lg px-2 py-1 text-xs font-bold text-gray-500 hover:bg-white disabled:opacity-30"
-                >
-                  Up
-                </button>
-                <button
-                  type="button"
-                  onClick={() => moveFbtProduct(product.id, 1)}
-                  disabled={index === selectedFbtProducts.length - 1}
-                  className="rounded-lg px-2 py-1 text-xs font-bold text-gray-500 hover:bg-white disabled:opacity-30"
-                >
-                  Down
-                </button>
-                <button
-                  type="button"
-                  onClick={() => removeFbtProduct(product.id)}
-                  className="rounded-lg px-2 py-1 text-xs font-bold text-red-400 hover:bg-red-50"
-                >
-                  Remove
-                </button>
+          {canPricing && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Discount starts</label>
+                <input
+                  type="date"
+                  value={form.discountStartsAt ?? ''}
+                  onChange={(e) => setField('discountStartsAt', e.target.value)}
+                  className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+                />
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Categories */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
-        <h2 className="text-lg font-black text-gray-900">Categories</h2>
-        {categories.length === 0 ? (
-          <p className="text-sm text-gray-400">No categories available.</p>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {categories.map((cat) => (
-              <label
-                key={cat.id}
-                className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm cursor-pointer transition-colors ${
-                  form.categoryIds.includes(cat.id)
-                    ? 'border-[#ff7a1a] bg-[#fff4e8] text-[#ff7a1a] font-semibold'
-                    : 'border-gray-100 text-gray-600 hover:border-gray-200'
-                }`}
-              >
+              <div>
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Discount ends</label>
                 <input
-                  type="checkbox"
-                  checked={form.categoryIds.includes(cat.id)}
-                  onChange={() => toggleCat(cat.id)}
-                  className="sr-only"
+                  type="date"
+                  value={form.discountEndsAt ?? ''}
+                  min={form.discountStartsAt || undefined}
+                  onChange={(e) => setField('discountEndsAt', e.target.value)}
+                  className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
                 />
-                <span>{cat.name}</span>
-              </label>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Occasions */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
-        <h2 className="text-lg font-black text-gray-900">Occasions</h2>
-        {occasions.length === 0 ? (
-          <p className="text-sm text-gray-400">No occasions available.</p>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {occasions.map((occ) => (
-              <label
-                key={occ.id}
-                className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm cursor-pointer transition-colors ${
-                  form.occasionIds.includes(occ.id)
-                    ? 'border-[#ff7a1a] bg-[#fff4e8] text-[#ff7a1a] font-semibold'
-                    : 'border-gray-100 text-gray-600 hover:border-gray-200'
-                }`}
-              >
+              </div>
+            </div>
+          )}
+          {canContent && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Rating</label>
                 <input
-                  type="checkbox"
-                  checked={form.occasionIds.includes(occ.id)}
-                  onChange={() => toggleOcc(occ.id)}
-                  className="sr-only"
+                  type="number"
+                  min={0}
+                  max={5}
+                  step="0.1"
+                  value={form.rating ?? ''}
+                  onChange={(e) => setField('rating', e.target.value ? Number(e.target.value) : undefined)}
+                  className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+                  placeholder="4.8"
                 />
-                <span>{occ.name}</span>
-              </label>
-            ))}
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Review Count</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={form.reviewCount ?? ''}
+                  onChange={(e) => setField('reviewCount', e.target.value ? Number(e.target.value) : undefined)}
+                  className="w-full mt-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20"
+                  placeholder="24"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Images - only shown for content editors */}
+      {canContent && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+          <div>
+            <h2 className="text-lg font-black text-gray-900">Product Images</h2>
+            <p className="mt-1 text-xs text-gray-400">The featured image is used first on product cards and as the main detail image.</p>
           </div>
-        )}
-      </div>
+
+          <div className="space-y-3">
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Featured Image</label>
+            <div className="flex flex-wrap gap-3">
+              {featuredImage ? (
+                <div className="relative w-28 h-28 rounded-xl overflow-hidden bg-gray-100 group">
+                  <img src={featuredImage} alt="Featured product image" className="object-cover w-full h-full" />
+                  <button
+                    type="button"
+                    onClick={removeFeaturedImage}
+                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    &times;
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => featuredFileRef.current?.click()}
+                  className="w-28 h-28 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#ff7a1a] transition-colors text-gray-400 hover:text-[#ff7a1a]"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span className="text-[10px] font-semibold">{uploading ? '...' : 'Add featured'}</span>
+                </button>
+              )}
+            </div>
+            {featuredImage && (
+              <button
+                type="button"
+                onClick={() => featuredFileRef.current?.click()}
+                disabled={uploading}
+                className="rounded-xl border border-gray-200 px-3 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+              >
+                {uploading ? 'Uploading...' : 'Replace featured image'}
+              </button>
+            )}
+            <input
+              ref={featuredFileRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFeaturedUpload(e.target.files)}
+              className="hidden"
+            />
+          </div>
+
+          <div className="space-y-3 border-t border-gray-100 pt-4">
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Product Gallery Images</label>
+            <div className="flex flex-wrap gap-3">
+              {galleryImages.map((url, i) => (
+                <div key={`${url}-${i}`} className="relative w-24 h-24 rounded-xl overflow-hidden bg-gray-100 group">
+                  <img src={url} alt={`Product gallery ${i + 1}`} className="object-cover w-full h-full" />
+                  <button
+                    type="button"
+                    onClick={() => removeGalleryImage(i)}
+                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))}
+              <label className="w-24 h-24 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#ff7a1a] transition-colors text-gray-400 hover:text-[#ff7a1a]">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="text-[10px] font-semibold">{uploading ? '...' : 'Add gallery'}</span>
+                <input
+                  ref={galleryFileRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleGalleryUpload(e.target.files)}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Frequently Bought Together - only shown for content editors */}
+      {canContent && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-black text-gray-900">Frequently Bought Together</h2>
+              <p className="mt-1 text-xs text-gray-400">
+                Choose up to {FBT_LIMIT} products to show with this product.
+              </p>
+            </div>
+            <span className={`text-xs font-bold ${selectedFbtProducts.length >= FBT_LIMIT ? 'text-red-500' : 'text-gray-400'}`}>
+              {selectedFbtProducts.length}/{FBT_LIMIT}
+            </span>
+          </div>
+
+          <div className="relative">
+            <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="search"
+              value={fbtSearch}
+              onChange={(e) => setFbtSearch(e.target.value)}
+              disabled={selectedFbtProducts.length >= FBT_LIMIT}
+              placeholder="Search products..."
+              className="w-full rounded-xl border border-gray-200 py-2.5 pl-9 pr-3 text-sm focus:outline-none focus:border-[#ff7a1a] disabled:opacity-50"
+            />
+          </div>
+
+          {selectedFbtProducts.length < FBT_LIMIT && (
+            <div className="max-h-44 overflow-y-auto rounded-xl border border-gray-100 bg-gray-50">
+              {searchableFbtProducts.length > 0 ? (
+                searchableFbtProducts.map((product) => (
+                  <button
+                    key={product.id}
+                    type="button"
+                    onClick={() => addFbtProduct(product.id)}
+                    className="flex w-full items-center justify-between gap-3 border-b border-white px-3 py-2 text-left last:border-b-0 hover:bg-white"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold text-gray-700">{product.name}</span>
+                      <span className="block truncate text-xs text-gray-400">{product.slug}</span>
+                    </span>
+                    <span className="shrink-0 rounded-lg bg-[#fff4e8] px-2 py-1 text-xs font-bold text-[#ff7a1a]">Add</span>
+                  </button>
+                ))
+              ) : (
+                <p className="px-3 py-3 text-xs text-gray-400">
+                  {fbtSearch ? 'No matching products found.' : 'No products available.'}
+                </p>
+              )}
+            </div>
+          )}
+
+          {selectedFbtProducts.length > 0 && (
+            <div className="space-y-2">
+              {selectedFbtProducts.map((product, index) => (
+                <div key={product.id} className="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-2">
+                  <span className="w-5 text-xs font-black text-gray-400">{index + 1}</span>
+                  <span className="min-w-0 flex-1 truncate text-sm font-semibold text-gray-700">{product.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => moveFbtProduct(product.id, -1)}
+                    disabled={index === 0}
+                    className="rounded-lg px-2 py-1 text-xs font-bold text-gray-500 hover:bg-white disabled:opacity-30"
+                  >
+                    Up
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveFbtProduct(product.id, 1)}
+                    disabled={index === selectedFbtProducts.length - 1}
+                    className="rounded-lg px-2 py-1 text-xs font-bold text-gray-500 hover:bg-white disabled:opacity-30"
+                  >
+                    Down
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeFbtProduct(product.id)}
+                    className="rounded-lg px-2 py-1 text-xs font-bold text-red-400 hover:bg-red-50"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Categories & Occasions - only shown for content editors */}
+      {canContent && (
+        <>
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+            <h2 className="text-lg font-black text-gray-900">Categories</h2>
+            {categories.length === 0 ? (
+              <p className="text-sm text-gray-400">No categories available.</p>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {categories.map((cat) => (
+                  <label
+                    key={cat.id}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm cursor-pointer transition-colors ${
+                      form.categoryIds.includes(cat.id)
+                        ? 'border-[#ff7a1a] bg-[#fff4e8] text-[#ff7a1a] font-semibold'
+                        : 'border-gray-100 text-gray-600 hover:border-gray-200'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={form.categoryIds.includes(cat.id)}
+                      onChange={() => toggleCat(cat.id)}
+                      className="sr-only"
+                    />
+                    <span>{cat.name}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+            <h2 className="text-lg font-black text-gray-900">Occasions</h2>
+            {occasions.length === 0 ? (
+              <p className="text-sm text-gray-400">No occasions available.</p>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {occasions.map((occ) => (
+                  <label
+                    key={occ.id}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm cursor-pointer transition-colors ${
+                      form.occasionIds.includes(occ.id)
+                        ? 'border-[#ff7a1a] bg-[#fff4e8] text-[#ff7a1a] font-semibold'
+                        : 'border-gray-100 text-gray-600 hover:border-gray-200'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={form.occasionIds.includes(occ.id)}
+                      onChange={() => toggleOcc(occ.id)}
+                      className="sr-only"
+                    />
+                    <span>{occ.name}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       {/* Actions */}
       <div className="flex items-center gap-3 pb-10">

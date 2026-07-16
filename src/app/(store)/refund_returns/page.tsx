@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: isAr ? 'سياسة الإلغاء والاسترجاع' : 'Refund and Returns Policy',
     description: isAr
-      ? 'سياسة الإلغاء والاسترجاع في چزر - إلغاء الطلب، الاسترجاع، الاستبدال، واسترداد المبالغ المدفوعة.'
+      ? 'سياسة الإلغاء والاسترجاع في جژر - إلغاء الطلب، الاسترجاع، الاستبدال، واسترداد المبالغ المدفوعة.'
       : 'Gather refund and returns policy — order cancellation, returns, damaged items, and refunds.',
   }
 }

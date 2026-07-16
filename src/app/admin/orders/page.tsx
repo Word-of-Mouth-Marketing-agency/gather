@@ -412,6 +412,9 @@ function OrderDetailsModal({
           <InfoPanel title="Totals">
             <div className="space-y-2">
               <TotalRow label="Subtotal" value={formatMoney(order.subtotal, order.currency)} />
+              {order.couponCode && order.couponDiscount ? (
+                <TotalRow label={`Discount (${order.couponCode})`} value={`-${formatMoney(order.couponDiscount, order.currency)}`} />
+              ) : null}
               <TotalRow label="Shipping" value={formatMoney(order.shippingFee ?? order.delivery.shippingFee, order.currency)} />
               <TotalRow label="Total" value={formatMoney(order.total, order.currency)} strong />
             </div>

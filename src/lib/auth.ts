@@ -1,33 +1,35 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createAdminSessionToken, parseAdminSessionToken } from './admin-session'
+import { getAdminByEmail } from './admin-users'
+import type { Role } from './permissions'
 
 const SESSION_COOKIE = 'gather_admin_session'
 
-function getCredentials(): { email: string; password: string } {
-  return {
-    email: process.env.ADMIN_EMAIL || '',
-    password: process.env.ADMIN_PASSWORD || '',
-  }
+export type AdminSession = {
+  adminUserId: string
+  email: string
+  role: Role
 }
 
-export function validateCredentials(email: string, password: string): boolean {
-  const creds = getCredentials()
-  return email === creds.email && password === creds.password
-}
-
-export async function getSession(): Promise<{ email: string; role: string } | null> {
+export async function getSession(): Promise<AdminSession | null> {
   const store = await cookies()
   const token = store.get(SESSION_COOKIE)?.value
   if (!token) return null
+
   const payload = await parseAdminSessionToken(token)
   if (!payload) return null
-  return { email: payload.email, role: payload.role }
+
+  const admin = getAdminByEmail(payload.email)
+  if (!admin || !admin.isActive) return null
+  if (admin.role !== payload.role) return null
+
+  return { adminUserId: admin.id, email: admin.email, role: admin.role }
 }
 
-export async function setSession(email: string) {
+export async function setSession(adminUserId: string, email: string, role: Role) {
   const store = await cookies()
-  store.set(SESSION_COOKIE, await createAdminSessionToken(email), {
+  store.set(SESSION_COOKIE, await createAdminSessionToken(adminUserId, email, role), {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -41,7 +43,7 @@ export async function clearSession() {
   store.delete(SESSION_COOKIE)
 }
 
-export async function requireAdmin() {
+export async function requireAdmin(): Promise<AdminSession> {
   const session = await getSession()
   if (!session) {
     redirect('/admin/login')

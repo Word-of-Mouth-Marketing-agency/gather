@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
-import { requireAdminApi } from '@/lib/admin-api'
+import { requireAnyAdminPermission } from '@/lib/admin-api'
 import { getBundleRepository } from '@/lib/repositories'
+import { hasPermission } from '@/lib/permissions'
+import { recordAuditEvent } from '@/lib/audit-log'
 
 export async function GET() {
   const repo = getBundleRepository()
@@ -8,8 +10,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['bundles.write'])
+  if (auth instanceof NextResponse) return auth
 
   try {
     const data = await request.json()
@@ -20,7 +22,18 @@ export async function POST(request: Request) {
       data.productIds = [...new Set(data.productIds)]
     }
     const repo = getBundleRepository()
-    const item = repo.create(data)
+    const item = await repo.create(data)
+
+    await recordAuditEvent({
+      adminUserId: auth.session.adminUserId,
+      adminEmail: auth.session.email,
+      adminRole: auth.session.role,
+      action: 'bundle.created',
+      targetType: 'bundle',
+      targetId: item.id,
+      metadata: { name: item.name, offerPrice: item.offerPrice },
+    })
+
     return NextResponse.json(item, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Invalid data' }, { status: 400 })

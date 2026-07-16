@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
-import { requireAdminApi } from '@/lib/admin-api'
+import { requireAnyAdminPermission } from '@/lib/admin-api'
 import { syncOrdersToOdoo } from '@/lib/odoo/order-sync'
 
 export async function POST() {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['odoo.manage'])
+  if (auth instanceof NextResponse) return auth
 
   try {
     const result = await syncOrdersToOdoo()

@@ -112,6 +112,11 @@ export default function CheckoutPageClient() {
   const [unavailableBundles, setUnavailableBundles] = useState<BundleCartItem[]>([])
   const [total, setTotal] = useState(0)
   const [shippingFees, setShippingFees] = useState<ShippingFee[]>(DEFAULT_SHIPPING_FEES)
+  const [couponCode, setCouponCode] = useState<string | null>(null)
+  const [couponDiscount, setCouponDiscount] = useState(0)
+  const [couponInput, setCouponInput] = useState('')
+  const [couponError, setCouponError] = useState('')
+  const [couponLoading, setCouponLoading] = useState(false)
   const session = useCustomerSession()
 
   const activeShippingFees = shippingFees
@@ -123,7 +128,8 @@ export default function CheckoutPageClient() {
       ?? DEFAULT_SHIPPING_FEES[DEFAULT_SHIPPING_FEES.length - 1]
     : null
   const shippingFee = selectedShippingFee?.fee ?? 0
-  const orderTotal = total + shippingFee
+  const discount = couponCode ? couponDiscount : 0
+  const orderTotal = Math.max(0, total + shippingFee - discount)
 
   useEffect(() => {
     const data = loadData()
@@ -207,6 +213,40 @@ export default function CheckoutPageClient() {
     return Object.keys(e).length === 0
   }
 
+  async function handleApplyCoupon() {
+    const code = couponInput.trim()
+    if (!code) return
+    setCouponLoading(true)
+    setCouponError('')
+    try {
+      const items = products.map((p) => ({ productId: p.product.id, quantity: p.quantity }))
+      bundles.forEach((b) => items.push({ productId: b.bundleId, quantity: b.quantity }))
+      const res = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, items, customerEmail: form.email || session?.email }),
+      })
+      const data = await res.json()
+      if (data.valid) {
+        setCouponCode(code)
+        setCouponDiscount(data.discount)
+        setCouponInput('')
+      } else {
+        setCouponError(data.reason || 'Invalid coupon')
+      }
+    } catch {
+      setCouponError('Could not validate coupon. Try again.')
+    }
+    setCouponLoading(false)
+  }
+
+  function removeCoupon() {
+    setCouponCode(null)
+    setCouponDiscount(0)
+    setCouponInput('')
+    setCouponError('')
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!validate()) return
@@ -254,6 +294,7 @@ export default function CheckoutPageClient() {
             slot: form.deliverySlot,
             shippingFee,
           },
+          couponCode: couponCode || undefined,
           paymentMethod: form.paymentMethod,
           notes: form.orderNotes,
           acceptedPrivacyPolicy,
@@ -407,6 +448,36 @@ export default function CheckoutPageClient() {
               </div>
             </section>
 
+            <section className="gather-section p-6 rounded-3xl space-y-3">
+              <h2 className="text-lg font-black text-[#171717]">{t('checkout.coupon')}</h2>
+              {couponCode ? (
+                <div className="flex items-center justify-between bg-[#f0faf0] rounded-xl px-4 py-3">
+                  <div>
+                    <span className="text-sm font-bold text-green-700">{couponCode}</span>
+                    {couponDiscount > 0 && (
+                      <span className="text-xs text-green-600 ml-2">(-{formatPrice(couponDiscount, 'EGP')})</span>
+                    )}
+                  </div>
+                  <button type="button" onClick={removeCoupon}
+                    className="text-xs font-semibold text-red-500 hover:text-red-700">
+                    {t('checkout.remove')}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input type="text" value={couponInput} onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError('') }}
+                    placeholder={t('checkout.couponPlaceholder')}
+                    className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/20 transition-colors"
+                    disabled={couponLoading} />
+                  <button type="button" onClick={handleApplyCoupon} disabled={couponLoading || !couponInput.trim()}
+                    className="gather-btn-primary text-sm py-2.5 px-5 disabled:opacity-60">
+                    {couponLoading ? '...' : t('checkout.apply')}
+                  </button>
+                </div>
+              )}
+              {couponError && <p className="text-xs text-red-500">{couponError}</p>}
+            </section>
+
             <section className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700">
                 {t('checkout.orderNotes')}
@@ -516,6 +587,13 @@ export default function CheckoutPageClient() {
                   {form.city ? formatPrice(shippingFee, 'EGP') : locale === 'ar' ? 'اختر المدينة' : 'Select city'}
                 </span>
               </div>
+
+              {couponCode && discount > 0 && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold text-green-700">{t('cart.discount')} ({couponCode})</span>
+                  <span className="text-sm font-black text-green-700">-{formatPrice(discount, 'EGP')}</span>
+                </div>
+              )}
 
               <div className="pt-3 border-t border-[rgba(255,122,26,0.15)] flex justify-between items-center">
                 <span className="text-sm font-bold text-[#7a6247]">{t('cart.total')}</span>

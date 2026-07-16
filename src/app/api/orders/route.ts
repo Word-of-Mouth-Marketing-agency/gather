@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { requireAdminApi } from '@/lib/admin-api'
+import { requireAdminApi, requireAnyAdminPermission } from '@/lib/admin-api'
 import { getAllOrders, createOrder, updateOrderStatus, type Order, reserveAdminEmail, reserveCustomerEmail, commitAdminEmailSent, commitCustomerEmailSent, markEmailFailed } from '@/lib/orders'
 import { getShippingFeeForCity } from '@/lib/shipping-fees'
 import { upsertCustomerFromCheckout } from '@/lib/customer-data'
@@ -10,6 +10,9 @@ import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
 import { sendMail, sendAdminNotification } from '@/lib/mail'
 import { getSiteUrl } from '@/lib/site-url'
 import { rateLimit } from '@/lib/rate-limit'
+import { validateCoupon, incrementUsage } from '@/lib/coupons'
+import { readJson } from '@/lib/db'
+import type { Product } from '@/types'
 
 function escapeHtml(text: string): string {
   return text
@@ -76,6 +79,7 @@ async function sendOrderNotifications(order: Order) {
     }),
     ``,
     `Subtotal: ${formatPrice(order.subtotal)}`,
+    ...(order.couponCode && order.couponDiscount ? [`Discount (${order.couponCode}): -${formatPrice(order.couponDiscount)}`] : []),
     `Delivery Fee: ${formatPrice(order.shippingFee || 0)}`,
     `Total: ${formatPrice(order.total)}`,
     `Admin: ${adminLink}`,
@@ -136,6 +140,7 @@ async function sendOrderNotifications(order: Order) {
     }),
     ``,
     `Subtotal: ${formatPrice(order.subtotal)}`,
+    ...(order.couponCode && order.couponDiscount ? [`Discount (${order.couponCode}): -${formatPrice(order.couponDiscount)}`] : []),
     `Delivery Fee: ${formatPrice(order.shippingFee || 0)}`,
     `Total: ${formatPrice(order.total)}`,
     `Payment: ${order.paymentMethod}`,
@@ -205,8 +210,8 @@ export async function GET(request: Request) {
     return NextResponse.json(orders)
   }
 
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['orders.read'])
+  if (auth instanceof NextResponse) return auth
   return NextResponse.json(getAllOrders())
 }
 
@@ -228,17 +233,47 @@ export async function POST(request: Request) {
       address: data.delivery?.address,
     })
 
+    let couponDiscount = 0
+    let couponId: string | undefined
+    let couponCode: string | undefined
+
+    if (data.couponCode && typeof data.couponCode === 'string' && data.couponCode.trim()) {
+      couponCode = data.couponCode.trim()
+      const products = readJson<Product[]>('products.json')
+      const items = (data.items || []).map((i: { productId: string; quantity: number }) => ({
+        productId: i.productId,
+        quantity: Number(i.quantity) || 1,
+      }))
+      const validation = await validateCoupon({ code: couponCode!, items }, products)
+      if (!validation.valid) {
+        return NextResponse.json({ error: 'Coupon ' + validation.reason, field: 'couponCode' }, { status: 400 })
+      }
+      couponDiscount = validation.discount || 0
+      couponId = validation.coupon?.id
+    }
+
+    const totalAfterDiscount = Math.max(0, subtotal + shippingFee - couponDiscount)
+
     const order = await createOrder({
       ...data,
       customerId: customer.id,
       subtotal,
       shippingFee,
-      total: subtotal + shippingFee,
+      total: totalAfterDiscount,
+      couponCode,
+      couponId,
+      couponDiscount: couponDiscount > 0 ? couponDiscount : undefined,
+      subtotalBeforeDiscount: couponDiscount > 0 ? subtotal : undefined,
+      totalAfterDiscount: couponDiscount > 0 ? totalAfterDiscount : undefined,
       delivery: {
         ...data.delivery,
         shippingFee,
       },
     })
+
+    if (couponDiscount > 0 && couponId) {
+      incrementUsage(couponId)
+    }
 
     if (isOdooSyncEnabled()) {
       syncPartnerFromCustomer(customer.id)
@@ -262,8 +297,8 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['orders.write'])
+  if (auth instanceof NextResponse) return auth
 
   try {
     const { id, status } = await request.json()

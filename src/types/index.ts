@@ -544,3 +544,42 @@ export interface Customer {
   syncError?: string
   lastSyncedAt?: string
 }
+
+// ─── Coupon ──────────────────────────────────────────────────────────────────
+
+export type CouponDiscountType = 'percentage' | 'fixed_amount'
+
+export interface Coupon {
+  id: string
+  code: string
+  description?: string
+  discountType: CouponDiscountType
+  discountValue: number
+  minimumOrderAmount?: number
+  maximumDiscountAmount?: number
+  usageLimit?: number
+  usageCount: number
+  perCustomerLimit?: number
+  startsAt?: string
+  expiresAt?: string
+  applicableProductIds?: string[]
+  applicableCategoryIds?: string[]
+  excludedProductIds?: string[]
+  isActive: boolean
+  createdAt: string
+  updatedAt?: string
+}
+
+export interface CouponValidationRequest {
+  code: string
+  items: { productId: string; quantity: number }[]
+  customerEmail?: string
+}
+
+export interface CouponValidationResult {
+  valid: boolean
+  coupon?: Coupon
+  discount?: number
+  eligibleSubtotal?: number
+  reason?: string
+}

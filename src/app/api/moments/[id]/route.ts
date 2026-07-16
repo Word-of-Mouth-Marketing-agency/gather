@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
-import { requireAdminApi } from '@/lib/admin-api'
+import { requireAnyAdminPermission } from '@/lib/admin-api'
 import { readJson, writeJson } from '@/lib/db'
 import type { MomentSubmission } from '@/types'
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['moments.write'])
+  if (auth instanceof NextResponse) return auth
 
   try {
     const { id } = await params
@@ -45,8 +45,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['moments.write'])
+  if (auth instanceof NextResponse) return auth
 
   try {
     const { id } = await params

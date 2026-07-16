@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
-import { requireAdminApi } from '@/lib/admin-api'
+import { requireAnyAdminPermission } from '@/lib/admin-api'
 import { deleteCustomer, getAdminCustomerById, updateCustomer } from '@/lib/customer-data'
 import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
 import { syncPartnerFromCustomer } from '@/lib/odoo/partner-sync'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['customers.read'])
+  if (auth instanceof NextResponse) return auth
 
   const { id } = await params
   const customer = getAdminCustomerById(id)
@@ -15,8 +15,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['customers.write'])
+  if (auth instanceof NextResponse) return auth
 
   try {
     const { id } = await params
@@ -50,8 +50,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['customers.write'])
+  if (auth instanceof NextResponse) return auth
 
   const { id } = await params
   const deleted = await deleteCustomer(id)

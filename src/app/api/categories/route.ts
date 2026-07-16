@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { requireAdminApi } from '@/lib/admin-api'
+import { requireAnyAdminPermission } from '@/lib/admin-api'
 import { getCategoryRepository } from '@/lib/repositories'
 import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
 import { syncCategoryById } from '@/lib/odoo/category-sync'
@@ -10,8 +10,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['categories.write'])
+  if (auth instanceof NextResponse) return auth
 
   try {
     const data = await request.json()

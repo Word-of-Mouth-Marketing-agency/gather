@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
-import { requireAdminApi } from '@/lib/admin-api'
+import { requireAnyAdminPermission } from '@/lib/admin-api'
 import { deleteOrder, getOrderById, updateOrderStatus } from '@/lib/orders'
 import { syncOrderStatusToOdoo } from '@/lib/odoo/order-sync'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['orders.read'])
+  if (auth instanceof NextResponse) return auth
 
   const { id } = await params
   const order = getOrderById(id)
@@ -14,8 +14,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['orders.write'])
+  if (auth instanceof NextResponse) return auth
 
   try {
     const { id } = await params
@@ -35,8 +35,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['orders.write'])
+  if (auth instanceof NextResponse) return auth
 
   const { id } = await params
   const deleted = await deleteOrder(id)

@@ -174,6 +174,11 @@ const en: TranslationMap = {
   'checkout.selectCity': 'Select your city / area',
   'checkout.moreLocations': 'More locations will be available soon.',
   'checkout.removeBundleOffer': 'Remove unavailable bundle offers before placing your order.',
+  'checkout.coupon': 'Coupon Code',
+  'checkout.couponPlaceholder': 'Enter coupon code',
+  'checkout.apply': 'Apply',
+  'checkout.remove': 'Remove',
+  'cart.discount': 'Discount',
 
   // ─── Checkout Success ───
   'checkout.thankYou': 'Thank You!',
@@ -438,13 +443,13 @@ const ar: TranslationMap = {
   'nav.home': 'الرئيسية',
   'nav.shopByOccasion': 'تسوق حسب المناسبة',
   'nav.shopByCategory': 'تسوق حسب الفئة',
-  'nav.about': 'عن چزر',
+  'nav.about': 'عن جژر',
   'nav.contact': 'اتصل بنا',
   'nav.search': 'بحث',
   'nav.go': 'بحث',
   'nav.cancel': 'إلغاء',
   'nav.searchPlaceholder': 'ابحث عن منتجات...',
-  'nav.followGather': 'تابع چزر',
+  'nav.followGather': 'تابع جژر',
 
   // ─── Footer ───
   'footer.tagline': 'كل ما تحتاجه لحظاتك الحلوة.',
@@ -457,11 +462,11 @@ const ar: TranslationMap = {
   'footer.privacyPolicy': 'سياسة الخصوصية',
   'footer.refundReturns': 'سياسة الاسترداد والإرجاع',
   'footer.contactInfo': 'معلومات التواصل',
-  'footer.copyright': '© ٢٠٢٦ چزر. جميع الحقوق محفوظة.',
+  'footer.copyright': '© ٢٠٢٦ جژر. جميع الحقوق محفوظة.',
   'footer.poweredBy': 'مقدم من',
 
   // ─── Hero ───
-  'hero.brandLine': 'چزر',
+  'hero.brandLine': 'جژر',
   'hero.headline': 'تجمعنا اللحظات الحلوة',
   'hero.subtitle': 'كل ما تحتاجه مناسبتك.',
   'hero.ctaPrimary': 'تسوق الآن',
@@ -476,14 +481,14 @@ const ar: TranslationMap = {
   'home.shopByOccasionSub': 'كل ما تحتاجه لجعل مناسبتك لا تُنسى',
   'home.offers': 'العروض والتخفيضات',
   'home.offersSub': 'اجعل مناسبتك أسهل وأسعد وبسعر أفضل.',
-  'home.gatherMoments': 'لحظات چزر',
-  'home.gatherMomentsSub': 'شارك لحظاتك السعيدة مع چزر واحصل على فرصة للفوز بقسائم تسوق لمناسبتك القادمة.',
+  'home.gatherMoments': 'لحظات جژر',
+  'home.gatherMomentsSub': 'شارك لحظاتك السعيدة مع جژر واحصل على فرصة للفوز بقسائم تسوق لمناسبتك القادمة.',
   'home.shareMoment': 'شارك اللحظة',
-  'home.aboutGather': 'عن چزر',
+  'home.aboutGather': 'عن جژر',
   'home.aboutGatherSub': 'نصمم البهجة لكل مناسبة، ونوصلها لباب بيتك. اجعل كل لحظة تستحق.',
   'home.aboutGatherBody': 'من كيك أعياد الميلاد إلى البالونات، والوجبات الخفيفة إلى الديكورات — اطلب كل ما تحتاجه لأي مناسبة، ووصله لباب بيتك.',
   'home.aboutUs': 'اعرف عنا',
-  'home.whyGather': 'ليه چــــــــــزر',
+  'home.whyGather': 'ليه جژر',
   'home.whyGatherSub': 'نخلي كل مناسبة لا تُنسى',
   'home.viewAll': 'عرض الكل',
   'home.noProducts': 'لا توجد منتجات.',
@@ -498,8 +503,8 @@ const ar: TranslationMap = {
 
   // ─── PreFooter CTA ───
   'prefooter.join': 'انضم إلى',
-  'prefooter.family': 'عائلة چزر',
-  'prefooter.cta': 'لا تفوّت فرصة الانضمام لعائلة چزر للاستمتاع بعروض ومزايا خاصة.',
+  'prefooter.family': 'عائلة جژر',
+  'prefooter.cta': 'لا تفوّت فرصة الانضمام لعائلة جژر للاستمتاع بعروض ومزايا خاصة.',
 
   'prefooter.signUp': 'إنشاء حساب',
   // ─── Product page ───
@@ -515,7 +520,7 @@ const ar: TranslationMap = {
   'product.category': 'الفئة',
   'product.occasion': 'المناسبة',
   'product.relatedProducts': 'منتجات ذات صلة',
-  'product.limitedOffer': 'عرض چزر لفترة محدودة',
+  'product.limitedOffer': 'عرض جژر لفترة محدودة',
   'product.sale': 'عرض',
   'product.addedShort': '✓ تمت الإضافة',
   'product.removeFromWishlist': 'إزالة من المفضلة',
@@ -605,6 +610,11 @@ const ar: TranslationMap = {
   'checkout.selectCity': 'اختر مدينتك / منطقتك',
   'checkout.moreLocations': 'المزيد من المواقع ستتوفر قريبًا.',
   'checkout.removeBundleOffer': 'أزل عروض الباقات غير المتاحة قبل تقديم طلبك.',
+  'checkout.coupon': 'كود الخصم',
+  'checkout.couponPlaceholder': 'أدخل كود الخصم',
+  'checkout.apply': 'تطبيق',
+  'checkout.remove': 'إزالة',
+  'cart.discount': 'الخصم',
 
   // ─── Checkout Success ───
   'checkout.thankYou': 'شكرًا لك!',
@@ -646,7 +656,7 @@ const ar: TranslationMap = {
 
   // ─── Signup ───
   'signup.title': 'إنشاء حساب',
-  'signup.subtitle': 'أنشئ حساب چزر للاستمتاع بتجربة دفع أسرع ومتابعة الطلبات.',
+  'signup.subtitle': 'أنشئ حساب جژر للاستمتاع بتجربة دفع أسرع ومتابعة الطلبات.',
   'signup.fullName': 'الاسم الكامل',
   'signup.email': 'البريد الإلكتروني',
   'signup.phone': 'رقم الهاتف',
@@ -684,7 +694,7 @@ const ar: TranslationMap = {
   'account.signOut': 'تسجيل الخروج',
 
   // ─── About page ───
-  'about.title': 'عن چزر',
+  'about.title': 'عن جژر',
   'about.ourStory': 'قصتنا',
   'about.whatWeOffer': 'ماذا نقدم',
 
@@ -825,7 +835,7 @@ const ar: TranslationMap = {
   'addresses.deleteConfirm': 'حذف هذا العنوان؟',
 
   // ─── Moment / Share ───
-  'moment.title': 'شارك لحظة چزر',
+  'moment.title': 'شارك لحظة جژر',
   'moment.subtitle': 'ارفع صورة احتفالك واحصل على فرصة للفوز بقسيمة تسوق.',
   'moment.name': 'الاسم',
   'moment.uploadPhoto': 'ارفع صورة احتفالك',
@@ -833,7 +843,7 @@ const ar: TranslationMap = {
   'moment.phone': 'الهاتف',
   'moment.occasionType': 'نوع المناسبة',
   'moment.selectOccasion': 'اختر المناسبة',
-  'moment.consent': 'أؤكد أنني أملك هذه الصورة أو لدي إذن بمشاركتها، وأسمح لچزر باستخدامها على الموقع ووسائل التواصل الاجتماعي والمواد التسويقية.',
+  'moment.consent': 'أؤكد أنني أملك هذه الصورة أو لدي إذن بمشاركتها، وأسمح لجژر باستخدامها على الموقع ووسائل التواصل الاجتماعي والمواد التسويقية.',
   'moment.submit': 'إرسال',
   'moment.submitting': 'جاري الإرسال...',
   'moment.thankYou': 'شكرًا لك!',
@@ -848,13 +858,13 @@ const ar: TranslationMap = {
   'moment.networkError': 'خطأ في الشبكة. يرجى المحاولة مرة أخرى.',
 
   // ─── SEO Metadata ───
-  'meta.home': 'چزر — هدايا فاخرة مع توصيل في القاهرة',
+  'meta.home': 'جژر — هدايا فاخرة مع توصيل في القاهرة',
   'meta.shopByCategory': 'تسوق حسب الفئة',
   'meta.shopByOccasion': 'تسوق حسب المناسبة',
   'meta.cart': 'سلة التسوق',
   'meta.checkout': 'إتمام الطلب',
   'meta.checkoutConfirmed': 'تم تأكيد الطلب',
-  'meta.about': 'عن چزر',
+  'meta.about': 'عن جژر',
   'meta.contact': 'اتصل بنا',
   'meta.privacy': 'سياسة الخصوصية',
   'meta.refund': 'سياسة الاسترداد والإرجاع',

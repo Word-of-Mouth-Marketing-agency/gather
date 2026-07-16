@@ -7,6 +7,8 @@ const ORDERS_FILE = 'orders.json'
 const PRODUCTS_FILE = 'products.json'
 const DELIVERY_SKU = 'DELIVERY-FEE'
 const DELIVERY_NAME = 'Delivery Fee'
+const DISCOUNT_SKU = 'GATHER-COUPON-DISCOUNT'
+const DISCOUNT_NAME = 'Website Coupon Discount'
 
 export interface OrderSyncResult {
   created: number
@@ -107,6 +109,19 @@ async function ensureDeliveryProduct(): Promise<number> {
     sale_ok: true,
     purchase_ok: false,
     list_price: 0,
+  })
+}
+
+async function ensureDiscountProduct(): Promise<number> {
+  const existing = await odooSearchRead('product.product', [['default_code', '=', DISCOUNT_SKU]], ['id'], 1)
+  if (existing.length > 0) return existing[0].id as number
+  return odooCreate('product.product', {
+    default_code: DISCOUNT_SKU,
+    name: DISCOUNT_NAME,
+    sale_ok: true,
+    purchase_ok: false,
+    list_price: 0,
+    type: 'service',
   })
 }
 
@@ -232,6 +247,19 @@ async function syncSingleOrder(
         name: DELIVERY_NAME,
         product_uom_qty: 1,
         price_unit: shippingFee,
+      },
+    ])
+  }
+
+  const couponDiscount = order.couponDiscount ?? 0
+  if (couponDiscount > 0) {
+    const discountProductId = await ensureDiscountProduct()
+    orderLines.push([
+      0, 0, {
+        product_id: discountProductId,
+        name: `Coupon Discount${order.couponCode ? ` (${order.couponCode})` : ''}`,
+        product_uom_qty: 1,
+        price_unit: -couponDiscount,
       },
     ])
   }

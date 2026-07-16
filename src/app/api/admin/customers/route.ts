@@ -1,19 +1,19 @@
 import { NextResponse } from 'next/server'
-import { requireAdminApi } from '@/lib/admin-api'
+import { requireAnyAdminPermission } from '@/lib/admin-api'
 import { getAdminCustomers, updateCustomer } from '@/lib/customer-data'
 import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
 import { syncPartnerFromCustomer } from '@/lib/odoo/partner-sync'
 
 export async function GET() {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['customers.read'])
+  if (auth instanceof NextResponse) return auth
 
   return NextResponse.json(getAdminCustomers())
 }
 
 export async function POST(request: Request) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['customers.write'])
+  if (auth instanceof NextResponse) return auth
 
   try {
     const { id, name, email, phone, isActive, status } = await request.json()

@@ -1,8 +1,11 @@
+import type { Role } from './permissions'
+
 const SESSION_EXPIRY_MS = 24 * 60 * 60 * 1000
 
-type AdminSessionPayload = {
+export type AdminSessionPayload = {
+  adminUserId: string
   email: string
-  role: 'admin'
+  role: Role
   exp: number
 }
 
@@ -52,14 +55,16 @@ async function sign(value: string): Promise<string> {
     new TextEncoder().encode(getAdminSessionSecret()),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
-    ['sign']
+    ['sign'],
   )
   const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(value))
   return bytesToBase64Url(signature)
 }
 
-export async function createAdminSessionToken(email: string): Promise<string> {
-  const payload = base64UrlEncode(JSON.stringify({ email, role: 'admin', exp: Date.now() + SESSION_EXPIRY_MS }))
+export async function createAdminSessionToken(adminUserId: string, email: string, role: Role): Promise<string> {
+  const payload = base64UrlEncode(
+    JSON.stringify({ adminUserId, email, role, exp: Date.now() + SESSION_EXPIRY_MS }),
+  )
   const signature = await sign(payload)
   return `${payload}.${signature}`
 }
@@ -72,7 +77,7 @@ export async function parseAdminSessionToken(token: string): Promise<AdminSessio
 
   try {
     const parsed = JSON.parse(base64UrlDecode(payload)) as AdminSessionPayload
-    if (!parsed.email || typeof parsed.exp !== 'number') return null
+    if (!parsed.adminUserId || !parsed.email || !parsed.role || typeof parsed.exp !== 'number') return null
     if (parsed.exp < Date.now()) return null
     return parsed
   } catch {

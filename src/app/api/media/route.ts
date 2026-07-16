@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
-import { requireAdminApi } from '@/lib/admin-api'
+import { requireAnyAdminPermission } from '@/lib/admin-api'
 import { readJson, writeJson } from '@/lib/db'
 import type { MediaAsset } from '@/types'
 
 export async function DELETE(request: Request) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['media.upload'])
+  if (auth instanceof NextResponse) return auth
 
   try {
     const { id } = await request.json()

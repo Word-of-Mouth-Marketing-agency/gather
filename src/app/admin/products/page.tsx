@@ -29,6 +29,8 @@ interface StockSyncResult {
   timestamp: string
 }
 
+type Role = 'super_admin' | 'marketing_admin' | 'finance_admin'
+
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [search, setSearch] = useState('')
@@ -42,11 +44,19 @@ export default function AdminProductsPage() {
   const [stockSyncResult, setStockSyncResult] = useState<StockSyncResult | null>(null)
   const [pullSyncing, setPullSyncing] = useState(false)
   const [pullResult, setPullResult] = useState<StockSyncResult | null>(null)
+  const [role, setRole] = useState<Role | null>(null)
 
   async function load() {
     try {
-      const res = await fetch('/api/products?includeArchived=true')
+      const [res, meRes] = await Promise.all([
+        fetch('/api/products?includeArchived=true'),
+        fetch('/api/auth/me'),
+      ])
       if (res.ok) setProducts(await res.json())
+      if (meRes.ok) {
+        const data = await meRes.json()
+        if (data.authenticated) setRole(data.role)
+      }
     } catch { /* ignore */ }
     setLoading(false)
   }
@@ -58,6 +68,10 @@ export default function AdminProductsPage() {
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.slug.includes(search.toLowerCase())
   )
+
+  const isSuper = role === 'super_admin'
+  const isMarketing = role === 'marketing_admin'
+  const isFinance = role === 'finance_admin'
 
   async function handleDelete(id: string) {
     if (deleting === id) {
@@ -181,33 +195,39 @@ export default function AdminProductsPage() {
           <p className="text-sm text-gray-400 mt-0.5">{products.length} total products</p>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            onClick={handleSyncOdoo}
-            disabled={syncing}
-            className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-          >
-            {syncing ? 'Syncing...' : 'Sync Products to Odoo'}
-          </button>
-          <button
-            onClick={handleSyncStock}
-            disabled={stockSyncing}
-            className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-          >
-            {stockSyncing ? 'Pulling stock...' : 'Sync Stock from Odoo'}
-          </button>
-          <button
-            onClick={handlePullOdoo}
-            disabled={pullSyncing}
-            className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-          >
-            {pullSyncing ? 'Pulling...' : 'Pull Products from Odoo'}
-          </button>
-          <Link href="/admin/products/new" className="gather-btn-primary text-sm py-2.5 px-5 shadow-md inline-flex items-center gap-1.5">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            New Product
-          </Link>
+          {isSuper && (
+            <>
+              <button
+                onClick={handleSyncOdoo}
+                disabled={syncing}
+                className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              >
+                {syncing ? 'Syncing...' : 'Sync Products to Odoo'}
+              </button>
+              <button
+                onClick={handleSyncStock}
+                disabled={stockSyncing}
+                className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              >
+                {stockSyncing ? 'Pulling stock...' : 'Sync Stock from Odoo'}
+              </button>
+              <button
+                onClick={handlePullOdoo}
+                disabled={pullSyncing}
+                className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              >
+                {pullSyncing ? 'Pulling...' : 'Pull Products from Odoo'}
+              </button>
+            </>
+          )}
+          {role !== 'finance_admin' && (
+            <Link href="/admin/products/new" className="gather-btn-primary text-sm py-2.5 px-5 shadow-md inline-flex items-center gap-1.5">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              New Product
+            </Link>
+          )}
         </div>
       </div>
 
@@ -366,9 +386,9 @@ export default function AdminProductsPage() {
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="text-left px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wide">Product</th>
-                <th className="text-left px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wide hidden md:table-cell">Price</th>
-                <th className="text-left px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wide hidden lg:table-cell">Stock</th>
-                <th className="text-left px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wide hidden lg:table-cell">Featured</th>
+                {!isMarketing && <th className="text-left px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wide hidden md:table-cell">Price</th>}
+                {(isSuper || isFinance) && <th className="text-left px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wide hidden lg:table-cell">Stock</th>}
+                {!isFinance && <th className="text-left px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wide hidden lg:table-cell">Featured</th>}
                 <th className="px-5 py-3" />
               </tr>
             </thead>
@@ -395,24 +415,30 @@ export default function AdminProductsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-3 hidden md:table-cell">
-                    <span className="font-bold text-[#ff7a1a]">{activePrice} {product.currency}</span>
-                    {activeDiscount && (
-                      <span className="ml-2 text-xs text-gray-400 line-through">{product.price} {product.currency}</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3 hidden lg:table-cell">
-                    <span className={`font-semibold ${product.stock === 0 ? 'text-red-500' : product.stock <= 3 ? 'text-orange-500' : 'text-green-600'}`}>
-                      {product.stock}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 hidden lg:table-cell">
-                    {product.featured ? (
-                      <span className="text-xs bg-[#fff4e8] text-[#ff7a1a] font-bold px-2 py-1 rounded-full">Yes</span>
-                    ) : (
-                      <span className="text-xs text-gray-300">—</span>
-                    )}
-                  </td>
+                  {!isMarketing && (
+                    <td className="px-5 py-3 hidden md:table-cell">
+                      <span className="font-bold text-[#ff7a1a]">{activePrice} {product.currency}</span>
+                      {activeDiscount && (
+                        <span className="ml-2 text-xs text-gray-400 line-through">{product.price} {product.currency}</span>
+                      )}
+                    </td>
+                  )}
+                  {(isSuper || isFinance) && (
+                    <td className="px-5 py-3 hidden lg:table-cell">
+                      <span className={`font-semibold ${product.stock === 0 ? 'text-red-500' : product.stock <= 3 ? 'text-orange-500' : 'text-green-600'}`}>
+                        {product.stock}
+                      </span>
+                    </td>
+                  )}
+                  {!isFinance && (
+                    <td className="px-5 py-3 hidden lg:table-cell">
+                      {product.featured ? (
+                        <span className="text-xs bg-[#fff4e8] text-[#ff7a1a] font-bold px-2 py-1 rounded-full">Yes</span>
+                      ) : (
+                        <span className="text-xs text-gray-300">—</span>
+                      )}
+                    </td>
+                  )}
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2 justify-end">
                       <Link
@@ -421,14 +447,16 @@ export default function AdminProductsPage() {
                       >
                         Edit
                       </Link>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className={`text-xs font-semibold transition-colors ${
-                          deleting === product.id ? 'text-white bg-red-500 px-2 py-0.5 rounded' : 'text-red-400 hover:text-red-500'
-                        }`}
-                      >
-                        {deleting === product.id ? 'Confirm?' : 'Delete'}
-                      </button>
+                      {isSuper && (
+                        <button
+                          onClick={() => handleDelete(product.id)}
+                          className={`text-xs font-semibold transition-colors ${
+                            deleting === product.id ? 'text-white bg-red-500 px-2 py-0.5 rounded' : 'text-red-400 hover:text-red-500'
+                          }`}
+                        >
+                          {deleting === product.id ? 'Confirm?' : 'Delete'}
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

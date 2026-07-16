@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
-import { requireAdminApi } from '@/lib/admin-api'
+import { requireAnyAdminPermission } from '@/lib/admin-api'
 import { getBundleRepository } from '@/lib/repositories'
+import { recordAuditEvent } from '@/lib/audit-log'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -11,8 +12,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['bundles.write'])
+  if (auth instanceof NextResponse) return auth
 
   const { id } = await params
   const data = await request.json()
@@ -23,18 +24,39 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     data.productIds = [...new Set(data.productIds)]
   }
   const repo = getBundleRepository()
-  const updated = repo.update(id, data)
+  const updated = await repo.update(id, data)
   if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  await recordAuditEvent({
+    adminUserId: auth.session.adminUserId,
+    adminEmail: auth.session.email,
+    adminRole: auth.session.role,
+    action: 'bundle.updated',
+    targetType: 'bundle',
+    targetId: id,
+    metadata: { changedFields: Object.keys(data).join(',') },
+  })
+
   return NextResponse.json(updated)
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAnyAdminPermission(['bundles.write'])
+  if (auth instanceof NextResponse) return auth
 
   const { id } = await params
   const repo = getBundleRepository()
-  const deleted = repo.delete(id)
+  const deleted = await repo.delete(id)
   if (!deleted) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  await recordAuditEvent({
+    adminUserId: auth.session.adminUserId,
+    adminEmail: auth.session.email,
+    adminRole: auth.session.role,
+    action: 'bundle.deleted',
+    targetType: 'bundle',
+    targetId: id,
+  })
+
   return NextResponse.json({ success: true })
 }

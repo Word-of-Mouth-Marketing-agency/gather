@@ -1,8 +1,18 @@
 import { NextResponse } from 'next/server'
-import { requireAdminApi } from '@/lib/admin-api'
 import { getProductRepository } from '@/lib/repositories'
 import { isOdooSyncEnabled } from '@/lib/odoo/json-rpc'
 import { syncProductById } from '@/lib/odoo/product-sync'
+import { hasPermission } from '@/lib/permissions'
+import { recordAuditEvent } from '@/lib/audit-log'
+import {
+  requireAdminOrResponse,
+  ALL_FIELDS,
+  filterContentFields,
+  filterPricingFields,
+  normalizeSku,
+  validateSku,
+  logOp,
+} from '@/lib/product-permissions'
 
 export async function GET(request: Request) {
   const repo = getProductRepository()
@@ -10,40 +20,39 @@ export async function GET(request: Request) {
   return NextResponse.json(repo.getAll(includeArchived))
 }
 
-function normalizeSku(sku: unknown): string {
-  return String(sku ?? '').trim().toUpperCase()
-}
-
-function validateSku(sku: string, excludeId?: string): string | null {
-  if (!sku) return 'SKU is required for Odoo sync.'
-  const repo = getProductRepository()
-  const all = repo.getAll(true)
-  const dup = all.find((p) => p.sku?.trim().toUpperCase() === sku && p.id !== excludeId)
-  if (dup) return `SKU "${sku}" is already used by product "${dup.name}".`
-  return null
-}
-
-function logOp(op: string, id: string, sku?: string, extra?: string) {
-  const ts = new Date().toISOString()
-  console.log(`[PRODUCT_${op}] id=${id}${sku ? ` sku=${sku}` : ''}${extra ? ` ${extra}` : ''} ts=${ts}`)
-}
-
 export async function POST(request: Request) {
-  const unauthorized = await requireAdminApi()
-  if (unauthorized) return unauthorized
+  const auth = await requireAdminOrResponse(['products.content.write', 'products.pricing.write'])
+  if (auth instanceof NextResponse) return auth
+
+  const canContent = hasPermission(auth.session.role, 'products.content.write')
+  const canPricing = hasPermission(auth.session.role, 'products.pricing.write')
 
   try {
     const data = await request.json()
-    if (data.discountStartsAt && data.discountEndsAt && data.discountEndsAt < data.discountStartsAt) {
-      return NextResponse.json({ error: 'Discount end date cannot be before start date' }, { status: 400 })
+
+    let filtered: Record<string, unknown>
+    if (canContent && canPricing) {
+      filtered = { ...data }
+      for (const key of Object.keys(filtered)) {
+        if (!ALL_FIELDS.includes(key)) delete filtered[key]
+      }
+    } else if (canContent) {
+      filtered = filterContentFields(data)
+    } else if (canPricing) {
+      filtered = filterPricingFields(data)
+    } else {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
-    const sku = normalizeSku(data.sku)
-    const skuError = validateSku(sku)
-    if (skuError) return NextResponse.json({ error: skuError }, { status: 400 })
+
+    const sku = normalizeSku(filtered.sku ?? data.sku)
+    if (canContent) {
+      const skuError = validateSku(sku)
+      if (skuError) return NextResponse.json({ error: skuError }, { status: 400 })
+    }
 
     const repo = getProductRepository()
-    const product = await repo.create({ ...data, sku })
-    logOp('CREATE', product.id, sku, `name="${product.name}" stock=${product.stock} categories=${JSON.stringify(data.categoryIds ?? [])}`)
+    const product = await repo.create({ ...filtered, sku } as never)
+    logOp('CREATE', product.id, sku, `name="${product.name}"`)
 
     let syncResult
     if (isOdooSyncEnabled()) {
@@ -56,8 +65,6 @@ export async function POST(request: Request) {
         syncResult = { syncStatus: 'sync_failed' as const, syncError: msg.slice(0, 500) }
         logOp('CREATE', product.id, sku, `odoo_sync=error ${Date.now() - startMs}ms error="${msg.slice(0, 200)}"`)
       }
-    } else {
-      logOp('CREATE', product.id, sku, 'odoo_sync=skipped (ODOO_SYNC_ENABLED=false)')
     }
 
     return NextResponse.json({ ...product, odooSync: syncResult }, { status: 201 })
