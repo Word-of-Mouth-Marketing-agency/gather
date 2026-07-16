@@ -31,7 +31,8 @@ export async function POST(request: Request) {
 
     await setSession(admin.id, admin.email, admin.role)
     return NextResponse.json({ success: true })
-  } catch {
+  } catch (err) {
+    console.error('[LOGIN_ERROR]', err instanceof Error ? err.message : String(err), err instanceof Error ? err.stack : '')
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }
