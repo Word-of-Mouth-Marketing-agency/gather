@@ -6,29 +6,6 @@ import Image from 'next/image'
 import type { Product } from '@/types'
 import { getActiveProductPrice, isProductDiscountActive } from '@/lib/scheduled-discounts'
 
-interface SyncResult {
-  total: number
-  withSku: number
-  created: number
-  updated: number
-  skippedMissingSku: number
-  failed: number
-  missingCategoryMapping: number
-  warnings: string[]
-  errors: Record<string, string>
-}
-
-interface StockSyncResult {
-  total: number
-  withSku: number
-  updated: number
-  skippedMissingSku: number
-  failed: number
-  warnings: string[]
-  errors: Record<string, string>
-  timestamp: string
-}
-
 type Role = 'super_admin' | 'marketing_admin' | 'finance_admin'
 
 export default function AdminProductsPage() {
@@ -38,12 +15,6 @@ export default function AdminProductsPage() {
   const [deleting, setDeleting] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [deleteWarning, setDeleteWarning] = useState<string | null>(null)
-  const [syncing, setSyncing] = useState(false)
-  const [syncResult, setSyncResult] = useState<SyncResult | null>(null)
-  const [stockSyncing, setStockSyncing] = useState(false)
-  const [stockSyncResult, setStockSyncResult] = useState<StockSyncResult | null>(null)
-  const [pullSyncing, setPullSyncing] = useState(false)
-  const [pullResult, setPullResult] = useState<StockSyncResult | null>(null)
   const [role, setRole] = useState<Role | null>(null)
 
   async function load() {
@@ -100,93 +71,6 @@ export default function AdminProductsPage() {
     }
   }
 
-  async function handleSyncOdoo() {
-    setSyncing(true)
-    setSyncResult(null)
-    try {
-      const res = await fetch('/api/admin/products/sync-odoo', { method: 'POST' })
-      if (res.ok) {
-        const data = await res.json()
-        setSyncResult(data)
-        await load()
-      } else {
-        const err = await res.json()
-        setSyncResult({
-          total: 0, withSku: 0, created: 0, updated: 0, skippedMissingSku: 0, failed: 0,
-          missingCategoryMapping: 0,
-          warnings: [err.error ?? 'Sync request failed'],
-          errors: {},
-        })
-      }
-    } catch {
-      setSyncResult({
-        total: 0, withSku: 0, created: 0, updated: 0, skippedMissingSku: 0, failed: 0,
-        missingCategoryMapping: 0,
-        warnings: ['Network error — could not reach the sync endpoint'],
-        errors: {},
-      })
-    }
-    setSyncing(false)
-  }
-
-  async function handleSyncStock() {
-    setStockSyncing(true)
-    setStockSyncResult(null)
-    try {
-      const res = await fetch('/api/admin/products/sync-stock-odoo', { method: 'POST' })
-      if (res.ok) {
-        const data = await res.json()
-        setStockSyncResult(data)
-        await load()
-      } else {
-        const err = await res.json()
-        setStockSyncResult({
-          total: 0, withSku: 0, updated: 0, skippedMissingSku: 0, failed: 0,
-          warnings: [err.error ?? 'Stock sync request failed'],
-          errors: {},
-          timestamp: new Date().toISOString(),
-        })
-      }
-    } catch {
-      setStockSyncResult({
-        total: 0, withSku: 0, updated: 0, skippedMissingSku: 0, failed: 0,
-        warnings: ['Network error — could not reach the stock sync endpoint'],
-        errors: {},
-        timestamp: new Date().toISOString(),
-      })
-    }
-    setStockSyncing(false)
-  }
-
-  async function handlePullOdoo() {
-    setPullSyncing(true)
-    setPullResult(null)
-    try {
-      const res = await fetch('/api/admin/products/pull-odoo', { method: 'POST' })
-      if (res.ok) {
-        const data = await res.json()
-        setPullResult(data)
-        await load()
-      } else {
-        const err = await res.json()
-        setPullResult({
-          total: 0, withSku: 0, updated: 0, skippedMissingSku: 0, failed: 0,
-          warnings: [err.error ?? 'Pull request failed'],
-          errors: {},
-          timestamp: new Date().toISOString(),
-        })
-      }
-    } catch {
-      setPullResult({
-        total: 0, withSku: 0, updated: 0, skippedMissingSku: 0, failed: 0,
-        warnings: ['Network error — could not reach the pull endpoint'],
-        errors: {},
-        timestamp: new Date().toISOString(),
-      })
-    }
-    setPullSyncing(false)
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
@@ -195,31 +79,6 @@ export default function AdminProductsPage() {
           <p className="text-sm text-gray-400 mt-0.5">{products.length} total products</p>
         </div>
         <div className="flex items-center gap-3">
-          {isSuper && (
-            <>
-              <button
-                onClick={handleSyncOdoo}
-                disabled={syncing}
-                className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-              >
-                {syncing ? 'Syncing...' : 'Sync Products to Odoo'}
-              </button>
-              <button
-                onClick={handleSyncStock}
-                disabled={stockSyncing}
-                className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-              >
-                {stockSyncing ? 'Pulling stock...' : 'Sync Stock from Odoo'}
-              </button>
-              <button
-                onClick={handlePullOdoo}
-                disabled={pullSyncing}
-                className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-              >
-                {pullSyncing ? 'Pulling...' : 'Pull Products from Odoo'}
-              </button>
-            </>
-          )}
           {role !== 'finance_admin' && (
             <Link href="/admin/products/new" className="gather-btn-primary text-sm py-2.5 px-5 shadow-md inline-flex items-center gap-1.5">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -230,128 +89,6 @@ export default function AdminProductsPage() {
           )}
         </div>
       </div>
-
-      {syncResult && (
-        <div className={`rounded-2xl border p-4 text-sm ${
-          syncResult.failed > 0 || syncResult.missingCategoryMapping > 0
-            ? 'bg-red-50 border-red-200 text-red-800'
-            : syncResult.warnings.length > 0
-              ? 'bg-amber-50 border-amber-200 text-amber-800'
-              : 'bg-green-50 border-green-200 text-green-800'
-        }`}>
-          <div className="flex items-center gap-4 flex-wrap">
-            <span className="text-xs text-gray-500">
-              {syncResult.total} total, {syncResult.withSku} with SKU
-            </span>
-            {syncResult.created > 0 && <span>Created: <strong>{syncResult.created}</strong></span>}
-            {syncResult.updated > 0 && <span>Updated: <strong>{syncResult.updated}</strong></span>}
-            {syncResult.skippedMissingSku > 0 && <span>Skipped (no SKU): <strong>{syncResult.skippedMissingSku}</strong></span>}
-            {syncResult.missingCategoryMapping > 0 && <span>Missing category: <strong className="text-red-600">{syncResult.missingCategoryMapping}</strong></span>}
-            {syncResult.failed > 0 && <span>Failed: <strong className="text-red-600">{syncResult.failed}</strong></span>}
-            {syncResult.total > 0 && syncResult.withSku === 0 && (
-              <span>No products with SKU — add SKUs before syncing.</span>
-            )}
-            {syncResult.total === 0 && (
-              <span>No products to sync.</span>
-            )}
-          </div>
-          {syncResult.warnings.length > 0 && (
-            <ul className="mt-2 space-y-1">
-              {syncResult.warnings.map((w, i) => <li key={i} className="text-xs opacity-80">{w}</li>)}
-            </ul>
-          )}
-          {Object.keys(syncResult.errors).length > 0 && (
-            <details className="mt-2">
-              <summary className="text-xs font-semibold cursor-pointer">Error details</summary>
-              <ul className="mt-1 space-y-1">
-                {Object.entries(syncResult.errors).map(([id, msg]) => (
-                  <li key={id} className="text-xs opacity-80">{id}: {msg}</li>
-                ))}
-              </ul>
-            </details>
-          )}
-        </div>
-      )}
-
-      {stockSyncResult && (
-        <div className={`rounded-2xl border p-4 text-sm ${
-          stockSyncResult.failed > 0
-            ? 'bg-red-50 border-red-200 text-red-800'
-            : stockSyncResult.warnings.length > 0
-              ? 'bg-amber-50 border-amber-200 text-amber-800'
-              : 'bg-green-50 border-green-200 text-green-800'
-        }`}>
-          <div className="flex items-center gap-4 flex-wrap">
-            <span className="text-xs text-gray-500">
-              {stockSyncResult.total} total, {stockSyncResult.withSku} with SKU
-            </span>
-            {stockSyncResult.updated > 0 && <span>Updated: <strong>{stockSyncResult.updated}</strong></span>}
-            {stockSyncResult.skippedMissingSku > 0 && <span>Skipped (no SKU): <strong>{stockSyncResult.skippedMissingSku}</strong></span>}
-            {stockSyncResult.failed > 0 && <span>Failed: <strong className="text-red-600">{stockSyncResult.failed}</strong></span>}
-            {stockSyncResult.total > 0 && stockSyncResult.withSku === 0 && (
-              <span>No products with SKU — stock sync requires SKUs.</span>
-            )}
-            {stockSyncResult.total === 0 && (
-              <span>No products to sync stock for.</span>
-            )}
-          </div>
-          {stockSyncResult.warnings.length > 0 && (
-            <ul className="mt-2 space-y-1">
-              {stockSyncResult.warnings.map((w, i) => <li key={i} className="text-xs opacity-80">{w}</li>)}
-            </ul>
-          )}
-          {Object.keys(stockSyncResult.errors).length > 0 && (
-            <details className="mt-2">
-              <summary className="text-xs font-semibold cursor-pointer">Error details</summary>
-              <ul className="mt-1 space-y-1">
-                {Object.entries(stockSyncResult.errors).map(([id, msg]) => (
-                  <li key={id} className="text-xs opacity-80">{id}: {msg}</li>
-                ))}
-              </ul>
-            </details>
-          )}
-        </div>
-      )}
-
-      {pullResult && (
-        <div className={`rounded-2xl border p-4 text-sm ${
-          pullResult.failed > 0
-            ? 'bg-red-50 border-red-200 text-red-800'
-            : pullResult.warnings.length > 0
-              ? 'bg-amber-50 border-amber-200 text-amber-800'
-              : 'bg-green-50 border-green-200 text-green-800'
-        }`}>
-          <div className="flex items-center gap-4 flex-wrap">
-            <span className="text-xs text-gray-500">
-              {pullResult.total} total, {pullResult.withSku} with SKU
-            </span>
-            {pullResult.updated > 0 && <span>Updated: <strong>{pullResult.updated}</strong></span>}
-            {pullResult.skippedMissingSku > 0 && <span>Skipped (no SKU): <strong>{pullResult.skippedMissingSku}</strong></span>}
-            {pullResult.failed > 0 && <span>Failed: <strong className="text-red-600">{pullResult.failed}</strong></span>}
-            {pullResult.total > 0 && pullResult.withSku === 0 && (
-              <span>No products with SKU — pull requires SKUs.</span>
-            )}
-            {pullResult.total === 0 && (
-              <span>No products to pull.</span>
-            )}
-          </div>
-          {pullResult.warnings.length > 0 && (
-            <ul className="mt-2 space-y-1">
-              {pullResult.warnings.map((w, i) => <li key={i} className="text-xs opacity-80">{w}</li>)}
-            </ul>
-          )}
-          {Object.keys(pullResult.errors).length > 0 && (
-            <details className="mt-2">
-              <summary className="text-xs font-semibold cursor-pointer">Error details</summary>
-              <ul className="mt-1 space-y-1">
-                {Object.entries(pullResult.errors).map(([id, msg]) => (
-                  <li key={id} className="text-xs opacity-80">{id}: {msg}</li>
-                ))}
-              </ul>
-            </details>
-          )}
-        </div>
-      )}
 
       <div className="relative">
         {deleteError && (

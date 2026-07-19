@@ -2,7 +2,7 @@
   "pageTitle": "About Gather",
   "section1": {
     "title": "Our Story",
-    "body": "GATHER is an e-commerce platform created to be part of your happiest moments. Our idea is simple: make celebrating easier by bringing together everything you need for gatherings, parties, and special occasions in one convenient place.\n\nWhether you are planning a birthday, engagement, family gathering, friends' get-together, or even a work event, GATHER helps you find the essentials quickly and easily. From decorations and balloons to snacks, desserts, chocolates, drinks, and other celebration must-haves, we aim to make the preparation process smooth, enjoyable, and stress-free.",
+    "body": "GATHER is an e-commerce platform created to be part of your happiest moments. Our idea is simple: make celebrating easier by bringing together everything you need for gatherings, parties, and special occasions in one convenient place.\n\nWhether you are planning a birthday, engagement, family gathering, friends' get-together, or even a work event, GATHER helps you find the essentials quickly and easily. From decorations and balloons to snacks, desserts, chocolates, drinks, and other celebration must-haves, we aim to make the preparation process smooth, enjoyable, and stress free.",
     "image": "/assets/gather/occasions/family-gathering.webp"
   },
   "section2": {
@@ -11,18 +11,17 @@
     "image": "/assets/gather/cute-rabbit.webp"
   },
   "section2ListItems": [
-    "Party decorations and celebration supplies",
-    "Balloons and occasion accessories",
-    "Snacks, desserts, and chocolates",
-    "Drinks and hosting essentials",
-    "Curated items for different types of social occasions"
+    "Party decorations and celebration supplies.",
+    "Balloons and occasion accessories.",
+    "Snacks, desserts, and chocolates.",
+    "Drinks and hosting essentials.",
+    "Curated items for different types of social occasions."
   ],
-  "updatedAt": "2026-06-29T00:00:00Z",
   "ar": {
-    "pageTitle": "عن چزر",
+    "pageTitle": "عن جژر",
     "section1": {
       "title": "قصتنا",
-      "body": "چزر هي منصة تجارة إلكترونية أُنشئت لتكون جزءًا من أسعد لحظاتك. فكرتنا بسيطة: تسهيل الاحتفال عبر جمع كل ما تحتاجه لمناسباتك وحفلاتك في مكان واحد مريح.\n\nسواء كنت تخطط لعيد ميلاد، خطوبة، لمة عائلية، لمة أصحاب، أو حتى مناسبة عمل، چزر يساعدك في العثور على الأساسيات بسرعة وسهولة. من الديكورات والبالونات إلى الوجبات الخفيفة والحلويات والشوكولاتة والمشروبات ومستلزمات الاحتفال الأخرى، نهدف لجعل عملية التحضير سلسة وممتعة وخالية من التوتر.",
+      "body": "جژر هي منصة تجارة إلكترونية أُنشئت لتكون جزءًا من أسعد لحظاتك. فكرتنا بسيطة: تسهيل الاحتفال عبر جمع كل ما تحتاجه لمناسباتك وحفلاتك في مكان واحد مريح.\n\nسواء كنت تخطط لعيد ميلاد، خطوبة، لمة عائلية، لمة أصحاب، أو حتى مناسبة عمل، جژر يساعدك في العثور على الأساسيات بسرعة وسهولة. من الديكورات والبالونات إلى الوجبات الخفيفة والحلويات والشوكولاتة والمشروبات ومستلزمات الاحتفال الأخرى، نهدف لجعل عملية التحضير سلسة وممتعة وخالية من التوتر.",
       "image": "/assets/gather/occasions/family-gathering.webp"
     },
     "section2": {
@@ -37,5 +36,6 @@
       "المشروبات ومستلزمات الضيافة",
       "منتجات مختارة لمختلف أنواع المناسبات الاجتماعية"
     ]
-  }
+  },
+  "updatedAt": "2026-07-19T08:21:33.770Z"
 }

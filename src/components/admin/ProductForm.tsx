@@ -292,7 +292,7 @@ export default function ProductForm({ initialData, productId }: Props) {
         setError(
           isEdit
             ? `Saved locally. Odoo sync failed: ${reason}`
-            : `Product saved locally but Odoo sync failed: ${reason} — find it in the products list to retry.`,
+            : `Product saved locally but Odoo sync failed: ${reason}`,
         )
         return
       }

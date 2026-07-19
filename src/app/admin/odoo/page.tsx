@@ -133,7 +133,7 @@ export default function OdooDiagnosticsPage() {
           <CountRow label="Skipped (occasions)" count={data.categories.skippedOccasions} />
           <div className="mt-2 pt-2 border-t border-gray-100">
             <p className="text-xs text-gray-400">Last sync: {tsDisplay(data.timestamps.categoryLastSyncedAt)}</p>
-            <a href="/admin/categories" className="text-xs text-[#ff7a1a] font-semibold hover:underline">Sync Categories →</a>
+            <a href="/admin/categories" className="text-xs text-[#ff7a1a] font-semibold hover:underline">Categories →</a>
           </div>
         </Card>
 
@@ -146,7 +146,7 @@ export default function OdooDiagnosticsPage() {
           <CountRow label="Out of stock" count={data.products.outOfStock} highlight={data.products.outOfStock > 0} />
           <div className="mt-2 pt-2 border-t border-gray-100">
             <p className="text-xs text-gray-400">Last sync: {tsDisplay(data.timestamps.productLastSyncedAt)}</p>
-            <a href="/admin/products" className="text-xs text-[#ff7a1a] font-semibold hover:underline">Sync Products →</a>
+            <a href="/admin/products" className="text-xs text-[#ff7a1a] font-semibold hover:underline">Products →</a>
           </div>
         </Card>
 
@@ -154,7 +154,7 @@ export default function OdooDiagnosticsPage() {
           <CountRow label="Out of stock" count={data.stock.outOfStockProducts.length} highlight={data.stock.outOfStockProducts.length > 0} />
           <div className="mt-2 pt-2 border-t border-gray-100">
             <p className="text-xs text-gray-400">Last pulled: {tsDisplay(data.stock.lastStockPulledAt)}</p>
-            <a href="/admin/products" className="text-xs text-[#ff7a1a] font-semibold hover:underline">Pull Stock →</a>
+            <a href="/admin/products" className="text-xs text-[#ff7a1a] font-semibold hover:underline">Stock →</a>
           </div>
           {data.stock.outOfStockProducts.length > 0 && (
             <details className="mt-2">
@@ -175,7 +175,7 @@ export default function OdooDiagnosticsPage() {
           <CountRow label="Not synced" count={data.orders.notSynced} />
           <div className="mt-2 pt-2 border-t border-gray-100">
             <p className="text-xs text-gray-400">Last sync: {tsDisplay(data.timestamps.orderLastSyncedAt)}</p>
-            <a href="/admin/orders" className="text-xs text-[#ff7a1a] font-semibold hover:underline">Sync Orders →</a>
+            <a href="/admin/orders" className="text-xs text-[#ff7a1a] font-semibold hover:underline">Orders →</a>
           </div>
         </Card>
 

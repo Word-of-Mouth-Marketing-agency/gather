@@ -39,15 +39,6 @@ function customerName(order: Order) {
   return `${order.customer.firstName} ${order.customer.lastName}`.trim() || order.customer.email
 }
 
-interface SyncResult {
-  created: number
-  alreadySynced: number
-  failed: number
-  warnings: string[]
-  errors: Record<string, string>
-  timestamp: string
-}
-
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -56,8 +47,6 @@ export default function AdminOrdersPage() {
   const [selected, setSelected] = useState<Order | null>(null)
   const [savingId, setSavingId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
-  const [syncing, setSyncing] = useState(false)
-  const [syncResult, setSyncResult] = useState<SyncResult | null>(null)
 
   async function loadOrders() {
     try {
@@ -117,35 +106,6 @@ export default function AdminOrdersPage() {
     setDeleting(null)
   }
 
-  async function handleSyncOdoo() {
-    setSyncing(true)
-    setSyncResult(null)
-    try {
-      const res = await fetch('/api/admin/orders/sync-odoo', { method: 'POST' })
-      if (res.ok) {
-        const data = await res.json()
-        setSyncResult(data)
-        await loadOrders()
-      } else {
-        const err = await res.json()
-        setSyncResult({
-          created: 0, alreadySynced: 0, failed: 0,
-          warnings: [err.error ?? 'Sync request failed'],
-          errors: {},
-          timestamp: new Date().toISOString(),
-        })
-      }
-    } catch {
-      setSyncResult({
-        created: 0, alreadySynced: 0, failed: 0,
-        warnings: ['Network error — could not reach the sync endpoint'],
-        errors: {},
-        timestamp: new Date().toISOString(),
-      })
-    }
-    setSyncing(false)
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
@@ -153,13 +113,6 @@ export default function AdminOrdersPage() {
           <h1 className="text-2xl font-black text-gray-900">Orders</h1>
           <p className="text-sm text-gray-400 mt-0.5">{orders.length} total order(s)</p>
         </div>
-        <button
-          onClick={handleSyncOdoo}
-          disabled={syncing}
-          className="text-sm py-2.5 px-5 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-        >
-          {syncing ? 'Syncing...' : 'Sync Orders to Odoo'}
-        </button>
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_220px]">
@@ -186,40 +139,6 @@ export default function AdminOrdersPage() {
           ))}
         </select>
       </div>
-
-      {syncResult && (
-        <div className={`rounded-2xl border p-4 text-sm ${
-          syncResult.failed > 0
-            ? 'bg-red-50 border-red-200 text-red-800'
-            : syncResult.warnings.length > 0
-              ? 'bg-amber-50 border-amber-200 text-amber-800'
-              : 'bg-green-50 border-green-200 text-green-800'
-        }`}>
-          <div className="flex items-center gap-4 flex-wrap">
-            {syncResult.created > 0 && <span>Created: <strong>{syncResult.created}</strong></span>}
-            {syncResult.alreadySynced > 0 && <span>Already synced: <strong>{syncResult.alreadySynced}</strong></span>}
-            {syncResult.failed > 0 && <span>Failed: <strong className="text-red-600">{syncResult.failed}</strong></span>}
-            {syncResult.created === 0 && syncResult.alreadySynced === 0 && syncResult.failed === 0 && (
-              <span>No orders to sync.</span>
-            )}
-          </div>
-          {syncResult.warnings.length > 0 && (
-            <ul className="mt-2 space-y-1">
-              {syncResult.warnings.map((w, i) => <li key={i} className="text-xs opacity-80">{w}</li>)}
-            </ul>
-          )}
-          {Object.keys(syncResult.errors).length > 0 && (
-            <details className="mt-2">
-              <summary className="text-xs font-semibold cursor-pointer">Error details</summary>
-              <ul className="mt-1 space-y-1">
-                {Object.entries(syncResult.errors).map(([id, msg]) => (
-                  <li key={id} className="text-xs opacity-80">{id}: {msg}</li>
-                ))}
-              </ul>
-            </details>
-          )}
-        </div>
-      )}
 
       {loading ? (
         <p className="text-sm text-gray-400">Loading...</p>
